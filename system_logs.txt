@@ -1,0 +1,41 @@
+[2026-04-07 13:15:05] [Error] Failed executing DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+SELECT Url FROM Surveys LIMIT 1
+[2026-04-07 13:15:05] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE HelpRequests ADD COLUMN Resolution TEXT;
+[2026-04-07 13:15:05] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE HelpRequests ADD COLUMN ScreenshotPath TEXT;
+[2026-04-07 13:15:05] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE Terminals ADD COLUMN EnableFileMonitoring INTEGER NOT NULL DEFAULT 0;
+[2026-04-07 13:15:05] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE Terminals ADD COLUMN MonitoredPaths TEXT;
+[2026-04-07 13:15:05] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE Terminals ADD COLUMN FileThresholdMb INTEGER NOT NULL DEFAULT 25;
+[2026-04-07 13:15:05] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE Terminals ADD COLUMN MonitoredExtensions TEXT;
+[2026-04-07 13:15:05] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE Terminals ADD COLUMN EnableUserActivity INTEGER NOT NULL DEFAULT 0;
+[2026-04-07 13:15:05] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE Terminals ADD COLUMN UserActivityGroup TEXT DEFAULT 'Genel';
+[2026-04-07 13:15:05] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE Terminals ADD COLUMN LastUserName TEXT;
+[2026-04-07 13:15:06] [Warning] The WebRootPath was not found: C:\Users\mgude\.gemini\antigravity\scratch\wwwroot. Static files may be unavailable.
+[2026-04-07 13:22:55] [Error] Failed executing DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+SELECT Url FROM Surveys LIMIT 1
+[2026-04-07 13:22:55] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE HelpRequests ADD COLUMN Resolution TEXT;
+[2026-04-07 13:22:55] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE HelpRequests ADD COLUMN ScreenshotPath TEXT;
+[2026-04-07 13:22:55] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE Terminals ADD COLUMN EnableFileMonitoring INTEGER NOT NULL DEFAULT 0;
+[2026-04-07 13:22:55] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE Terminals ADD COLUMN MonitoredPaths TEXT;
+[2026-04-07 13:22:55] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE Terminals ADD COLUMN FileThresholdMb INTEGER NOT NULL DEFAULT 25;
+[2026-04-07 13:22:55] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE Terminals ADD COLUMN MonitoredExtensions TEXT;
+[2026-04-07 13:22:55] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE Terminals ADD COLUMN EnableUserActivity INTEGER NOT NULL DEFAULT 0;
+[2026-04-07 13:22:55] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE Terminals ADD COLUMN UserActivityGroup TEXT DEFAULT 'Genel';
+[2026-04-07 13:22:55] [Error] Failed executing DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
+ALTER TABLE Terminals ADD COLUMN LastUserName TEXT;

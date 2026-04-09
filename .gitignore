@@ -1,0 +1,54 @@
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+.env
+.env.*
+!.env.example
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# .NET / Backend
+bin/
+obj/
+[Ee]bug/
+[Rr]elease/
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+appsettings.Development.json
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs & Temp
+*.log
+logs/
+temp/
+tmp/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Agent Context (Optional - Ignored for clean repo)
+.gemini/
+scratch/scripts/
+brain/
+artifacts/
+*.metadata.json
+*.resolved*
+task.md
+implementation_plan.md
+walkthrough.md
+*.png
+*.webp
+*.jpg
+!netliveness-frontend/public/*.jpg
+!netliveness-frontend/public/*.png

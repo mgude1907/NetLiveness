@@ -1,0 +1,17 @@
+{
+  "name": "Lightning Candy",
+  "short_name": "Volt Crush",
+  "description": "Şimşekli Match-3 Bulmaca Oyunu",
+  "start_url": "/index.html",
+  "display": "fullscreen",
+  "background_color": "#0b0f19",
+  "theme_color": "#00f2fe",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -1,0 +1,211 @@
+/* Reset and Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body {
+    background-color: #0b0f19;
+    background-image: radial-gradient(circle at 50% -20%, #1c2b4b 0%, #0b0f19 70%);
+    color: #fff;
+    font-family: 'Outfit', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Container limits width for mobile view on desktop */
+#game-container {
+    width: 100%;
+    max-width: 480px;
+    height: 100%;
+    max-height: 900px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    background: rgba(10, 15, 30, 0.6);
+    box-shadow: 0 0 50px rgba(0, 255, 255, 0.1);
+    position: relative;
+}
+
+/* Header */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.stat-box {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 10px 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.title-box {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+}
+
+.label {
+    font-size: 0.7rem;
+    color: #88a0c0;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+
+.value {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.game-title {
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(79, 172, 254, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Board */
+.board-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#grid {
+    width: 100%;
+    aspect-ratio: 1 / 1; /* Square grid */
+    background: rgba(0, 5, 15, 0.7);
+    border: 2px solid rgba(0, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.1), inset 0 0 20px rgba(0, 0, 0, 0.8);
+    display: grid;
+    /* Grid template will be set by JS based on board size */
+    gap: 4px;
+    padding: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Candies */
+.candy {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: inset -3px -3px 10px rgba(0,0,0,0.5), inset 3px 3px 10px rgba(255,255,255,0.4), 0 4px 6px rgba(0,0,0,0.4);
+    position: relative;
+}
+
+.candy:active {
+    transform: scale(0.85);
+}
+
+/* Colors with Neon Glows */
+.candy.red { background: linear-gradient(135deg, #ff416c, #ff4b2b); box-shadow: 0 0 15px rgba(255, 65, 108, 0.6), inset -3px -3px 10px rgba(0,0,0,0.5), inset 3px 3px 10px rgba(255,255,255,0.4); }
+.candy.blue { background: linear-gradient(135deg, #00c6ff, #0072ff); box-shadow: 0 0 15px rgba(0, 198, 255, 0.6), inset -3px -3px 10px rgba(0,0,0,0.5), inset 3px 3px 10px rgba(255,255,255,0.4); }
+.candy.green { background: linear-gradient(135deg, #11998e, #38ef7d); box-shadow: 0 0 15px rgba(56, 239, 125, 0.6), inset -3px -3px 10px rgba(0,0,0,0.5), inset 3px 3px 10px rgba(255,255,255,0.4); }
+.candy.yellow { background: linear-gradient(135deg, #fcebeb, #f1c40f); box-shadow: 0 0 15px rgba(241, 196, 15, 0.6), inset -3px -3px 10px rgba(0,0,0,0.5), inset 3px 3px 10px rgba(255,255,255,0.4); }
+.candy.purple { background: linear-gradient(135deg, #b224ef, #7579ff); box-shadow: 0 0 15px rgba(178, 36, 239, 0.6), inset -3px -3px 10px rgba(0,0,0,0.5), inset 3px 3px 10px rgba(255,255,255,0.4); }
+
+/* Animation Classes */
+.selected {
+    transform: scale(1.1);
+    filter: brightness(1.3);
+    z-index: 10;
+    animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+    0% { filter: brightness(1.2); box-shadow: 0 0 20px currentColor; }
+    100% { filter: brightness(1.5); box-shadow: 0 0 30px currentColor; }
+}
+
+/* Footer Controls */
+.bottom-bar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.power-up {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    transition: all 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.power-up:active {
+    transform: scale(0.9);
+}
+
+.active-shock {
+    border-color: #00f2fe;
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.4), inset 0 0 10px rgba(0, 242, 254, 0.2);
+    animation: shockGlow 2s infinite alternate;
+}
+
+@keyframes shockGlow {
+    0% { box-shadow: 0 0 10px rgba(0, 242, 254, 0.2); }
+    100% { box-shadow: 0 0 25px rgba(0, 242, 254, 0.6); }
+}
+
+/* Electricity Effect - basic CSS implementation, will enhance in JS */
+.electric-flash {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 100;
+    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(0,242,254,0.4) 30%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.1s;
+}
+
+.shake {
+    animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}

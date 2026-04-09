@@ -1,0 +1,12 @@
+UPDATE Personnels SET Ad = 'DEVRİM', Soyad = 'BURSAL', AdSoyad = 'DEVRİM BURSAL' WHERE Id = 219;
+UPDATE Personnels SET Ad = 'TUĞÇE', Soyad = 'AKIN', AdSoyad = 'TUĞÇE AKIN' WHERE Id = 220;
+UPDATE Personnels SET Ad = 'GÖKHAN', Soyad = 'ONAR', AdSoyad = 'GÖKHAN ONAR' WHERE Id = 221;
+UPDATE Personnels SET Ad = 'ALİ BORA', Soyad = 'TAŞTEKİN', AdSoyad = 'ALİ BORA TAŞTEKİN' WHERE Id = 222;
+UPDATE Personnels SET Ad = 'NAZİF', Soyad = 'ULUPINAR', AdSoyad = 'NAZİF ULUPINAR' WHERE Id = 223;
+UPDATE Personnels SET Ad = 'OSMAN', Soyad = 'ÇİÇEK', AdSoyad = 'OSMAN ÇİÇEK' WHERE Id = 225;
+UPDATE Personnels SET Ad = 'SALİH', Soyad = 'KAPAR', AdSoyad = 'SALİH KAPAR' WHERE Id = 226;
+UPDATE Personnels SET Ad = 'ALİ CEM', Soyad = 'ÖZER', AdSoyad = 'ALİ CEM ÖZER' WHERE Id = 227;
+UPDATE Personnels SET Ad = 'ÖMER', Soyad = 'HAYLAZ', AdSoyad = 'ÖMER HAYLAZ' WHERE Id = 228;
+UPDATE Personnels SET Ad = 'AYBİKE', Soyad = 'GARİPAĞAOĞLU', AdSoyad = 'AYBİKE GARİPAĞAOĞLU' WHERE Id = 229;
+UPDATE Personnels SET Ad = 'ÜMİT', Soyad = 'ÇAYIROĞLU', AdSoyad = 'ÜMİT ÇAYIROĞLU' WHERE Id = 230;
+UPDATE Personnels SET Ad = 'OKAN HAKAN', Soyad = 'KELEŞ', AdSoyad = 'OKAN HAKAN KELEŞ' WHERE Id = 232;

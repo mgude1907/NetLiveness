@@ -1,0 +1,51 @@
+using System;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using NetLiveness.Api.Data;
+using NetLiveness.Api.Models;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+var builder = Host.CreateApplicationBuilder(args);
+var connectionString = "Data Source=c:\\Users\\mgude\\.gemini\\antigravity\\scratch\\NetLiveness.Api\\netliveness_v2.db;Cache=Shared;Mode=ReadWriteCreate;Default Timeout=10;";
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
+
+using var host = builder.Build();
+using var scope = host.Services.CreateScope();
+var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+Console.WriteLine("--- MİGRASYON BAŞLADI ---");
+var legacy = db.UserActivityTargets.ToList();
+Console.WriteLine($"Legacy Hedef Sayısı: {legacy.Count}");
+
+foreach (var lt in legacy)
+{
+    var pcName = lt.PcName?.Trim();
+    if (string.IsNullOrEmpty(pcName)) continue;
+
+    var term = db.Terminals.FirstOrDefault(t => t.Name.ToLower() == pcName.ToLower() || t.Host.ToLower() == pcName.ToLower());
+    
+    if (term == null)
+    {
+        Console.WriteLine($"EKLENİYOR: {pcName}");
+        db.Terminals.Add(new Terminal {
+            Name = pcName,
+            Host = pcName,
+            DeviceType = "PC",
+            Company = "Merkez",
+            EnableUserActivity = true,
+            UserActivityGroup = lt.Group ?? "Genel",
+            Status = "UNK"
+        });
+    }
+    else
+    {
+        Console.WriteLine($"GÜNCELLENİYOR: {pcName}");
+        term.EnableUserActivity = true;
+        term.UserActivityGroup = lt.Group ?? "Genel";
+        term.DeviceType = "PC"; // Eskiden PC ise PC kalsın
+    }
+}
+
+db.SaveChanges();
+Console.WriteLine("--- MİGRASYON TAMAMLANDI ---");

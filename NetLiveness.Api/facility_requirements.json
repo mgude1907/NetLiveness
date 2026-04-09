@@ -1,0 +1,11 @@
+[
+  { "requirementId": "TG-1.1", "family": "Fiziksel Güvenlik", "description": "Tesis etrafında tel örgü, duvar ve aydınlatma gibi çevre güvenlik önlemleri bulunmalıdır." },
+  { "requirementId": "TG-1.2", "family": "Fiziksel Güvenlik", "description": "Nizamiye ve giriş kapılarında kontrollü geçiş sistemi ve güvenlik personeli bulunmalıdır." },
+  { "requirementId": "TG-1.3", "family": "Fiziksel Güvenlik", "description": "Kritik bölgeler (Sistem odası, arşiv vb.) 7/24 kamera sistemiyle izlenmeli ve kayıtlar saklanmalıdır." },
+  { "requirementId": "TG-2.1", "family": "Personel Güvenliği", "description": "Kritik görevlerdeki personel için Güvenlik Soruşturması ve Arşiv Araştırması belgesi bulunmalıdır." },
+  { "requirementId": "TG-2.2", "family": "Personel Güvenliği", "description": "Personel giriş-çıkışları biyometrik veya kartlı sistemlerle takip edilmelidir." },
+  { "requirementId": "TG-3.1", "family": "Evrak ve Veri Güvenliği", "description": "Gizlilik dereceli evraklar kilitli dolaplarda ve kontrollü alanlarda saklanmalıdır." },
+  { "requirementId": "TG-3.2", "family": "Evrak ve Veri Güvenliği", "description": "Evrak imha işlemleri standartlara uygun evrak imha makineleri ile yapılmalıdır." },
+  { "requirementId": "TG-4.1", "family": "Ziyaretçi Yönetimi", "description": "Tesis ziyaretçileri kayıt altına alınmalı ve refakatçi eşliğinde dolaşmalıdır." },
+  { "requirementId": "TG-4.2", "family": "Ziyaretçi Yönetimi", "description": "Ziyaretçilere verilmiş olan geçici kartlar çıkışta iade alınmalıdır." }
+]

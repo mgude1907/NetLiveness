@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lightning Candy</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00f2fe">
+    <!-- Google Fonts for Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Top Bar: Scope, Level, Energy -->
+        <header class="top-bar">
+            <div class="stat-box">
+                <span class="label">SKOR</span>
+                <span class="value" id="score">0</span>
+            </div>
+            <div class="stat-box title-box">
+                <h1 class="game-title">Volt Crush</h1>
+            </div>
+            <div class="stat-box">
+                <span class="label">HAMLE</span>
+                <span class="value" id="moves">20</span>
+            </div>
+        </header>
+
+        <!-- Main Game Board -->
+        <main class="board-container">
+            <div id="grid"></div>
+        </main>
+
+        <!-- Bottom Controls -->
+        <footer class="bottom-bar">
+            <button class="power-up" id="btn-hammer" title="Lolipop Çekiç">🔨</button>
+            <button class="power-up" id="btn-shuffle" title="Karıştır">🔄</button>
+            <button class="power-up active-shock" id="btn-shock" title="Şok Dalgası">⚡</button>
+        </footer>
+    </div>
+
+    <script src="app.js" type="module"></script>
+</body>
+</html>

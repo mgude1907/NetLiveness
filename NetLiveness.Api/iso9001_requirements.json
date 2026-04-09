@@ -1,0 +1,11 @@
+[
+  { "requirementId": "BT-KLT-1.1", "family": "BT Hizmet Yönetimi", "description": "BT hizmet süreçleri (Yardım masası, olay yönetimi vb.) tanımlanmalı ve dokümante edilmelidir." },
+  { "requirementId": "BT-KLT-1.2", "family": "BT Hizmet Yönetimi", "description": "Hizmet seviyesi hedefleri (SLA) belirlenmeli ve düzenli olarak ölçülmelidir." },
+  { "requirementId": "BT-KLT-2.1", "family": "Yazılım Geliştirme", "description": "Yazılım geliştirme süreci için standart bir metodoloji (örn. Agile, Waterfall) uygulanmalıdır." },
+  { "requirementId": "BT-KLT-2.2", "family": "Yazılım Geliştirme", "description": "Kod gözden geçirme (Code Review) ve test süreçleri kalite planının bir parçası olmalıdır." },
+  { "requirementId": "BT-KLT-3.1", "family": "Altyapı ve Donanım", "description": "BT altyapı bileşenlerinin düzenli bakım ve güncelleme planları oluşturulmalıdır." },
+  { "requirementId": "BT-KLT-3.2", "family": "Altyapı ve Donanım", "description": "Kritik donanımların yedeklilik (Redundancy) testleri periyodik olarak yapılmalıdır." },
+  { "requirementId": "BT-KLT-4.1", "family": "Değişiklik Yönetimi", "description": "Sistemlerde yapılacak tüm değişiklikler bir onay mekanizmasından geçmeli ve kayıt altına alınmalıdır." },
+  { "requirementId": "BT-KLT-5.1", "family": "Süreklilik ve Yedekleme", "description": "Veri yedekleme politikası oluşturulmalı ve geri dönüş testleri başarıyla tamamlanmalıdır." },
+  { "requirementId": "BT-KLT-6.1", "family": "Müşteri Odaklılık", "description": "BT hizmetleri için kullanıcı memnuniyet anketleri düzenlenmeli ve iyileştirme alanları belirlenmelidir." }
+]

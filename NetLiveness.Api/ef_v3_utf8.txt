@@ -1,0 +1,2 @@
+﻿Specify --help for a list of available options and commands.
+Unexpected value 'C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\bin\Debug\net8.0\NetLiveness.Api.dll' for option 'assembly'
