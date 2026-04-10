@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getDirectoryEntries, getActiveSurveys, STATIC_URL } from '../api';
 import { 
-  Search, Phone, Mail, Building2, User, PhoneCall, 
-  ClipboardList, ExternalLink, X, ArrowLeft, ChevronRight,
-  Filter, MapPin, Globe, Sparkles, HelpCircle, Users, Briefcase, Hash,
-  ShieldCheck, Zap, Layers, Globe2, Bell, MessageSquare
+  Search, Mail, Building2, User, PhoneCall, 
+  ArrowLeft, Users, Hash,
+  ShieldCheck, Layers, Bell, MessageSquare
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -18,7 +17,6 @@ export default function DirectoryPublic() {
   
   const navigate = useNavigate();
 
-  // ─── UNIFIED BACKGROUND FIX ───
   useEffect(() => {
     const style = document.createElement('style');
     style.id = 'rehber-unified-fix';
@@ -84,7 +82,6 @@ export default function DirectoryPublic() {
     <div style={{ width: '100%', minHeight: '100vh', fontFamily: "'Inter', sans-serif", color: '#fff', display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 2 }}>
       <div className="page-overlay" />
 
-      {/* ─── Compact Hero ─── */}
       <div style={{ position: 'relative', width: '100%', minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5, padding: '30px 0' }}>
         <div style={{ maxWidth: 800, width: '100%', padding: '0 40px', textAlign: 'center', position: 'relative', zIndex: 10 }}>
           <div onClick={() => navigate('/login')} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: '#f59e0b', fontSize: 11, fontWeight: 800, cursor: 'pointer', marginBottom: 20, background: 'rgba(245,158,11,0.06)', padding: '8px 16px', borderRadius: 100, border: '1px solid rgba(245,158,11,0.15)', textTransform: 'uppercase', letterSpacing: 1.5, backdropFilter: 'blur(10px)' }}>
@@ -104,15 +101,13 @@ export default function DirectoryPublic() {
       </div>
 
       <div style={{ maxWidth: 1400, width: '100%', margin: '0 auto', padding: '0 40px 60px', position: 'relative', zIndex: 10 }}>
-        
-        {/* ─── Compact Stats & Filter ─── */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 30, flexWrap: 'wrap', gap: 15 }}>
           <div style={{ display: 'flex', gap: 20 }}>
             <StatBox icon={Users} label="PERSONEL" value={entries.length} color="#f59e0b" />
             <StatBox icon={Layers} label="BİRİMLER" value={departments.length - 1} color="#3b82f6" />
           </div>
           <div style={{ background: 'rgba(255,255,255,0.02)', padding: '6px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.04)', display: 'flex', gap: 4, overflowX: 'auto', scrollbarWidth: 'none' }}>
-            {departments.slice(0, 8).map(dept => ( // Show first 8 for brevity, or full if needed
+            {departments.slice(0, 8).map(dept => (
               <button key={dept} onClick={() => setSelectedDept(dept)} style={{ padding: '8px 16px', borderRadius: 12, border: 'none', background: selectedDept === dept ? '#f59e0b' : 'transparent', color: selectedDept === dept ? '#000' : 'rgba(255,255,255,0.3)', fontSize: 11, fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}>
                 {dept === 'All' ? 'TÜMÜ' : dept.toUpperCase()}
               </button>
@@ -120,7 +115,6 @@ export default function DirectoryPublic() {
           </div>
         </div>
 
-        {/* ─── Horizontal Cards Grid ─── */}
         {filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 0', background: 'rgba(255,255,255,0.01)', borderRadius: 24, border: '1px dashed rgba(255,255,255,0.04)' }}>
             <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: 14 }}>Sonuç bulunamadı.</p>
@@ -128,7 +122,7 @@ export default function DirectoryPublic() {
         ) : (
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(440px, 1fr))', // Wider min-width for horizontal look
+            gridTemplateColumns: 'repeat(auto-fill, minmax(440px, 1fr))',
             gap: 16
           }}>
             {filtered.map(entry => (
@@ -144,7 +138,6 @@ export default function DirectoryPublic() {
         </div>
       </div>
 
-      {/* Floating Actions */}
       <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 100, display: 'flex', gap: 12 }}>
         {activeSurveys.length > 0 && (
           <button onClick={() => setShowSurveys(true)} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '12px 20px', borderRadius: 100, fontWeight: 800, fontSize: 12, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 10px 30px rgba(0,0,0,0.4)', cursor: 'pointer' }}>
@@ -199,7 +192,6 @@ function HorizontalPersonCard({ entry }) {
         e.currentTarget.style.transform = 'none';
       }}
     >
-      {/* Profile Photo */}
       <div style={{
         width: 60, height: 60, borderRadius: 14,
         background: 'rgba(255,255,255,0.03)',
@@ -213,7 +205,6 @@ function HorizontalPersonCard({ entry }) {
         }
       </div>
 
-      {/* Main Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <h4 style={{ fontSize: 17, fontWeight: 800, color: '#fff', marginBottom: 2, letterSpacing: -0.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {entry.firstName} {entry.lastName}
@@ -226,10 +217,8 @@ function HorizontalPersonCard({ entry }) {
         </div>
       </div>
 
-      {/* Vertical Divider */}
       <div style={{ width: 1, height: 40, background: 'rgba(255,255,255,0.06)' }} />
 
-      {/* Compact Contact Info */}
       <div style={{ width: 160, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
         <MiniContact icon={Hash} text={entry.internalPhone} color="#f59e0b" />
         <MiniContact icon={PhoneCall} text={entry.mobilePhone} color="#10b981" />
@@ -240,7 +229,6 @@ function HorizontalPersonCard({ entry }) {
         )}
       </div>
 
-      {/* Verified Badge Overlay (Small) */}
       <div style={{ position: 'absolute', top: 8, right: 8, opacity: 0.2 }}>
         <ShieldCheck size={12} color="#f59e0b" />
       </div>
