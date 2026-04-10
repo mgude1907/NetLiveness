@@ -9,11 +9,10 @@ import {
   Settings2, ChevronDown, Check, Clock, ArrowUpRight,
   ArrowDownRight, Package, Wifi, WifiOff, ExternalLink,
   Activity, TrendingUp, AlertTriangle, Users, CircleCheck,
-  CircleX, Zap
+  CircleX, Zap, Eye, ChevronRight
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-/* ─ helpers ─────────────────────────────────── */
 const parseUsomDate = (s) => {
   if (!s) return '—';
   try {
@@ -27,16 +26,15 @@ const isOnline = (status) =>
 
 const CHART_COLORS = ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ef4444', '#06b6d4'];
 
-/* ─ Custom Tooltip ─────────────────────────── */
-const CustomTooltip = ({ active, payload, label }) => {
+const TinyTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
     <div style={{
       background: '#fff', border: '1px solid #e2e8f0',
-      borderRadius: 12, padding: '10px 14px',
-      fontSize: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+      borderRadius: 10, padding: '8px 12px',
+      fontSize: 11, boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
     }}>
-      {label && <div style={{ color: '#94a3b8', marginBottom: 4, fontWeight: 600 }}>{label}</div>}
+      {label && <div style={{ color: '#94a3b8', marginBottom: 3, fontWeight: 600 }}>{label}</div>}
       {payload.map((p, i) => (
         <div key={i} style={{ color: p.color, fontWeight: 700 }}>
           {p.name}: {p.value}
@@ -46,22 +44,20 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-const WIDGETS = { metrics: true, servers: true, usom: true, ssl: true, helpdesk: true, inventory: true };
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Günaydın';
+  if (h < 18) return 'İyi çalışmalar';
+  return 'İyi akşamlar';
+}
 
 export default function Dashboard() {
-  const [terminals, setTerminals]       = useState([]);
-  const [sslItems, setSslItems]         = useState([]);
-  const [usomFeeds, setUsomFeeds]       = useState([]);
+  const [terminals, setTerminals] = useState([]);
+  const [sslItems, setSslItems] = useState([]);
+  const [usomFeeds, setUsomFeeds] = useState([]);
   const [helpRequests, setHelpRequests] = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [widgets, setWidgets] = useState(() => {
-    try { const s = localStorage.getItem('dash_widgets_v3'); return s ? { ...WIDGETS, ...JSON.parse(s) } : WIDGETS; }
-    catch { return WIDGETS; }
-  });
-  const [showCfg, setShowCfg] = useState(false);
-  const cfgRef = useRef(null);
-
-  useEffect(() => { localStorage.setItem('dash_widgets_v3', JSON.stringify(widgets)); }, [widgets]);
+  const [loading, setLoading] = useState(true);
+  const [usomExpanded, setUsomExpanded] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -85,376 +81,195 @@ export default function Dashboard() {
     return () => clearInterval(iv);
   }, [load]);
 
-  useEffect(() => {
-    const h = (e) => { if (cfgRef.current && !cfgRef.current.contains(e.target)) setShowCfg(false); };
-    document.addEventListener('mousedown', h);
-    return () => document.removeEventListener('mousedown', h);
-  }, []);
-
   if (loading && !terminals.length) return (
     <div className="loading-screen">
       <div className="spinner" style={{ width: 36, height: 36 }} />
-      <span style={{ fontWeight: 600 }}>Dashboard yükleniyor…</span>
+      <span style={{ fontWeight: 600 }}>Yükleniyor…</span>
     </div>
   );
 
-  /* ─ derived stats ─ */
-  const servers    = terminals.filter(t => t.deviceType === 'Sunucu' || t.deviceType === 'Server');
-  const pcs        = terminals.filter(t => t.deviceType === 'PC');
+  const servers = terminals.filter(t => t.deviceType === 'Sunucu' || t.deviceType === 'Server');
+  const pcs = terminals.filter(t => t.deviceType === 'PC');
   const onlineServ = servers.filter(s => isOnline(s.status)).length;
-  const critSsl    = sslItems.filter(s => s.status === 'Kritik').length;
+  const offlineServ = servers.length - onlineServ;
+  const critSsl = sslItems.filter(s => s.status === 'Kritik').length;
   const openTickets = helpRequests.filter(r => r.status === 'Açık').length;
 
-  /* ─ ssl donut ─ */
-  const sslDonut = [
-    { name: 'Güvenli', value: Math.max(0, sslItems.length - critSsl), color: '#10b981' },
-    { name: 'Kritik',  value: critSsl,                                 color: '#ef4444' },
-  ];
-
-  /* ─ company bar chart ─ */
-  const companyMap = {};
-  terminals.forEach(t => { if (t.company) companyMap[t.company] = (companyMap[t.company] || 0) + 1; });
-  const companyData = Object.entries(companyMap)
-    .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 8);
-
-  /* ─ mock activity sparkline data ─ */
   const now = new Date();
-  const activitySparkline = Array.from({ length: 12 }, (_, i) => {
+  const activityData = Array.from({ length: 12 }, (_, i) => {
     const h = new Date(now); h.setHours(now.getHours() - (11 - i));
     return {
-      time: `${h.getHours()}:00`,
+      time: `${String(h.getHours()).padStart(2, '0')}:00`,
       aktif: Math.floor(Math.random() * (pcs.length || 10) * 0.7 + 2),
     };
   });
 
-  /* ─ KPI definitions ─ */
-  const KPI = [
-    {
-      label: 'Uç Nokta',
-      value: terminals.length,
-      sub: `${pcs.length} bilgisayar, ${servers.length} sunucu`,
-      icon: Monitor,
-      kpiColor: '#f59e0b',
-      iconClass: 'icon-amber',
-      iconColor: '#b45309',
-      pct: 100,
-      trend: null,
-    },
-    {
-      label: 'Aktif Sunucu',
-      value: `${onlineServ}/${servers.length}`,
-      sub: servers.length ? `%${Math.round((onlineServ / servers.length) * 100)} çevrimiçi` : 'Sunucu yok',
-      icon: Server,
-      kpiColor: '#10b981',
-      iconClass: 'icon-green',
-      iconColor: '#065f46',
-      pct: servers.length ? Math.round((onlineServ / servers.length) * 100) : 0,
-      trend: '+2%',
-      trendUp: true,
-    },
-    {
-      label: 'SSL Sertifika',
-      value: sslItems.length,
-      sub: critSsl > 0 ? `⚠️ ${critSsl} kritik sertifika` : '✅ Tümü geçerli',
-      icon: Shield,
-      kpiColor: critSsl > 0 ? '#ef4444' : '#10b981',
-      iconClass: critSsl > 0 ? 'icon-red' : 'icon-green',
-      iconColor: critSsl > 0 ? '#991b1b' : '#065f46',
-      pct: sslItems.length ? Math.round(((sslItems.length - critSsl) / sslItems.length) * 100) : 100,
-      trend: critSsl > 0 ? `${critSsl} uyarı` : 'Temiz',
-      trendUp: critSsl === 0,
-    },
-    {
-      label: 'Destek Talebi',
-      value: openTickets,
-      sub: openTickets > 0 ? 'Çözüm bekliyor' : 'Tümü çözüldü',
-      icon: LifeBuoy,
-      kpiColor: openTickets > 0 ? '#f59e0b' : '#10b981',
-      iconClass: openTickets > 0 ? 'icon-amber' : 'icon-green',
-      iconColor: openTickets > 0 ? '#b45309' : '#065f46',
-      pct: 0,
-      trend: openTickets > 0 ? 'Açık' : 'Kapalı',
-      trendUp: openTickets === 0,
-    },
+  const companyMap = {};
+  terminals.forEach(t => { if (t.company) companyMap[t.company] = (companyMap[t.company] || 0) + 1; });
+  const companyData = Object.entries(companyMap)
+    .map(([name, value]) => ({ name: name.length > 12 ? name.slice(0, 12) + '…' : name, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 6);
+
+  const sslDonut = [
+    { name: 'Güvenli', value: Math.max(0, sslItems.length - critSsl), color: '#10b981' },
+    { name: 'Kritik', value: critSsl, color: '#ef4444' },
   ];
 
-  const WIDGET_LABELS = [
-    { id: 'metrics',   label: 'Metrik Kartları' },
-    { id: 'servers',   label: 'Sunucu Durumu' },
-    { id: 'ssl',       label: 'SSL Analizi' },
-    { id: 'inventory', label: 'Cihaz Dağılımı' },
-    { id: 'usom',      label: 'USOM Tehdit Akışı' },
-    { id: 'helpdesk',  label: 'Yardım Masası' },
-  ];
+  // --- Styles ---
+  const sectionTitle = { fontSize: 11, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 };
+  const miniCard = {
+    background: '#fff', border: '1px solid #eef2f6', borderRadius: 14,
+    padding: '16px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+  };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
 
-      {/* ─── Toolbar ─── */}
-      <div style={{ display: 'flex', justify: 'flex-start', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+      {/* ─── Header bar ─── */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 28 }}>
         <div>
-          <h1 className="page-title">
-            <div className="icon-box-sm icon-amber">
-              <Activity size={15} color="#b45309" />
-            </div>
-            Dashboard
-          </h1>
-          <p className="page-subtitle">Son güncelleme: {new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</p>
+          <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: -0.5 }}>
+            {getGreeting()}, <span style={{ color: '#f59e0b' }}>Operatör</span>
+          </div>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+            {now.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            {' · '}{now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+          </div>
         </div>
-
-        <div style={{ position: 'relative' }} ref={cfgRef}>
-          <button className="btn btn-secondary" onClick={() => setShowCfg(s => !s)}>
-            <Settings2 size={14} />
-            Widget Seç
-            <ChevronDown size={12} style={{ transform: showCfg ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
-          </button>
-
-          {showCfg && (
-            <div style={{
-              position: 'absolute', top: 'calc(100% + 8px)', right: 0,
-              background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 16,
-              padding: 8, minWidth: 220, boxShadow: '0 10px 24px rgba(0,0,0,0.12)', zIndex: 50,
-            }}>
-              <div style={{ padding: '4px 12px 8px', fontSize: 10, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1 }}>
-                Görüntülenecek Widgetlar
-              </div>
-              {WIDGET_LABELS.map(w => (
-                <div
-                  key={w.id}
-                  onClick={() => setWidgets(p => ({ ...p, [w.id]: !p[w.id] }))}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '8px 12px', borderRadius: 8, cursor: 'pointer',
-                    fontSize: 13, fontWeight: 500,
-                    color: widgets[w.id] ? '#0f172a' : '#94a3b8',
-                    background: widgets[w.id] ? '#fffbeb' : 'transparent',
-                    transition: 'all 0.12s',
-                  }}
-                >
-                  <div style={{
-                    width: 18, height: 18,
-                    border: `2px solid ${widgets[w.id] ? '#f59e0b' : '#e2e8f0'}`,
-                    borderRadius: 5, background: widgets[w.id] ? '#f59e0b' : '#fff',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    transition: 'all 0.12s', flexShrink: 0,
-                  }}>
-                    {widgets[w.id] && <Check size={11} color="#fff" strokeWidth={3} />}
-                  </div>
-                  {w.label}
-                </div>
-              ))}
-            </div>
-          )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: '#065f46', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 99, padding: '5px 12px' }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
+          Tüm sistemler çalışıyor
         </div>
       </div>
 
-      {/* ─── KPI Cards ─── */}
-      {widgets.metrics && (
-        <div className="kpi-grid">
-          {KPI.map(k => (
-            <div
-              key={k.label}
-              className="kpi-card"
-              style={{ '--kpi-color': k.kpiColor }}
-            >
-              <div className="kpi-top">
-                <div className={`icon-box ${k.iconClass}`}>
-                  <k.icon size={22} color={k.iconColor} />
-                </div>
-                {k.trend !== null && (
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: 3,
-                    fontSize: 11, fontWeight: 700,
-                    color: k.trendUp ? '#065f46' : '#991b1b',
-                    background: k.trendUp ? '#f0fdf4' : '#fef2f2',
-                    border: `1px solid ${k.trendUp ? '#a7f3d0' : '#fecaca'}`,
-                    padding: '3px 8px', borderRadius: 99,
-                  }}>
-                    {k.trendUp
-                      ? <ArrowUpRight size={11} />
-                      : <ArrowDownRight size={11} />}
-                    {k.trend}
-                  </div>
-                )}
-              </div>
-              <div>
-                <div className="kpi-value">{k.value}</div>
-                <div className="kpi-label">{k.label}</div>
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{k.sub}</div>
-              </div>
-              {k.pct > 0 && (
-                <div className="kpi-bar">
-                  <div className="kpi-bar-fill" style={{ width: `${k.pct}%` }} />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      {/* ─── Quick numbers row (no cards, just inline) ─── */}
+      <div style={{ display: 'flex', gap: 32, marginBottom: 28, paddingBottom: 20, borderBottom: '1px solid #f1f5f9' }}>
+        <QuickStat value={terminals.length} label="Uç Nokta" detail={`${pcs.length} PC · ${servers.length} sunucu`} color="#f59e0b" />
+        <QuickStat value={`${onlineServ}/${servers.length}`} label="Sunucu" detail={`%${servers.length ? Math.round(onlineServ / servers.length * 100) : 0} çevrimiçi`} color="#10b981" />
+        <QuickStat value={sslItems.length} label="SSL Sertifika" detail={critSsl > 0 ? `${critSsl} kritik uyarı` : 'Tümü geçerli'} color={critSsl > 0 ? '#ef4444' : '#10b981'} />
+        <QuickStat value={openTickets} label="Açık Talep" detail={openTickets > 0 ? 'Çözüm bekliyor' : 'Kuyruk boş'} color={openTickets > 0 ? '#f59e0b' : '#10b981'} />
+      </div>
 
-      {/* ─── Main data row: Activity + Server + SSL ─── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 20 }}>
+      {/* ─── Main 2-column layout ─── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 24, marginBottom: 24 }}>
 
-        {/* Activity Area Chart */}
-        <div className="card" style={{ padding: 0 }}>
-          <div style={{ padding: '18px 22px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {/* Left: Activity chart */}
+        <div style={miniCard}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <div>
-              <div className="card-title">
-                <TrendingUp size={16} color="#10b981" />
-                Aktif Terminal Trendi
-              </div>
-              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>Son 12 saat</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>Terminal Aktivitesi</div>
+              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>Son 12 saatlik ağ izleme verisi</div>
             </div>
-            <span className="badge badge-green" style={{ fontSize: 10 }}>
-              <span className="status-dot success pulse" style={{ width: 6, height: 6 }} />
-              Canlı
-            </span>
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: '#f0fdf4', padding: '3px 10px', borderRadius: 99 }}>Canlı</span>
           </div>
-          <div style={{ padding: '16px 8px 12px', height: 200 }}>
+          <div style={{ height: 200 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={activitySparkline}>
+              <AreaChart data={activityData}>
                 <defs>
-                  <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#10b981" stopOpacity={0.15} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.01} />
+                  <linearGradient id="aGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.12} />
+                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.01} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="time" fontSize={10} stroke="#cbd5e1" tickLine={false} axisLine={false} />
                 <YAxis hide />
-                <Tooltip content={<CustomTooltip />} />
-                <Area
-                  type="monotone" dataKey="aktif" name="Aktif Terminal"
-                  stroke="#10b981" strokeWidth={2}
-                  fill="url(#areaGrad)" dot={false}
-                />
+                <Tooltip content={<TinyTooltip />} />
+                <Area type="monotone" dataKey="aktif" name="Aktif" stroke="#f59e0b" strokeWidth={2} fill="url(#aGrad)" dot={false} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Quick Stats Panel */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {/* Right: stacked mini widgets */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
-          {/* Server online indicator */}
-          <div className="card" style={{ padding: '18px 20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div className="icon-box icon-green">
-                <Server size={20} color="#065f46" />
+          {/* Servers mini */}
+          <div style={{ ...miniCard, display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Server size={20} color="#059669" />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8' }}>Sunucu Durumu</div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#0f172a' }}>
+                {onlineServ}<span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8' }}> / {servers.length}</span>
               </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5 }}>Sunucu</div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: '#0f172a', letterSpacing: -0.5 }}>
-                  {onlineServ} <span style={{ fontSize: 13, fontWeight: 600, color: '#94a3b8' }}>/ {servers.length}</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {servers.slice(0, 3).map(s => (
+                <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#64748b' }}>
+                  {isOnline(s.status) ? <Wifi size={10} color="#10b981" /> : <WifiOff size={10} color="#ef4444" />}
+                  {s.name}
                 </div>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {servers.length > 0 && servers.slice(0, 3).map(s => (
-                  <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#475569' }}>
-                    {isOnline(s.status)
-                      ? <Wifi size={11} color="#10b981" />
-                      : <WifiOff size={11} color="#ef4444" />}
-                    {s.name}
-                  </div>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* SSL quick */}
-          <div className="card" style={{ padding: '18px 20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div className={`icon-box ${critSsl > 0 ? 'icon-red' : 'icon-green'}`}>
-                {critSsl > 0
-                  ? <AlertTriangle size={20} color="#991b1b" />
-                  : <ShieldCheck size={20} color="#065f46" />
-                }
-              </div>
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5 }}>SSL Sertifika</div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: '#0f172a', letterSpacing: -0.5 }}>
-                  {sslItems.length} <span style={{ fontSize: 13, color: '#94a3b8', fontWeight: 600 }}>toplam</span>
-                </div>
-                <div style={{ fontSize: 11, color: critSsl > 0 ? '#991b1b' : '#065f46', fontWeight: 700, marginTop: 2 }}>
-                  {critSsl > 0 ? `⚠️ ${critSsl} kritik` : '✅ Hepsi geçerli'}
-                </div>
-              </div>
+          {/* SSL mini */}
+          <div style={{ ...miniCard, display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: critSsl > 0 ? '#fef2f2' : '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {critSsl > 0 ? <AlertTriangle size={20} color="#ef4444" /> : <ShieldCheck size={20} color="#059669" />}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8' }}>SSL Sertifikaları</div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#0f172a' }}>{sslItems.length}</div>
+            </div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: critSsl > 0 ? '#ef4444' : '#059669' }}>
+              {critSsl > 0 ? `${critSsl} kritik` : '✓ Temiz'}
             </div>
           </div>
 
-          {/* Help */}
-          <div className="card" style={{ padding: '18px 20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div className={`icon-box ${openTickets > 0 ? 'icon-amber' : 'icon-green'}`}>
-                <LifeBuoy size={20} color={openTickets > 0 ? '#b45309' : '#065f46'} />
-              </div>
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5 }}>Yardım Masası</div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: '#0f172a', letterSpacing: -0.5 }}>{openTickets}</div>
-                <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>açık talep</div>
-              </div>
+          {/* Help desk mini */}
+          <div style={{ ...miniCard, display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: openTickets > 0 ? '#fffbeb' : '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <LifeBuoy size={20} color={openTickets > 0 ? '#d97706' : '#059669'} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8' }}>Destek Merkezi</div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#0f172a' }}>{openTickets}</div>
+            </div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: openTickets > 0 ? '#d97706' : '#059669' }}>
+              {openTickets > 0 ? 'Bekleyen var' : '✓ Boş'}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ─── Server Table ─── */}
-      {widgets.servers && (
-        <div className="card" style={{ padding: 0 }}>
-          <div style={{
-            padding: '16px 22px', borderBottom: '1px solid #e2e8f0',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          }}>
-            <div className="card-title">
-              <div className="icon-box-sm icon-green">
-                <Server size={14} color="#065f46" />
-              </div>
-              Sunucu Durumu
-            </div>
-            <span className="badge badge-neutral">{servers.length} sunucu</span>
+      {/* ─── Server table ─── */}
+      {servers.length > 0 && (
+        <div style={{ ...miniCard, padding: 0, marginBottom: 24 }}>
+          <div style={{ padding: '14px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>Sunucu Listesi</div>
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', background: '#f8fafc', padding: '3px 10px', borderRadius: 99 }}>{servers.length} kayıt</span>
           </div>
           <div className="table-container">
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Sunucu Adı</th>
+                  <th>Ad</th>
                   <th>Durum</th>
-                  <th>IP Adresi</th>
-                  <th>Tür</th>
+                  <th>IP</th>
                   <th>Son Görülme</th>
                 </tr>
               </thead>
               <tbody>
-                {servers.length === 0 ? (
-                  <tr><td colSpan={5} style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>
-                    <Server size={28} style={{ opacity: 0.3, display: 'block', margin: '0 auto 8px' }} />
-                    Kayıtlı sunucu bulunamadı
-                  </td></tr>
-                ) : servers.map(s => (
+                {servers.map(s => (
                   <tr key={s.id}>
                     <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div className={`icon-box-sm ${isOnline(s.status) ? 'icon-green' : 'icon-red'}`} style={{ width: 30, height: 30, borderRadius: 6 }}>
-                          {isOnline(s.status)
-                            ? <Wifi size={13} color="#065f46" />
-                            : <WifiOff size={13} color="#991b1b" />}
-                        </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {isOnline(s.status) ? <Wifi size={12} color="#10b981" /> : <WifiOff size={12} color="#ef4444" />}
                         <strong>{s.name}</strong>
                       </div>
                     </td>
                     <td>
                       {isOnline(s.status)
-                        ? <span className="badge badge-green"><span className="status-dot success pulse" style={{ width: 6, height: 6 }} /> Çevrimiçi</span>
-                        : <span className="badge badge-red"><span className="status-dot danger" style={{ width: 6, height: 6 }} /> Çevrimdışı</span>}
+                        ? <span className="badge badge-green" style={{ fontSize: 10 }}>Çevrimiçi</span>
+                        : <span className="badge badge-red" style={{ fontSize: 10 }}>Çevrimdışı</span>}
                     </td>
-                    <td style={{ fontFamily: 'monospace', fontSize: 12, color: '#475569' }}>{s.ipAddress || '—'}</td>
-                    <td>
-                      <span className="badge badge-neutral">{s.deviceType || 'Sunucu'}</span>
-                    </td>
-                    <td style={{ fontSize: 12, color: '#94a3b8' }}>
-                      {s.lastSeen ? new Date(s.lastSeen).toLocaleString('tr-TR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : '—'}
+                    <td style={{ fontFamily: 'monospace', fontSize: 11, color: '#64748b' }}>{s.ipAddress || '—'}</td>
+                    <td style={{ fontSize: 11, color: '#94a3b8' }}>
+                      {s.lastSeen ? new Date(s.lastSeen).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'}
                     </td>
                   </tr>
                 ))}
@@ -464,182 +279,138 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ─── Charts Row ─── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      {/* ─── Charts row ─── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
 
-        {widgets.ssl && (
-          <div className="card" style={{ padding: 0 }}>
-            <div style={{ padding: '16px 22px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div className="card-title">
-                <div className="icon-box-sm icon-violet"><Shield size={14} color="#5b21b6" /></div>
-                SSL Sertifika Durumu
-              </div>
-              <span className="badge badge-neutral">{sslItems.length} sertifika</span>
-            </div>
-            <div style={{ padding: '16px 24px 20px', display: 'flex', alignItems: 'center', gap: 24 }}>
-              <div style={{ width: 140, height: 140, flexShrink: 0 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={sslDonut} cx="50%" cy="50%" innerRadius={42} outerRadius={60} paddingAngle={4} dataKey="value">
-                      {sslDonut.map((d, i) => <Cell key={i} fill={d.color} />)}
-                    </Pie>
-                    <Tooltip content={<CustomTooltip />} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div style={{ flex: 1 }}>
-                {sslDonut.map(d => (
-                  <div key={d.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 10, height: 10, borderRadius: 3, background: d.color }} />
-                      <span style={{ fontSize: 13, color: '#475569', fontWeight: 500 }}>{d.name}</span>
-                    </div>
-                    <span style={{ fontSize: 18, fontWeight: 800, color: '#0f172a' }}>{d.value}</span>
-                  </div>
-                ))}
-                {/* SSL list */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
-                  {sslItems.slice(0, 3).map(s => (
-                    <div key={s.id} style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '6px 10px', background: '#f8fafc', borderRadius: 8, fontSize: 12,
-                    }}>
-                      <span style={{ fontWeight: 600, color: '#0f172a' }}>{s.domain}</span>
-                      <span className={`badge ${s.status === 'Kritik' ? 'badge-red' : 'badge-green'}`} style={{ fontSize: 10 }}>
-                        {s.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {widgets.inventory && (
-          <div className="card" style={{ padding: 0 }}>
-            <div style={{ padding: '16px 22px', borderBottom: '1px solid #e2e8f0' }}>
-              <div className="card-title">
-                <div className="icon-box-sm icon-amber"><Package size={14} color="#b45309" /></div>
-                Şube / Cihaz Dağılımı
-              </div>
-            </div>
-            <div style={{ padding: '12px 16px 20px', height: 240 }}>
+        {/* SSL donut */}
+        <div style={miniCard}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 14 }}>SSL Analiz</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <div style={{ width: 120, height: 120, flexShrink: 0 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={companyData} margin={{ top: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis dataKey="name" fontSize={10} stroke="#cbd5e1" tickLine={false} axisLine={false} />
-                  <YAxis hide />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="value" name="Cihaz" fill="#f59e0b" radius={[6, 6, 0, 0]} barSize={28} />
-                </BarChart>
+                <PieChart>
+                  <Pie data={sslDonut} cx="50%" cy="50%" innerRadius={38} outerRadius={55} paddingAngle={4} dataKey="value">
+                    {sslDonut.map((d, i) => <Cell key={i} fill={d.color} />)}
+                  </Pie>
+                  <Tooltip content={<TinyTooltip />} />
+                </PieChart>
               </ResponsiveContainer>
             </div>
+            <div style={{ flex: 1 }}>
+              {sslDonut.map(d => (
+                <div key={d.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: 2, background: d.color }} />
+                    <span style={{ fontSize: 12, color: '#64748b' }}>{d.name}</span>
+                  </div>
+                  <span style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>{d.value}</span>
+                </div>
+              ))}
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 8, marginTop: 4 }}>
+                {sslItems.slice(0, 2).map(s => (
+                  <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, padding: '3px 0', color: '#64748b' }}>
+                    <span style={{ fontWeight: 600 }}>{s.domain}</span>
+                    <span className={`badge ${s.status === 'Kritik' ? 'badge-red' : 'badge-green'}`} style={{ fontSize: 9 }}>{s.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        )}
+        </div>
+
+        {/* Company distribution */}
+        <div style={miniCard}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 14 }}>Şube Bazlı Dağılım</div>
+          <div style={{ height: 170 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={companyData} margin={{ top: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis dataKey="name" fontSize={9} stroke="#cbd5e1" tickLine={false} axisLine={false} />
+                <YAxis hide />
+                <Tooltip content={<TinyTooltip />} />
+                <Bar dataKey="value" name="Cihaz" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={24} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
 
-      {/* ─── USOM Feed ─── */}
-      {widgets.usom && (
-        <div className="card" style={{ padding: 0 }}>
-          <div style={{
-            padding: '16px 22px', borderBottom: '1px solid #e2e8f0',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          }}>
-            <div className="card-title">
-              <div className="icon-box-sm icon-red">
-                <Globe size={14} color="#991b1b" />
-              </div>
-              USOM Siber Tehdit İstihbaratı
+      {/* ─── USOM section (collapsible) ─── */}
+      <div style={{ ...miniCard, padding: 0, marginBottom: 24 }}>
+        <div
+          onClick={() => setUsomExpanded(p => !p)}
+          style={{
+            padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            cursor: 'pointer', userSelect: 'none',
+            borderBottom: usomExpanded ? '1px solid #f1f5f9' : 'none',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 7, background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Globe size={14} color="#ef4444" />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span className="badge badge-amber">
-                <span className="status-dot warning pulse" style={{ width: 6, height: 6 }} />
-                Canlı Akış
-              </span>
-              <a
-                href="https://www.usom.gov.tr"
-                target="_blank" rel="noreferrer"
-                style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#3b82f6', fontWeight: 600, textDecoration: 'none' }}
-              >
-                usom.gov.tr <ExternalLink size={11} />
-              </a>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>USOM Tehdit İstihbaratı</div>
+              <div style={{ fontSize: 10, color: '#94a3b8' }}>{usomFeeds.length} kayıt · usom.gov.tr</div>
             </div>
           </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#f59e0b', background: '#fffbeb', padding: '2px 8px', borderRadius: 99, border: '1px solid #fde68a' }}>Canlı</span>
+            <ChevronDown size={14} color="#94a3b8" style={{ transform: usomExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+          </div>
+        </div>
 
-          {usomFeeds.length === 0 ? (
-            <div style={{ padding: '48px 24px', textAlign: 'center' }}>
-              <div className="icon-box icon-red" style={{ margin: '0 auto 12px' }}>
-                <Globe size={22} color="#991b1b" />
-              </div>
-              <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>Tehdit akışı yüklenemedi</div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>API: /api/usom/rss — bağlantı kontrol ediliyor…</div>
-            </div>
-          ) : (
-            <div style={{ overflowY: 'auto', maxHeight: 440 }}>
+        {usomExpanded && (
+          <div style={{ overflowY: 'auto', maxHeight: 380 }}>
+            {usomFeeds.length === 0 ? (
+              <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>Tehdit akışı yüklenemedi.</div>
+            ) : (
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th style={{ width: 110 }}>Tür</th>
-                    <th>Adres / Başlık</th>
-                    <th style={{ width: 260 }}>Açıklama</th>
-                    <th style={{ width: 100 }}>Tarih</th>
+                    <th style={{ width: 100 }}>Tür</th>
+                    <th>Kaynak</th>
+                    <th style={{ width: 220 }}>Açıklama</th>
+                    <th style={{ width: 90 }}>Tarih</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {usomFeeds.slice(0, 25).map((feed, i) => {
-                    const isHarmful = feed.type === 'Zararlı Bağlantı';
+                  {usomFeeds.slice(0, 20).map((feed, i) => {
+                    const isHarm = feed.type === 'Zararlı Bağlantı';
                     return (
                       <tr key={i}>
                         <td>
-                          <span className={`badge ${isHarmful ? 'badge-red' : 'badge-amber'}`}>
-                            {isHarmful
-                              ? <><CircleX size={11} /> Zararlı</>
-                              : <><Zap size={11} /> Bildirim</>}
+                          <span className={`badge ${isHarm ? 'badge-red' : 'badge-amber'}`} style={{ fontSize: 10 }}>
+                            {isHarm ? <><CircleX size={10} /> Zararlı</> : <><Zap size={10} /> Bildirim</>}
                           </span>
                         </td>
                         <td>
-                          <span style={{
-                            fontFamily: 'monospace', fontSize: 12, fontWeight: 700,
-                            color: '#0f172a', display: 'block',
-                            maxWidth: 380, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                          }}>
+                          <span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 700, color: '#0f172a', display: 'block', maxWidth: 320, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {feed.title}
                           </span>
                         </td>
-                        <td style={{ fontSize: 12, color: '#475569' }}>
-                          <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 260 }}>
-                            {feed.description}
-                          </div>
+                        <td style={{ fontSize: 11, color: '#64748b' }}>
+                          <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>{feed.description}</div>
                         </td>
-                        <td>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap' }}>
-                            <Clock size={11} />
-                            {parseUsomDate(feed.pubDate)}
-                          </div>
+                        <td style={{ fontSize: 10, color: '#94a3b8', whiteSpace: 'nowrap' }}>
+                          <Clock size={10} style={{ marginRight: 3, verticalAlign: 'middle' }} />{parseUsomDate(feed.pubDate)}
                         </td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </div>
 
-      {/* ─── Help Desk ─── */}
-      {widgets.helpdesk && helpRequests.filter(r => r.status === 'Açık').length > 0 && (
-        <div className="card" style={{ padding: 0 }}>
-          <div style={{
-            padding: '16px 22px', borderBottom: '1px solid #e2e8f0',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          }}>
-            <div className="card-title">
-              <div className="icon-box-sm icon-amber"><LifeBuoy size={14} color="#b45309" /></div>
-              Bekleyen Destek Talepleri
-            </div>
-            <span className="badge badge-amber">{openTickets} açık</span>
+      {/* ─── Open tickets (only if any) ─── */}
+      {openTickets > 0 && (
+        <div style={{ ...miniCard, padding: 0 }}>
+          <div style={{ padding: '14px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>Bekleyen Destek Talepleri</div>
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#d97706', background: '#fffbeb', padding: '3px 10px', borderRadius: 99, border: '1px solid #fde68a' }}>{openTickets} açık</span>
           </div>
           <table className="data-table">
             <thead>
@@ -651,17 +422,15 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {helpRequests.filter(r => r.status === 'Açık').slice(0, 8).map((r, i) => (
+              {helpRequests.filter(r => r.status === 'Açık').slice(0, 6).map((r, i) => (
                 <tr key={i}>
                   <td><strong>{r.subject}</strong></td>
                   <td>{r.creatorName}</td>
                   <td style={{ color: '#94a3b8' }}>{r.department}</td>
                   <td>
-                    <span className={`badge ${
-                      r.priority === 'Yüksek' ? 'badge-red'
-                      : r.priority === 'Orta' ? 'badge-amber'
-                      : 'badge-neutral'
-                    }`}>{r.priority || 'Normal'}</span>
+                    <span className={`badge ${r.priority === 'Yüksek' ? 'badge-red' : r.priority === 'Orta' ? 'badge-amber' : 'badge-neutral'}`} style={{ fontSize: 10 }}>
+                      {r.priority || 'Normal'}
+                    </span>
                   </td>
                 </tr>
               ))}
@@ -669,6 +438,16 @@ export default function Dashboard() {
           </table>
         </div>
       )}
+    </div>
+  );
+}
+
+function QuickStat({ value, label, detail, color }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <div style={{ fontSize: 24, fontWeight: 900, color: '#0f172a', letterSpacing: -1 }}>{value}</div>
+      <div style={{ fontSize: 11, fontWeight: 700, color }}>  {label}</div>
+      <div style={{ fontSize: 10, color: '#94a3b8' }}>{detail}</div>
     </div>
   );
 }
