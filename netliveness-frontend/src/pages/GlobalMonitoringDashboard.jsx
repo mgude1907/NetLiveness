@@ -269,7 +269,7 @@ export default function GlobalMonitoringDashboard({ pcName = 'ALL' }) {
         <div className="card" style={{ padding: '16px 18px' }}>
           <div className="card-title" style={{ marginBottom: 16, fontSize: 13 }}>
             <Zap size={14} color="#f59e0b" />
-            Yazılım Kullanımı
+            Yazılım Toplam Kullanımı
           </div>
           {[
             { label: 'SolidWorks', value: fmtTime(data.solidWorksUsageTime), color: '#ef4444', cls: 'icon-red' },
@@ -289,7 +289,7 @@ export default function GlobalMonitoringDashboard({ pcName = 'ALL' }) {
             </div>
           ))}
           <div style={{ marginTop: 14, fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>
-            Bugünkü toplam kullanım süresi
+            Şirket geneli toplam kullanım süresi
           </div>
         </div>
       </div>

@@ -17,10 +17,14 @@ export default function SurveyParticipant() {
     const load = useCallback(async () => {
         try {
             const res = await getSurveyFull(id);
-            setData(res);
+            const survey = res.survey || res.Survey;
+            const questions = res.questions || res.Questions;
+            
+            setData({ survey, questions });
+            
             // Initialize answers
             const initial = {};
-            res.questions.forEach(q => {
+            questions.forEach(q => {
                 if (q.type === 'checkbox') initial[q.id] = [];
                 else initial[q.id] = '';
             });
@@ -175,8 +179,8 @@ export default function SurveyParticipant() {
                             <div style={{ display: 'inline-flex', padding: '14px', background: 'var(--accent-green-dim)', borderRadius: '16px', color: 'var(--accent-green)', marginBottom: '24px' }}>
                                 <ClipboardList size={36} />
                             </div>
-                            <h1 style={{ fontSize: '36px', fontWeight: '900', color: 'var(--text-primary)', margin: '0 0 16px 0', lineHeight: '1.2' }}>{data?.survey.title}</h1>
-                            <p style={{ color: 'var(--text-secondary)', fontSize: '17px', lineHeight: '1.6', margin: 0 }}>{data?.survey.description}</p>
+                            <h1 style={{ fontSize: '36px', fontWeight: '900', color: 'var(--text-primary)', margin: '0 0 16px 0', lineHeight: '1.2' }}>{data?.survey?.title}</h1>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '17px', lineHeight: '1.6', margin: 0 }}>{data?.survey?.description}</p>
                         </div>
 
                         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
@@ -197,7 +201,7 @@ export default function SurveyParticipant() {
                             </div>
 
                             {/* Questions */}
-                            {data?.questions.map((q, idx) => (
+                            {data?.questions?.map((q, idx) => (
                                 <div key={q.id} className="survey-question-block" style={{ paddingTop: '40px', borderTop: '1px solid var(--border-color)' }}>
                                     <div style={{ display: 'flex', gap: '16px', marginBottom: '28px' }}>
                                         <div style={{ minWidth: '36px', height: '36px', borderRadius: '50%', background: 'var(--accent-green-dim)', color: 'var(--accent-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '16px' }}>{idx + 1}</div>

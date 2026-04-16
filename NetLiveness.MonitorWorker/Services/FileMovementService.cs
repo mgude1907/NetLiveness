@@ -20,6 +20,7 @@ namespace NetLiveness.Api.Services
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("File Movement Monitoring Service started.");
+            var semaphore = new SemaphoreSlim(5); // Aynı anda en fazla 5 cihazı tara
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -34,13 +35,33 @@ namespace NetLiveness.Api.Services
                             .Where(t => t.EnableFileMonitoring == true && t.Status == "UP")
                             .ToListAsync(stoppingToken);
 
-                        foreach (var t in terminals)
+                        var tasks = terminals.Select(async t => 
                         {
-                            if (stoppingToken.IsCancellationRequested) break;
-                            await ScanTerminalAsync(t, context, settings, stoppingToken);
-                        }
+                            await semaphore.WaitAsync(stoppingToken);
+                            try 
+                            {
+                                using var localScope = _scopeFactory.CreateScope();
+                                var localContext = localScope.ServiceProvider.GetRequiredService<AppDbContext>();
+                                
+                                // Terminal nesnesini yeni context'e bağla
+                                var localTerminal = await localContext.Terminals.FindAsync(t.Id);
+                                if (localTerminal != null)
+                                {
+                                    await ScanTerminalAsync(localTerminal, localContext, settings, stoppingToken);
+                                    await localContext.SaveChangesAsync(stoppingToken);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogWarning($"Task error scanning {t.Name}: {ex.Message}");
+                            }
+                            finally 
+                            {
+                                semaphore.Release();
+                            }
+                        });
 
-                        await context.SaveChangesAsync(stoppingToken);
+                        await Task.WhenAll(tasks);
                     }
                 }
                 catch (Exception ex)
@@ -48,7 +69,7 @@ namespace NetLiveness.Api.Services
                     _logger.LogError(ex, "Error in FileMovementService loop.");
                 }
 
-                // Scan every 5 minutes (or as configured)
+                _logger.LogInformation("File movement scan cycle completed. Waiting 5 minutes...");
                 await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
             }
         }
@@ -79,7 +100,16 @@ namespace NetLiveness.Api.Services
                 var scope = new ManagementScope($@"\\{(isLocal ? "." : t.Host)}\root\cimv2", options);
                 await Task.Run(() => scope.Connect(), ct);
 
-                if (!scope.IsConnected) return;
+                if (!scope.IsConnected) 
+                {
+                    t.LastError = "WMI Bağlantı Hatası: Bağlantı kurulamadı veya erişim engellendi.";
+                    t.LastActivityTime = DateTime.Now;
+                    return;
+                }
+
+                // Temizle (Hata yoksa)
+                t.LastError = null;
+                t.LastActivityTime = DateTime.Now;
 
                 var paths = (t.MonitoredPaths ?? "C:\\Users").Split(';', StringSplitOptions.RemoveEmptyEntries);
                 var extensions = (t.MonitoredExtensions ?? "sldprt;dwg;dxf;step;iam;ipt").Split(';', StringSplitOptions.RemoveEmptyEntries);

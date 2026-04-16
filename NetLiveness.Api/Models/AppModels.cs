@@ -83,26 +83,29 @@ namespace NetLiveness.Api.Models
     public class StockItem
     {
         public int Id { get; set; }
-        public string Category { get; set; } = "";
-        public string Brand { get; set; } = "";
-        public string Model { get; set; } = "";
-        public string SerialNo { get; set; } = "";
-        public string PcIsmi { get; set; } = "";
-        public string Status { get; set; } = "Sağlam";
-        public string EnvanterTuru { get; set; } = "Personel Envanteri";
+        public string? Category { get; set; }
+        public string? Brand { get; set; }
+        public string? Model { get; set; }
+        public string? SerialNo { get; set; }
+        public string? PcIsmi { get; set; }
+        public string? IpAddress { get; set; }
+        public string? Status { get; set; } = "Sağlam";
+        public string? EnvanterTuru { get; set; } = "Personel Envanteri";
         public DateTime AddedAt { get; set; } = DateTime.Now;
     }
 
     public class InventoryItem
     {
         public int Id { get; set; }
-        public string Category { get; set; } = "";
-        public string Brand { get; set; } = "";
-        public string Model { get; set; } = "";
-        public string SerialNo { get; set; } = "";
-        public string PcIsmi { get; set; } = "";
-        public string EnvanterTuru { get; set; } = "Personel Envanteri";
-        public string AssignedTo { get; set; } = "";
+        public string? Category { get; set; }
+        public string? Brand { get; set; }
+        public string? Model { get; set; }
+        public string? SerialNo { get; set; }
+        public string? PcIsmi { get; set; }
+        public string? IpAddress { get; set; }
+        public string? EnvanterTuru { get; set; } = "Personel Envanteri";
+        public string? AssignedTo { get; set; }
+        public string? Firma { get; set; }
         public DateTime AssignedAt { get; set; } = DateTime.Now;
     }
 

@@ -36,6 +36,7 @@ import SurveyParticipant from './pages/SurveyParticipant';
 import SurveysPublic from './pages/SurveysPublic';
 import HelpRequestPublic from './pages/HelpRequestPublic';
 import HelpRequestAdmin from './pages/HelpRequestAdmin';
+import Phishing from './pages/Phishing';
 import FileAlerts from './pages/FileAlerts';
 import SignatureGenerator from './pages/SignatureGenerator';
 
@@ -126,6 +127,7 @@ export default function App() {
           <Route path="/anketler" element={<SurveysPublic />} />
           <Route path="/anket/:id" element={<SurveyParticipant />} />
           <Route path="/yardim" element={<HelpRequestPublic />} />
+          <Route path="/imza" element={<SignatureGenerator />} />
           
           {/* FULL SCREEN CHAT APP */}
           <Route path="/chat" element={<ProtectedRoute auth={auth} requiredModule="Chat"><ChatApp user={auth?.user} setAuth={setAuth} /></ProtectedRoute>} />
@@ -145,6 +147,7 @@ export default function App() {
             <Route path="/ssl" element={<ProtectedRoute auth={auth} requiredModule="Ssl"><SslTracking /></ProtectedRoute>} />
             <Route path="/matrix" element={<ProtectedRoute auth={auth} requiredModule="Matrix"><AccessMatrix /></ProtectedRoute>} />
             <Route path="/logs" element={<ProtectedRoute auth={auth} requiredModule="Logs"><Logs /></ProtectedRoute>} />
+            <Route path="/phishing" element={<ProtectedRoute auth={auth} requiredModule="Logs"><Phishing /></ProtectedRoute>} />
             <Route path="/filealerts" element={<ProtectedRoute auth={auth} requiredModule="Logs"><FileAlerts /></ProtectedRoute>} />
             <Route path="/updates" element={<ProtectedRoute auth={auth} requiredModule="Updates"><Updates /></ProtectedRoute>} />
             <Route path="/users" element={<ProtectedRoute auth={auth} requiredModule="Users"><Users /></ProtectedRoute>} />

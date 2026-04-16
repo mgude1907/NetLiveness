@@ -25,16 +25,18 @@ namespace NetLiveness.Api.Controllers
             var entries = await _context.DirectoryEntries.ToListAsync();
             var personnels = await _context.Personnels.ToListAsync();
 
-            var combined = entries.ToList();
+            // Create a fast lookup set for existing entries (composite key of FirstName|LastName)
+            var existingKeys = new HashSet<string>(entries.Select(e => $"{e.FirstName.ToLower()}|{e.LastName.ToLower()}"));
+            var combined = new List<DirectoryEntry>(entries);
 
             foreach (var p in personnels)
             {
-                // Eğer bu isimde ve soyisimde bir kayıt zaten Rehber'de (Directory) özel olarak eklenmemişse otomatik olarak getir.
-                if (!entries.Any(e => e.FirstName.Equals(p.Ad, StringComparison.OrdinalIgnoreCase) && e.LastName.Equals(p.Soyad, StringComparison.OrdinalIgnoreCase)))
+                var key = $"{p.Ad.ToLower()}|{p.Soyad.ToLower()}";
+                if (!existingKeys.Contains(key))
                 {
                     combined.Add(new DirectoryEntry
                     {
-                        Id = -p.Id, // Negatif ID kullanarak bunun sistem (Personel) tablosundan geldiğini işaretliyoruz
+                        Id = -p.Id,
                         FirstName = p.Ad,
                         LastName = p.Soyad,
                         Department = p.Bolum,
@@ -44,6 +46,7 @@ namespace NetLiveness.Api.Controllers
                         Email = "",
                         ImageUrl = ""
                     });
+                    existingKeys.Add(key); // Prevent duplicates from personnels if multiple has same name
                 }
             }
 

@@ -4,6 +4,7 @@ using NetLiveness.Api.Middleware;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using NetLiveness.Api.Models;
+using NetLiveness.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +14,24 @@ builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
+
+// Increase JSON and Payload Limits for large logos (Base64)
+builder.Services.AddControllers().AddJsonOptions(options => {
+    options.JsonSerializerOptions.MaxDepth = 128; // Standard 64 might be tight for deep trees
+});
+
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options => {
+    options.ValueLengthLimit = int.MaxValue;
+    options.MultipartBodyLengthLimit = 50 * 1024 * 1024; // 50 MB
+    options.MemoryBufferThreshold = int.MaxValue;
+});
+
+builder.WebHost.ConfigureKestrel(serverOptions => {
+    serverOptions.Limits.MaxRequestBodySize = 50 * 1024 * 1024; // 50 MB
+});
+
 builder.Services.AddScoped<NetLiveness.Api.Services.PersonnelIntegrationService>();
+builder.Services.AddScoped<IGlpiService, GlpiService>();
 
 // Configure File Logging for Diagnostics Dashboard
 builder.Logging.AddProvider(new FileLoggerProvider());
@@ -36,7 +54,8 @@ builder.Services.AddCors(options => {
               .AllowCredentials());
 });
 
-// Expose on all network interfaces for LAN access 
+// Expose on specific network interface
+// Expose on all network interfaces for maximum accessibility
 builder.WebHost.UseUrls("http://0.0.0.0:5006");
 
 var app = builder.Build();
@@ -53,10 +72,7 @@ using (var scope = app.Services.CreateScope())
         // --- Safe Migrations --- //
         context.Database.ExecuteSqlRaw(@"CREATE TABLE IF NOT EXISTS ComplianceDocuments (Id INTEGER PRIMARY KEY AUTOINCREMENT, Standard TEXT NOT NULL, FileName TEXT NOT NULL, FilePath TEXT NOT NULL, UploadDate TEXT NOT NULL, Description TEXT NULL);");
         
-        try {
-            context.Database.ExecuteSqlRaw("SELECT Url FROM Surveys LIMIT 1");
-            context.Database.ExecuteSqlRaw("DROP TABLE Surveys;");
-        } catch { }
+        /* Legacy Surveys check removed to prevent migration errors */
 
         context.Database.ExecuteSqlRaw(@"CREATE TABLE IF NOT EXISTS Surveys (Id INTEGER PRIMARY KEY AUTOINCREMENT, Title TEXT NOT NULL, Description TEXT NULL, IsActive INTEGER NOT NULL DEFAULT 1, CreatedAt TEXT NOT NULL);");
         context.Database.ExecuteSqlRaw(@"CREATE TABLE IF NOT EXISTS SurveyQuestions (Id INTEGER PRIMARY KEY AUTOINCREMENT, SurveyId INTEGER NOT NULL, Text TEXT NOT NULL, Type TEXT NOT NULL, Options TEXT NULL, ""Order"" INTEGER NOT NULL DEFAULT 0);");
@@ -103,6 +119,7 @@ using (var scope = app.Services.CreateScope())
 
         // --- Personnel Migrations --- //
         ensureColumn("Personnels", "WindowsLogin", "ALTER TABLE Personnels ADD COLUMN WindowsLogin TEXT;");
+        ensureColumn("Inventory", "Firma", "ALTER TABLE Inventory ADD COLUMN Firma TEXT;");
 
         // --- NULL Value Cleanup --- //
         try {

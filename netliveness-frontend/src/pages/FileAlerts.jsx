@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { getFileAlerts, deleteFileAlert, getTerminals, getUserActivityTargets } from '../api';
 import { 
   Search, TriangleAlert, RefreshCw, Trash2, Calendar, HardDrive, 
-  ChevronRight, Download, Filter, User, CircleAlert, Monitor, ShieldCheck, ShieldAlert
+  ChevronRight, Download, Filter, User, CircleAlert, Monitor, 
+  ShieldCheck, ShieldAlert, Cpu, Activity, Clock, AlertOctagon,
+  ChevronDown, ChevronUp, Database, FileText, Globe, Server, List,
+  ArrowRight, Info, CheckCircle2, XCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -12,8 +15,8 @@ export default function FileAlerts() {
   const [monitoringTargets, setMonitoringTargets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [selectedPc, setSelectedPc] = useState(null);
   const [extensionFilter, setExtensionFilter] = useState('');
-  const [pcFilter, setPcFilter] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -25,248 +28,266 @@ export default function FileAlerts() {
       setAlerts(alertData || []);
       setTerminals(termData || []);
       setMonitoringTargets(targetData || []);
+      
+      // İlk yüklemede uyarısı olan ilk PC'yi seç
+      if (!selectedPc && targetData.length > 0) {
+        const firstWithAlerts = targetData.find(t => alertData.some(a => a.pcName === t.pcName));
+        setSelectedPc(firstWithAlerts ? firstWithAlerts.pcName : targetData[0].pcName);
+      }
     } catch (e) {
       console.error(e);
       toast.error('Veriler yüklenemedi.');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedPc]);
 
   useEffect(() => {
     load();
+    const interval = setInterval(load, 30000);
+    return () => clearInterval(interval);
   }, [load]);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Bu uyarıyı silmek istediğinize emin misiniz?')) return;
+    if (!window.confirm('Bu kaydı silmek istediğinize emin misiniz?')) return;
     try {
       await deleteFileAlert(id);
       setAlerts(prev => prev.filter(a => a.id !== id));
-      toast.success('Uyarı silindi.');
+      toast.success('Kayıt silindi.');
     } catch (e) {
       toast.error('Silme işlemi başarısız.');
     }
   };
 
-  const pcs = monitoringTargets.map(t => t.pcName).sort();
+  const filteredAlerts = useMemo(() => {
+    return alerts.filter(a => {
+      const matchPc = !selectedPc || a.pcName === selectedPc;
+      const matchSearch = !search || a.fileName?.toLowerCase().includes(search.toLowerCase()) || a.filePath?.toLowerCase().includes(search.toLowerCase());
+      const matchExt = !extensionFilter || a.extension?.toLowerCase() === extensionFilter.toLowerCase();
+      return matchPc && matchSearch && matchExt;
+    }).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  }, [alerts, selectedPc, search, extensionFilter]);
+
+  const currentTerminal = terminals.find(t => t.name === selectedPc);
   const extensions = [...new Set(alerts.map(a => a.extension?.toLowerCase()))].filter(Boolean).sort();
 
-  const filtered = alerts.filter(a => {
-    const q = search.toLowerCase();
-    const matchSearch = !q || a.fileName?.toLowerCase().includes(q) || a.filePath?.toLowerCase().includes(q);
-    const matchExt = !extensionFilter || a.extension?.toLowerCase() === extensionFilter.toLowerCase();
-    const matchPc = !pcFilter || a.pcName === pcFilter;
-    return matchSearch && matchExt && matchPc;
-  });
-
-  if (loading) return <div className="loading-spinner"><div className="spinner" /> Veriler Yükleniyor...</div>;
+  if (loading && alerts.length === 0) return <div className="loading-spinner"><div className="spinner" /> Veriler Yükleniyor...</div>;
 
   return (
-    <div className="animate-fade-in">
-      <div className="page-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div className="icon-box" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
-            <TriangleAlert size={24} />
-          </div>
-          <div>
-            <h2 style={{ fontSize: '24px', fontWeight: 800 }}>Kritik Dosya Hareketleri</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>CAD ve mühendislik dosyalarının yüksek boyutlu transferleri</p>
-          </div>
+    <div className="animate-fade-in" style={{ 
+      height: 'calc(100vh - 120px)', 
+      display: 'flex', 
+      gap: '24px',
+      overflow: 'hidden'
+    }}>
+      {/* --- SOL PANEL: CIHAZ LİSTESİ --- */}
+      <div className="glass-card" style={{ 
+        width: '320px', 
+        display: 'flex', 
+        flexDirection: 'column',
+        padding: '0',
+        overflow: 'hidden'
+      }}>
+        <div style={{ padding: '24px 20px', borderBottom: '1px solid var(--border-color)' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Monitor size={20} className="text-accent" /> Cihazlar
+          </h3>
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>İzlenen terminaller ve durumlar</p>
         </div>
-        
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button className="btn btn-ghost" onClick={() => { setLoading(true); load(); }}>
-            <RefreshCw size={18} /> Yenile
-          </button>
-          <button className="btn btn-primary" onClick={() => {
-            const csv = [
-              ['Tarih', 'PC', 'Dosya', 'Yol', 'Boyut (MB)', 'Uzantı'],
-              ...filtered.map(a => [
-                new Date(a.timestamp).toLocaleString('tr-TR'),
-                a.pcName,
-                a.fileName,
-                a.filePath,
-                (a.fileSize / (1024 * 1024)).toFixed(2),
-                a.extension
-              ])
-            ].map(row => row.join(',')).join('\n');
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `kritik-dosya-hareketleri-${new Date().toISOString().split('T')[0]}.csv`;
-            link.click();
-          }}>
-            <Download size={18} /> Dışa Aktar (CSV)
-          </button>
-        </div>
-      </div>
 
-      <div className="glass-card" style={{ marginBottom: '24px', padding: '20px', border: '1px solid rgba(34, 197, 129, 0.2)', background: 'rgba(34, 197, 129, 0.02)' }}>
-        <div style={{ display: 'flex', gap: '15px' }}>
-          <div style={{ color: 'var(--accent-green)' }}><CircleAlert size={24} /></div>
-          <div>
-            <h4 style={{ fontSize: '15px', fontWeight: 800, marginBottom: '8px', color: 'var(--accent-green)' }}>Nasıl Uyarı Oluşturulur?</h4>
-            <ul style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.6', paddingLeft: '18px' }}>
-              <li><b>1. Cihazı Yapılandırın:</b> "Ağ İzleme" sayfasından ilgili bilgisayarı düzenleyin.</li>
-              <li><b>2. İzlemeyi Etkinleştirin:</b> "⚠️ Kritik Dosya İzlemeyi Aç" kutusunu işaretleyin.</li>
-              <li><b>3. Klasör ve Uzantı:</b> İzlenecek yolları ve uzantıları (Örn: <code style={{background:'rgba(255,255,255,0.05)', padding:'2px 4px'}}>sldprt;dwg;zip</code>) belirleyip kaydedin.</li>
-              <li><b>4. Test Edin:</b> Belirlediğiniz boyuttan (MB) büyük bir dosyayı o klasöre kopyalayın. Sistem 5 dakika içinde uyaracaktır.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div style={{ marginBottom: '24px' }}>
-        <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '12px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <User size={14} /> Kullanıcı İzleme Hedefleri (Bilgisayarlar)
-        </div>
-        <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '12px' }}>
-          {monitoringTargets.filter(t => t && t.pcName).map(target => {
-            const terminal = terminals.find(t => t && t.name && t.name.toLowerCase() === target.pcName.toLowerCase());
-            const hasAlert = alerts.some(a => a.pcName && a.pcName.toLowerCase() === target.pcName.toLowerCase());
-            const isMonitored = terminal?.enableFileMonitoring === true;
-            const isOnline = terminal?.status === 'UP';
+        <div style={{ flex: 1, overflowY: 'auto', padding: '12px' }}>
+          {monitoringTargets.map(target => {
+            const term = terminals.find(t => t.name === target.pcName);
+            const pcAlerts = alerts.filter(a => a.pcName === target.pcName);
+            const isActive = selectedPc === target.pcName;
+            const hasError = term?.lastError != null;
 
             return (
-              <div key={target.id || target.pcName} style={{ 
-                minWidth: '200px', padding: '12px', borderRadius: '12px', 
-                background: isMonitored ? 'rgba(34, 197, 129, 0.05)' : 'rgba(255,255,255,0.02)',
-                border: `1px solid ${isMonitored ? 'rgba(34, 197, 129, 0.2)' : 'var(--border-color)'}`,
-                cursor: 'pointer', opacity: terminal ? 1 : 0.5
-              }} onClick={() => setPcFilter(pcFilter === target.pcName ? '' : target.pcName)}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontWeight: 800, fontSize: '13px' }}>{target.pcName}</span>
-                  {isMonitored ? <ShieldCheck size={14} style={{ color: 'var(--accent-green)' }} /> : <ShieldAlert size={14} style={{ color: 'var(--text-muted)' }} />}
+              <div 
+                key={target.pcName}
+                onClick={() => setSelectedPc(target.pcName)}
+                className={`terminal-list-item ${isActive ? 'active' : ''}`}
+                style={{
+                  padding: '16px 20px',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  marginBottom: '10px',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  position: 'relative',
+                  background: isActive ? 'linear-gradient(135deg, var(--accent-green) 0%, #15803d 100%)' : 'rgba(255,255,255,0.02)',
+                  border: `1px solid ${isActive ? 'transparent' : 'var(--border-color)'}`,
+                  boxShadow: isActive ? '0 10px 20px rgba(34, 197, 129, 0.2)' : 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  borderLeft: isActive ? '6px solid white' : '1px solid transparent'
+                }}
+              >
+                <div style={{
+                  width: '40px', height: '40px', borderRadius: '10px',
+                  background: isActive ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.03)',
+                  display: 'grid', placeItems: 'center', color: isActive ? 'white' : 'var(--text-muted)'
+                }}>
+                  <Server size={20} />
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', color: 'var(--text-muted)' }}>
-                  {terminal ? (
-                    <>
-                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? 'var(--accent-green)' : '#ef4444' }} />
-                      {isOnline ? 'Aktif' : 'Çevrimdışı'}
-                    </>
-                  ) : (
-                    <span>Konfigüre Edilmemiş</span>
-                  )}
-                  {hasAlert && <span style={{ marginLeft: 'auto', color: '#ef4444', fontWeight: 800 }}>⚠️ Alert</span>}
+                
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: isActive ? 900 : 700, fontSize: '15px', color: isActive ? 'white' : 'var(--text-primary)' }}>{target.pcName}</div>
+                  <div style={{ fontSize: '11px', color: isActive ? 'rgba(255,255,255,0.8)' : (hasError ? '#ef4444' : 'var(--text-muted)'), display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    {hasError ? <AlertOctagon size={10} /> : <div style={{width:6, height:6, borderRadius:'50%', background: term?.status === 'UP' ? (isActive ? 'white' : 'var(--accent-green)') : '#94a3b8'}} />}
+                    {hasError ? 'Bağlantı Hatası' : (term?.status === 'UP' ? 'Aktif' : 'Çevrimdışı')}
+                  </div>
                 </div>
+
+                {pcAlerts.length > 0 && (
+                  <div style={{ 
+                    padding: '2px 8px', borderRadius: '10px', background: '#ef4444', 
+                    color: 'white', fontSize: '10px', fontWeight: 900 
+                  }}>
+                    {pcAlerts.length}
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
       </div>
 
-      <div className="toolbar" style={{ flexWrap: 'wrap', gap: '16px' }}>
-        <div className="search-box" style={{ flex: '1 1 300px' }}>
-          <Search size={18} />
-          <input 
-            placeholder="Dosya adı veya yol ara..." 
-            value={search} 
-            onChange={e => setSearch(e.target.value)} 
-          />
-        </div>
-
-        <div style={{ display: 'flex', gap: '12px', flex: '1 1 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-input)', padding: '0 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-            <HardDrive size={16} style={{ color: 'var(--text-muted)' }} />
-            <select 
-              className="filter-select" 
-              style={{ border: 'none', background: 'transparent' }}
-              value={pcFilter} 
-              onChange={e => setPcFilter(e.target.value)}
-            >
-              <option value="">Tüm Bilgisayarlar</option>
-              {pcs.map(pc => <option key={pc} value={pc}>{pc}</option>)}
-            </select>
+      {/* --- SAĞ PANEL: DETAY AKIŞI --- */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px', overflow: 'hidden' }}>
+        
+        {/* PC Header Info */}
+        <div className="glass-card" style={{ padding: '20px 24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'var(--accent-green)', color: 'white', display: 'grid', placeItems: 'center' }}>
+                <Activity size={24} />
+              </div>
+              <div>
+                <h2 style={{ fontSize: '22px', fontWeight: 900 }}>{selectedPc} - Aktivite Akışı</h2>
+                <div style={{ display: 'flex', gap: '16px', marginTop: '4px', fontSize: '13px', color: 'var(--text-muted)' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><User size={14} /> {currentTerminal?.lastUserName || '---'}</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> Son Tarama: {currentTerminal?.lastActivityTime ? new Date(currentTerminal.lastActivityTime).toLocaleTimeString('tr-TR') : '---'}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <div className="search-box" style={{ width: '240px' }}>
+                <Search size={16} />
+                <input placeholder="Dosya adı ara..." value={search} onChange={e => setSearch(e.target.value)} />
+              </div>
+              <select className="filter-select" style={{ width: '140px' }} value={extensionFilter} onChange={e => setExtensionFilter(e.target.value)}>
+                <option value="">Tüm Uzantılar</option>
+                {extensions.map(ext => <option key={ext} value={ext}>.{ext.toUpperCase()}</option>)}
+              </select>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-input)', padding: '0 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-            <Filter size={16} style={{ color: 'var(--text-muted)' }} />
-            <select 
-              className="filter-select" 
-              style={{ border: 'none', background: 'transparent' }}
-              value={extensionFilter} 
-              onChange={e => setExtensionFilter(e.target.value)}
-            >
-              <option value="">Tüm Uzantılar</option>
-              {extensions.map(ext => <option key={ext} value={ext}>.{ext.toUpperCase()}</option>)}
-            </select>
-          </div>
+          {currentTerminal?.lastError && (
+            <div style={{ 
+              marginTop: '16px', padding: '12px 16px', borderRadius: '12px', 
+              background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.1)',
+              display: 'flex', gap: '12px', alignItems: 'center', color: '#ef4444'
+            }}>
+              <ShieldAlert size={20} />
+              <div style={{ fontSize: '13px', fontWeight: 700 }}>{currentTerminal.lastError}</div>
+              <button className="btn btn-ghost btn-sm" style={{ marginLeft: 'auto', color: '#ef4444' }} onClick={load}>Tekrar Dene</button>
+            </div>
+          )}
         </div>
 
-        <div className="stats-mini">
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>SONUÇLAR</div>
-          <div style={{ fontSize: '16px', fontWeight: 800 }}>{filtered.length}</div>
-        </div>
-      </div>
+        {/* Timeline Akışı */}
+        <div style={{ flex: 1, overflowY: 'auto', paddingRight: '8px' }}>
+          <div className="timeline-container" style={{ position: 'relative', paddingLeft: '32px' }}>
+            <div style={{ position: 'absolute', left: '15px', top: '0', bottom: '0', width: '2px', background: 'var(--border-color)', opacity: 0.5 }} />
+            
+            {filteredAlerts.length > 0 ? filteredAlerts.map((alert, idx) => {
+              const mb = alert.fileSize / (1024 * 1024);
+              const isCritical = mb > 500;
+              const isHigh = mb > 100;
 
-      <div className="table-container animate-slide-up">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Calendar size={14} /> Tarih / Zaman</div></th>
-              <th><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><User size={14} /> Bilgisayar</div></th>
-              <th>Dosya Bilgisi</th>
-              <th>Boyut</th>
-              <th>Uzantı</th>
-              <th style={{ width: '80px' }}>İşlem</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map(alert => (
-              <tr key={alert.id} className={alert.fileSize > 100 * 1024 * 1024 ? 'status-critical' : ''}>
-                <td style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
-                  {new Date(alert.timestamp).toLocaleString('tr-TR')}
-                </td>
-                <td style={{ fontWeight: 700, color: 'var(--accent-green)' }}>
-                  {alert.pcName}
-                </td>
-                <td>
-                  <div style={{ fontWeight: 800, fontSize: '14px', marginBottom: '2px' }}>{alert.fileName}</div>
+              return (
+                <div key={alert.id} className="timeline-item animate-slide-up" style={{ 
+                  marginBottom: '20px', 
+                  position: 'relative',
+                  animationDelay: `${idx * 0.05}s`
+                }}>
+                  {/* Timeline Node */}
                   <div style={{ 
-                    fontSize: '11px', color: 'var(--text-muted)', 
-                    maxWidth: '400px', whiteSpace: 'nowrap', 
-                    overflow: 'hidden', textOverflow: 'ellipsis' 
-                  }}>
-                    {alert.filePath}
+                    position: 'absolute', left: '-25px', top: '24px', 
+                    width: '18px', height: '18px', borderRadius: '50%', 
+                    background: isCritical ? '#ef4444' : isHigh ? '#f59e0b' : 'var(--accent-green)',
+                    border: '4px solid var(--bg-primary)',
+                    boxShadow: '0 0 0 4px var(--bg-hover)'
+                  }} />
+
+                  <div className="glass-card hover-glow" style={{ padding: '0', overflow: 'hidden' }}>
+                    <div style={{ display: 'flex' }}>
+                      {/* Sol İkon Bölümü */}
+                      <div style={{ 
+                        width: '70px', background: 'rgba(255,255,255,0.02)', 
+                        display: 'grid', placeItems: 'center', borderRight: '1px solid var(--border-color)' 
+                      }}>
+                        <div style={{ textAlign: 'center' }}>
+                          <FileText size={24} style={{ color: isCritical ? '#ef4444' : 'var(--text-muted)' }} />
+                          <div style={{ fontSize: '9px', fontWeight: 900, marginTop: '4px', textTransform: 'uppercase' }}>{alert.extension}</div>
+                        </div>
+                      </div>
+
+                      {/* Ana İçerik */}
+                      <div style={{ flex: 1, padding: '16px 20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <h4 style={{ fontSize: '16px', fontWeight: 800 }}>{alert.fileName}</h4>
+                              {isCritical && <span style={{ padding: '2px 8px', borderRadius: '6px', background: '#ef4444', color: 'white', fontSize: '10px', fontWeight: 900 }}>KRİTİK BOYUT</span>}
+                            </div>
+                            <div style={{ 
+                              fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', 
+                              wordBreak: 'break-all', display: 'flex', alignItems: 'center', gap: '4px' 
+                            }}>
+                              <Globe size={12} /> {alert.filePath}
+                            </div>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '14px', fontWeight: 900, color: isCritical ? '#ef4444' : 'inherit' }}>{mb.toFixed(1)} MB</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'flex-end', marginTop: '4px' }}>
+                              <Clock size={12} /> {new Date(alert.timestamp).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Boyut Barı */}
+                        <div style={{ marginTop: '12px', height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
+                          <div style={{ 
+                            width: `${Math.min(100, (mb / 1000) * 100)}%`, 
+                            height: '100%', 
+                            background: isCritical ? '#ef4444' : isHigh ? '#f59e0b' : 'var(--accent-green)',
+                            transition: 'width 1s ease-out'
+                          }} />
+                        </div>
+                      </div>
+
+                      {/* İşlem Butonları */}
+                      <div style={{ width: '60px', display: 'grid', placeItems: 'center' }}>
+                        <button className="btn-icon" onClick={() => handleDelete(alert.id)} style={{ opacity: 0.4 }}>
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </td>
-                <td>
-                  <span style={{ 
-                    fontWeight: 800, 
-                    color: alert.fileSize > 50 * 1024 * 1024 ? '#ef4444' : 'var(--text-primary)' 
-                  }}>
-                    {(alert.fileSize / (1024 * 1024)).toFixed(1)} MB
-                  </span>
-                </td>
-                <td>
-                  <span className="badge badge-ghost" style={{ fontWeight: 800 }}>
-                    {alert.extension?.toUpperCase()}
-                  </span>
-                </td>
-                <td>
-                  <button 
-                    className="btn-icon btn-danger-ghost" 
-                    title="Uyarısını Sil"
-                    onClick={() => handleDelete(alert.id)}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan="6" style={{ padding: '80px 0', textAlign: 'center' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', opacity: 0.3 }}>
-                    <CircleAlert size={48} />
-                    <span style={{ fontSize: '16px', fontWeight: 600 }}>Kritik dosya hareketi bulunamadı.</span>
-                  </div>
-                </td>
-              </tr>
+                </div>
+              );
+            }) : (
+              <div style={{ padding: '100px 0', textAlign: 'center', opacity: 0.3 }}>
+                <CheckCircle2 size={48} style={{ marginBottom: '16px' }} />
+                <h3 style={{ fontSize: '18px', fontWeight: 800 }}>Temiz Akış</h3>
+                <p>Bu cihazda yakalanan kritik bir dosya hareketi bulunmuyor.</p>
+              </div>
             )}
-          </tbody>
-        </table>
+          </div>
+        </div>
       </div>
     </div>
   );

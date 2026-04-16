@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
 using NetLiveness.Api.Models;
 using NetLiveness.Api.Data;
+using NetLiveness.Api.Services;
 using Dapper;
 
 namespace NetLiveness.Api.Controllers
@@ -13,12 +14,14 @@ namespace NetLiveness.Api.Controllers
         private readonly string _connectionString;
         private readonly IWebHostEnvironment _env;
         private readonly AppDbContext _context;
+        private readonly IGlpiService _glpiService;
 
-        public HelpRequestsController(IConfiguration config, IWebHostEnvironment env, AppDbContext context)
+        public HelpRequestsController(IConfiguration config, IWebHostEnvironment env, AppDbContext context, IGlpiService glpiService)
         {
             _connectionString = config.GetConnectionString("Default") ?? "Data Source=netliveness_v2.db";
             _env = env;
             _context = context;
+            _glpiService = glpiService;
         }
 
         // PUBLIC: Submit a request with optional screenshot
@@ -50,6 +53,11 @@ namespace NetLiveness.Api.Controllers
             var operatorInfo = $"{User.Identity?.Name ?? "Son Kullanıcı"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
             _context.Logs.Add(new AuditLogEntry { Action = "HELP_REQUEST_CREATED", Details = $"Yeni destek talebi gönderildi: {req.Subject}", Operator = operatorInfo });
             await _context.SaveChangesAsync();
+
+            // GLPI Sync (Arka planda çalışır, kullanıcıyı bekletmez)
+            _ = Task.Run(async () => {
+                try { await _glpiService.CreateTicketAsync(req); } catch { }
+            });
 
             return Ok(new { message = "Talebiniz başarıyla alındı." });
         }

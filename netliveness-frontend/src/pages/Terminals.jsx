@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getTerminals, createTerminal, updateTerminal, deleteTerminal, forceWmiRefresh, getSettings } from '../api';
-import { Plus, Search, Pencil, Trash2, Monitor, X, ChevronDown, ChevronRight, Building2, Layers, RefreshCw, Zap } from 'lucide-react';
+import { getTerminals, createTerminal, updateTerminal, deleteTerminal, forceWmiRefresh, getSettings, getInventory, getStock } from '../api';
+import { Plus, Search, Pencil, Trash2, Monitor, X, ChevronDown, ChevronRight, Building2, Layers, RefreshCw, Zap, Activity } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const HealthBar = ({ label, val }) => {
@@ -48,6 +48,11 @@ export default function Terminals() {
   const [form, setForm]         = useState(emptyForm);
   const [editId, setEditId]     = useState(null);
   const [firmsList, setFirmsList] = useState([]);
+
+  // --- INVENTORY LOOKUP --- //
+  const [inventory, setInventory]     = useState([]);
+  const [showStockSelect, setShowStockSelect] = useState(false);
+  const [stockSearch, setStockSearch] = useState('');
   const [expanded, setExpanded]   = useState(() => {
     try {
       const saved = localStorage.getItem('terminals_expanded');
@@ -82,6 +87,14 @@ export default function Terminals() {
     finally { setLoading(false); }
   }, []);
 
+  const loadInventory = useCallback(async () => {
+    try {
+      const [inv, stock] = await Promise.all([getInventory(), getStock()]);
+      const combined = [...(inv || []), ...(stock || [])];
+      setInventory(combined.filter(i => i.category === 'Bilgisayar'));
+    } catch (e) { console.error(e); }
+  }, []);
+
   useEffect(() => { load(); const iv = setInterval(load, 8000); return () => clearInterval(iv); }, [load]);
 
   const filtered = items.filter(t => {
@@ -94,7 +107,24 @@ export default function Terminals() {
     return matchSearch && matchStatus && matchCompany && isNotPc;
   });
 
-  const openNew = () => { setForm(emptyForm); setEditId(null); setModal(true); };
+  const openNew = () => { 
+    setForm(emptyForm); 
+    setEditId(null); 
+    setModal(true); 
+    loadInventory();
+  };
+
+  const handleStockSelect = (item) => {
+    setForm(prev => ({
+      ...prev,
+      name: item.pcIsmi || '',
+      host: item.ipAddress || item.pcIsmi || '',
+      company: item.firma || 'Merkez',
+      description: `${item.brand || ''} ${item.model || ''} (${item.serialNo || ''})`.trim()
+    }));
+    setShowStockSelect(false);
+    toast.success('Bilgiler stoktan çekildi.');
+  };
   const openEdit = (t) => {
     setForm({ ...t });
     setEditId(t.id); setModal(true);
@@ -381,6 +411,60 @@ export default function Terminals() {
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              
+              {!editId && (
+                <div style={{ padding: '12px', background: 'var(--bg-inset)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: showStockSelect ? '12px' : '0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Activity size={14} color="var(--blue)" />
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-1)' }}>Mevcut Envanterden Veri Çek</span>
+                    </div>
+                    <button className="btn btn-ghost" style={{ fontSize: '12px', height: '28px', padding: '0 12px' }} onClick={() => setShowStockSelect(!showStockSelect)}>
+                      {showStockSelect ? 'Kapat' : 'Stoktan Seç'}
+                    </button>
+                  </div>
+                  
+                  {showStockSelect && (
+                    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <div className="search-bar" style={{ height: '36px' }}>
+                        <Search size={14} />
+                        <input 
+                          placeholder="Bilgisayar adı veya seri no ile ara..." 
+                          value={stockSearch} 
+                          onChange={e => setStockSearch(e.target.value)} 
+                          autoFocus
+                        />
+                      </div>
+                      <div style={{ maxHeight: '160px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        {inventory.filter(i => {
+                          const s = stockSearch.toLowerCase();
+                          return !s || i.pcIsmi?.toLowerCase().includes(s) || i.serialNo?.toLowerCase().includes(s) || (i.assignedTo && i.assignedTo.toLowerCase().includes(s));
+                        }).map(item => (
+                          <div 
+                            key={item.id} 
+                            onClick={() => handleStockSelect(item)}
+                            style={{ 
+                              padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', border: '1px solid var(--border)',
+                              display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff'
+                            }}
+                            className="stock-item-hover"
+                          >
+                            <div>
+                              <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-1)' }}>{item.pcIsmi}</div>
+                              <div style={{ fontSize: '11px', color: 'var(--text-3)' }}>{item.brand} {item.model} — {item.assignedTo || 'Depo'}</div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                               <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--blue)' }}>{item.ipAddress || 'IP Yok'}</div>
+                               <div style={{ fontSize: '10px', color: 'var(--text-3)' }}>{item.firma}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="form-group">
                   <label className="form-label">Aygıt Adı (Etiket)</label>

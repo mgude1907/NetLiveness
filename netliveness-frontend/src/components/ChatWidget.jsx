@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, X, Send, User } from 'lucide-react';
+import { MessageCircleMore, X, Send, User, ChevronUp } from 'lucide-react';
 import * as signalR from '@microsoft/signalr';
-import api from '../api';
+import api, { STATIC_URL } from '../api';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
@@ -44,7 +44,7 @@ export default function ChatWidget({ user }) {
     fetchHistory();
 
     const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5006/chathub")
+      .withUrl(`${STATIC_URL}/chathub`)
       .withAutomaticReconnect()
       .build();
 
@@ -91,55 +91,69 @@ export default function ChatWidget({ user }) {
 
   return (
     <>
-      {/* Floating Button */}
+      {/* ─── Premium Floating Button ─── */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
+        className={`chat-fab ${isOpen ? 'open' : ''}`}
         style={{
-          position: 'fixed', bottom: '24px', right: '24px',
-          width: '60px', height: '60px', borderRadius: '30px',
-          background: 'var(--accent-blue)', color: 'white',
-          border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          position: 'fixed', bottom: '32px', right: '32px',
+          width: '64px', height: '64px', borderRadius: '24px',
+          background: 'var(--blue-text)', color: 'white',
+          border: 'none', boxShadow: '0 8px 32px rgba(59, 130, 246, 0.4)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', zIndex: 9999, transition: 'transform 0.2s',
-          transform: isOpen ? 'scale(0)' : 'scale(1)'
+          cursor: 'pointer', zIndex: 9999, transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
         }}
       >
-        <MessageSquare size={28} />
+        <div className="fab-glow" />
+        {isOpen ? <X size={28} strokeWidth={2.5} /> : <MessageCircleMore size={28} strokeWidth={2.5} />}
+        
+        {/* Pulse Effect when closed */}
+        {!isOpen && <div className="fab-pulse" />}
       </button>
 
-      {/* Chat Window */}
-      <div style={{
-        position: 'fixed', bottom: '24px', right: '24px',
-        width: '350px', height: '500px', backgroundColor: 'var(--bg-card)',
-        borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+      {/* ─── Modern Chat Window ─── */}
+      <div className={`chat-mini-window ${isOpen ? 'active' : ''}`} style={{
+        position: 'fixed', bottom: '110px', right: '32px',
+        width: '380px', height: '540px', backgroundColor: 'var(--bg-card)',
+        borderRadius: '28px', boxShadow: 'var(--shadow-2xl)',
         display: 'flex', flexDirection: 'column', zIndex: 10000,
-        transform: isOpen ? 'translateY(0)' : 'translateY(20px)',
-        opacity: isOpen ? 1 : 0, pointerEvents: isOpen ? 'auto' : 'none',
-        transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
-        border: '1px solid var(--border-color)', overflow: 'hidden'
+        pointerEvents: isOpen ? 'auto' : 'none',
+        border: '1px solid var(--border)', overflow: 'hidden',
+        background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)'
       }}>
+        {/* Window Header */}
         <div style={{
-          padding: '12px 16px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)',
+          padding: '20px 24px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center'
         }}>
-          {channels.length > 0 ? (
-              <select 
-                value={channelId} 
-                onChange={(e) => setChannelId(Number(e.target.value))}
-                style={{ background: 'transparent', border: '1px solid var(--border-color)', padding: '4px 8px', borderRadius: '6px', color: 'var(--text-primary)', fontWeight: 600, outline: 'none' }}
-              >
-                  {channels.map(ch => (
-                      <option key={ch.id} value={ch.id}>{ch.name}</option>
-                  ))}
-              </select>
-          ) : (
-            <h3 style={{ margin: 0, fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)' }}>
-              <MessageSquare size={16} color="var(--accent-blue)" /> Sohbet
-            </h3>
-          )}
-          <button onClick={() => setIsOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-            <X size={20} />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+             <div className="icon-box-sm icon-blue">
+                <MessageCircleMore size={16} color="var(--blue-text)" />
+             </div>
+             <div>
+                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 900, color: 'var(--text-1)' }}>Genel Sohbet</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--text-3)', fontWeight: 700 }}>
+                   <div className="status-dot success" /> Çevrimiçi
+                </div>
+             </div>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {channels.length > 0 && (
+                <select 
+                  value={channelId} 
+                  onChange={(e) => setChannelId(Number(e.target.value))}
+                  style={{ background: 'var(--bg-inset)', border: '1px solid var(--border)', padding: '4px 10px', borderRadius: '10px', color: 'var(--text-1)', fontSize: 11, fontWeight: 800, outline: 'none' }}
+                >
+                    {channels.map(ch => (
+                        <option key={ch.id} value={ch.id}>{ch.name}</option>
+                    ))}
+                </select>
+            )}
+            <button onClick={() => setIsOpen(false)} style={{ background: 'var(--bg-inset)', border: 'none', width: 32, height: 32, borderRadius: 10, color: 'var(--text-3)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* Messages Layout */}
@@ -176,25 +190,45 @@ export default function ChatWidget({ user }) {
         </div>
 
         {/* Input Form */}
-        <form onSubmit={sendMessage} style={{ padding: '12px', borderTop: '1px solid var(--border-color)', background: 'var(--bg-card)', display: 'flex', gap: '8px' }}>
-          <input 
-            type="text" 
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Mesaj yazın..."
-            style={{
-              flex: 1, padding: '10px 16px', borderRadius: '20px', border: '1px solid var(--border-color)',
-              background: 'var(--bg-input)', color: 'white', outline: 'none'
-            }}
-          />
+        <form onSubmit={sendMessage} style={{ padding: '20px', borderTop: '1px solid var(--border)', background: 'var(--bg-surface)', display: 'flex', gap: '12px' }}>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <input 
+              type="text" 
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Mesajınızı yazın..."
+              style={{
+                width: '100%', padding: '12px 48px 12px 20px', borderRadius: '16px', border: '1px solid var(--border)',
+                background: 'var(--bg-inset)', color: 'var(--text-1)', fontWeight: 600, outline: 'none', fontSize: 13, transition: 'all 0.2s'
+              }}
+              className="chat-mini-input"
+            />
+          </div>
           <button type="submit" disabled={!input.trim() || !connection} style={{
-            background: 'var(--accent-blue)', color: 'white', border: 'none', borderRadius: '50%',
-            width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
-          }}>
-            <Send size={18} style={{ marginLeft: '2px' }} />
+            background: 'var(--blue-text)', color: 'white', border: 'none', borderRadius: '14px',
+            width: '46px', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)', transition: 'all 0.2s'
+          }} className="chat-send-btn">
+            <Send size={18} strokeWidth={2.5} />
           </button>
         </form>
       </div>
+
+      <style>{`
+        .chat-fab:hover { transform: scale(1.05) translateY(-2px); }
+        .chat-fab:active { transform: scale(0.95); }
+        .chat-fab.open { transform: rotate(90deg); background: var(--bg-surface) !important; color: var(--text-2) !important; border: 1px solid var(--border); box-shadow: var(--shadow-lg); }
+        
+        .fab-pulse { position: absolute; inset: -4px; border-radius: 28px; border: 2px solid var(--blue-text); animation: pulseFab 2s infinite; opacity: 0; }
+        @keyframes pulseFab { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(1.3); opacity: 0; } }
+        
+        .chat-mini-window { transform: translateY(30px) scale(0.9); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .chat-mini-window.active { transform: translateY(0) scale(1); opacity: 1; }
+        
+        .chat-mini-input:focus { border-color: var(--blue-text); background: var(--bg-surface); }
+        .chat-send-btn:hover:not(:disabled) { transform: scale(1.05); background: var(--blue-dark); }
+        .chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+      `}</style>
     </>
   );
 }

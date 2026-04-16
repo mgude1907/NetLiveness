@@ -26,12 +26,26 @@ appsettings.Development.json
 *.db
 *.sqlite
 *.sqlite3
+*.db-shm
+*.db-wal
 
 # Logs & Temp
 *.log
 logs/
 temp/
 tmp/
+worker_logs*.txt
+NetLiveness.Api/test_*
+NetLiveness.Api/ef_out*.txt
+NetLiveness.Api/ef_v3*.txt
+NetLiveness.Api/*.xlsx
+NetLiveness.Api/*.zip
+NetLiveness.Api/*.sql
+NetLiveness.Api/*.sql
+*.txt
+!NetLiveness.Api/system_logs.txt
+!README.md
+!SETUP_GUIDE.md
 
 # OS Files
 .DS_Store

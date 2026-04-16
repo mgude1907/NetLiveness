@@ -1,32 +1,23 @@
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.TerminalsController.GetTerminals() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\TerminalsController.cs:line 68
-[2026-04-08 10:19:33] [Error] An unhandled exception occurred during the request.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.UserActivityController.GetTargets() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\UserActivityController.cs:line 59
-   at lambda_method933(Closure, Object)
+[2026-04-15 14:07:09] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-04-15 14:40:31] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-04-15 14:47:34] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-15 14:47:34] [Error] An unhandled exception occurred during the request.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at NetLiveness.Api.Controllers.InventoryController.GetInventory() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\InventoryController.cs:line 23
+   at lambda_method904(Closure, Object)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
@@ -39,86 +30,24 @@ Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving 
    at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
    at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
    at NetLiveness.Api.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Middleware\GlobalExceptionMiddleware.cs:line 21
-[2026-04-08 10:19:53] [Error] Failed executing DbCommand (2,963ms) [Parameters=[@p0='?' (Size = 6), @p1='?' (Size = 7), @p2='?' (DbType = Int32), @p3='?', @p4='?' (Size = 2), @p5='?' (DbType = Double), @p6='?' (DbType = Double), @p7='?' (DbType = Boolean), @p8='?' (DbType = Boolean), @p9='?' (DbType = Int32), @p10='?' (Size = 9), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?', @p14='?', @p15='?', @p16='?', @p17='?' (DbType = Boolean), @p18='?' (Size = 27), @p19='?' (Size = 20), @p20='?' (Size = 9), @p21='?', @p22='?' (DbType = Int32), @p23='?' (DbType = Int64), @p24='?' (DbType = Boolean), @p25='?' (Size = 3), @p26='?', @p27='?' (Size = 5), @p28='?'], CommandType='Text', CommandTimeout='10']
-INSERT INTO "Terminals" ("Company", "Country", "CpuUsage", "Description", "DeviceType", "DiskFreeGb", "DiskSizeGb", "EnableFileMonitoring", "EnableUserActivity", "FileThresholdMb", "Host", "LastActivityTime", "LastCheck", "LastError", "LastUserName", "Location", "Mac", "Maintenance", "MonitoredExtensions", "MonitoredPaths", "Name", "Password", "RamUsage", "RttMs", "SkipWmi", "Status", "SwitchPort", "UserActivityGroup", "Username")
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28)
-RETURNING "Id";
-[2026-04-08 10:19:53] [Error] An exception occurred in the database while saving changes for context type 'NetLiveness.Api.Data.AppDbContext'.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-[2026-04-08 10:19:53] [Error] Legacy target migration failed
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.TerminalsController.GetTerminals() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\TerminalsController.cs:line 68
-[2026-04-08 10:19:53] [Error] An unhandled exception occurred during the request.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.UserActivityController.GetTargets() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\UserActivityController.cs:line 59
-   at lambda_method933(Closure, Object)
+[2026-04-15 14:47:34] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-15 14:47:34] [Error] An unhandled exception occurred during the request.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at NetLiveness.Api.Controllers.InventoryController.GetInventory() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\InventoryController.cs:line 23
+   at lambda_method904(Closure, Object)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
@@ -131,86 +60,96 @@ Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving 
    at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
    at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
    at NetLiveness.Api.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Middleware\GlobalExceptionMiddleware.cs:line 21
-[2026-04-08 10:20:03] [Error] Failed executing DbCommand (1ms) [Parameters=[@p0='?' (Size = 6), @p1='?' (Size = 7), @p2='?' (DbType = Int32), @p3='?', @p4='?' (Size = 2), @p5='?' (DbType = Double), @p6='?' (DbType = Double), @p7='?' (DbType = Boolean), @p8='?' (DbType = Boolean), @p9='?' (DbType = Int32), @p10='?' (Size = 9), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?', @p14='?', @p15='?', @p16='?', @p17='?' (DbType = Boolean), @p18='?' (Size = 27), @p19='?' (Size = 20), @p20='?' (Size = 9), @p21='?', @p22='?' (DbType = Int32), @p23='?' (DbType = Int64), @p24='?' (DbType = Boolean), @p25='?' (Size = 3), @p26='?', @p27='?' (Size = 5), @p28='?'], CommandType='Text', CommandTimeout='10']
-INSERT INTO "Terminals" ("Company", "Country", "CpuUsage", "Description", "DeviceType", "DiskFreeGb", "DiskSizeGb", "EnableFileMonitoring", "EnableUserActivity", "FileThresholdMb", "Host", "LastActivityTime", "LastCheck", "LastError", "LastUserName", "Location", "Mac", "Maintenance", "MonitoredExtensions", "MonitoredPaths", "Name", "Password", "RamUsage", "RttMs", "SkipWmi", "Status", "SwitchPort", "UserActivityGroup", "Username")
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28)
-RETURNING "Id";
-[2026-04-08 10:20:03] [Error] An exception occurred in the database while saving changes for context type 'NetLiveness.Api.Data.AppDbContext'.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-[2026-04-08 10:20:03] [Error] Legacy target migration failed
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.TerminalsController.GetTerminals() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\TerminalsController.cs:line 68
-[2026-04-08 10:20:03] [Error] An unhandled exception occurred during the request.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.UserActivityController.GetTargets() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\UserActivityController.cs:line 59
-   at lambda_method933(Closure, Object)
+[2026-04-15 14:53:18] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-15 14:53:19] [Error] Error processing individual GLPI item in Computer
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at NetLiveness.Api.Services.GlpiService.ProcessGlpiItemAsync(JsonNode node, String category) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Services\GlpiService.cs:line 379
+   at NetLiveness.Api.Services.GlpiService.SyncInventoryAsync() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Services\GlpiService.cs:line 227
+[2026-04-15 14:53:21] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-15 14:53:21] [Error] Error processing individual GLPI item in Computer
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at NetLiveness.Api.Services.GlpiService.ProcessGlpiItemAsync(JsonNode node, String category) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Services\GlpiService.cs:line 379
+   at NetLiveness.Api.Services.GlpiService.SyncInventoryAsync() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Services\GlpiService.cs:line 227
+[2026-04-15 14:54:09] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-15 14:54:09] [Error] Error processing individual GLPI item in Computer
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at NetLiveness.Api.Services.GlpiService.ProcessGlpiItemAsync(JsonNode node, String category) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Services\GlpiService.cs:line 379
+   at NetLiveness.Api.Services.GlpiService.SyncInventoryAsync() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Services\GlpiService.cs:line 227
+[2026-04-15 14:54:11] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-15 14:54:11] [Error] Error processing individual GLPI item in Computer
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at NetLiveness.Api.Services.GlpiService.ProcessGlpiItemAsync(JsonNode node, String category) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Services\GlpiService.cs:line 379
+   at NetLiveness.Api.Services.GlpiService.SyncInventoryAsync() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Services\GlpiService.cs:line 227
+[2026-04-15 14:54:22] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-15 14:54:22] [Error] An unhandled exception occurred during the request.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at NetLiveness.Api.Controllers.InventoryController.GetInventory() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\InventoryController.cs:line 23
+   at lambda_method904(Closure, Object)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
@@ -223,86 +162,24 @@ Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving 
    at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
    at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
    at NetLiveness.Api.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Middleware\GlobalExceptionMiddleware.cs:line 21
-[2026-04-08 10:20:24] [Error] Failed executing DbCommand (3,557ms) [Parameters=[@p0='?' (Size = 6), @p1='?' (Size = 7), @p2='?' (DbType = Int32), @p3='?', @p4='?' (Size = 2), @p5='?' (DbType = Double), @p6='?' (DbType = Double), @p7='?' (DbType = Boolean), @p8='?' (DbType = Boolean), @p9='?' (DbType = Int32), @p10='?' (Size = 9), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?', @p14='?', @p15='?', @p16='?', @p17='?' (DbType = Boolean), @p18='?' (Size = 27), @p19='?' (Size = 20), @p20='?' (Size = 9), @p21='?', @p22='?' (DbType = Int32), @p23='?' (DbType = Int64), @p24='?' (DbType = Boolean), @p25='?' (Size = 3), @p26='?', @p27='?' (Size = 5), @p28='?'], CommandType='Text', CommandTimeout='10']
-INSERT INTO "Terminals" ("Company", "Country", "CpuUsage", "Description", "DeviceType", "DiskFreeGb", "DiskSizeGb", "EnableFileMonitoring", "EnableUserActivity", "FileThresholdMb", "Host", "LastActivityTime", "LastCheck", "LastError", "LastUserName", "Location", "Mac", "Maintenance", "MonitoredExtensions", "MonitoredPaths", "Name", "Password", "RamUsage", "RttMs", "SkipWmi", "Status", "SwitchPort", "UserActivityGroup", "Username")
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28)
-RETURNING "Id";
-[2026-04-08 10:20:24] [Error] An exception occurred in the database while saving changes for context type 'NetLiveness.Api.Data.AppDbContext'.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-[2026-04-08 10:20:24] [Error] Legacy target migration failed
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.TerminalsController.GetTerminals() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\TerminalsController.cs:line 68
-[2026-04-08 10:20:24] [Error] An unhandled exception occurred during the request.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.UserActivityController.GetTargets() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\UserActivityController.cs:line 59
-   at lambda_method933(Closure, Object)
+[2026-04-15 14:54:22] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-15 14:54:22] [Error] An unhandled exception occurred during the request.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at NetLiveness.Api.Controllers.InventoryController.GetInventory() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\InventoryController.cs:line 23
+   at lambda_method904(Closure, Object)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
@@ -315,105 +192,24 @@ Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving 
    at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
    at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
    at NetLiveness.Api.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Middleware\GlobalExceptionMiddleware.cs:line 21
-[2026-04-08 10:20:33] [Error] Failed executing DbCommand (1ms) [Parameters=[@p0='?' (Size = 6), @p1='?' (Size = 7), @p2='?' (DbType = Int32), @p3='?', @p4='?' (Size = 2), @p5='?' (DbType = Double), @p6='?' (DbType = Double), @p7='?' (DbType = Boolean), @p8='?' (DbType = Boolean), @p9='?' (DbType = Int32), @p10='?' (Size = 9), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?', @p14='?', @p15='?', @p16='?', @p17='?' (DbType = Boolean), @p18='?' (Size = 27), @p19='?' (Size = 20), @p20='?' (Size = 9), @p21='?', @p22='?' (DbType = Int32), @p23='?' (DbType = Int64), @p24='?' (DbType = Boolean), @p25='?' (Size = 3), @p26='?', @p27='?' (Size = 5), @p28='?'], CommandType='Text', CommandTimeout='10']
-INSERT INTO "Terminals" ("Company", "Country", "CpuUsage", "Description", "DeviceType", "DiskFreeGb", "DiskSizeGb", "EnableFileMonitoring", "EnableUserActivity", "FileThresholdMb", "Host", "LastActivityTime", "LastCheck", "LastError", "LastUserName", "Location", "Mac", "Maintenance", "MonitoredExtensions", "MonitoredPaths", "Name", "Password", "RamUsage", "RttMs", "SkipWmi", "Status", "SwitchPort", "UserActivityGroup", "Username")
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28)
-RETURNING "Id";
-[2026-04-08 10:20:33] [Error] Failed executing DbCommand (1ms) [Parameters=[@p0='?' (Size = 6), @p1='?' (Size = 7), @p2='?' (DbType = Int32), @p3='?', @p4='?' (Size = 2), @p5='?' (DbType = Double), @p6='?' (DbType = Double), @p7='?' (DbType = Boolean), @p8='?' (DbType = Boolean), @p9='?' (DbType = Int32), @p10='?' (Size = 9), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?', @p14='?', @p15='?', @p16='?', @p17='?' (DbType = Boolean), @p18='?' (Size = 27), @p19='?' (Size = 20), @p20='?' (Size = 9), @p21='?', @p22='?' (DbType = Int32), @p23='?' (DbType = Int64), @p24='?' (DbType = Boolean), @p25='?' (Size = 3), @p26='?', @p27='?' (Size = 5), @p28='?'], CommandType='Text', CommandTimeout='10']
-INSERT INTO "Terminals" ("Company", "Country", "CpuUsage", "Description", "DeviceType", "DiskFreeGb", "DiskSizeGb", "EnableFileMonitoring", "EnableUserActivity", "FileThresholdMb", "Host", "LastActivityTime", "LastCheck", "LastError", "LastUserName", "Location", "Mac", "Maintenance", "MonitoredExtensions", "MonitoredPaths", "Name", "Password", "RamUsage", "RttMs", "SkipWmi", "Status", "SwitchPort", "UserActivityGroup", "Username")
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28)
-RETURNING "Id";
-[2026-04-08 10:20:33] [Error] An exception occurred in the database while saving changes for context type 'NetLiveness.Api.Data.AppDbContext'.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-[2026-04-08 10:20:33] [Error] An exception occurred in the database while saving changes for context type 'NetLiveness.Api.Data.AppDbContext'.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-[2026-04-08 10:20:33] [Error] An unhandled exception occurred during the request.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.UserActivityController.GetTargets() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\UserActivityController.cs:line 59
-   at lambda_method933(Closure, Object)
+[2026-04-16 06:54:47] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-16 06:54:47] [Error] An unhandled exception occurred during the request.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at NetLiveness.Api.Controllers.InventoryController.GetInventory() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\InventoryController.cs:line 23
+   at lambda_method904(Closure, Object)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
@@ -426,66 +222,24 @@ Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving 
    at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
    at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
    at NetLiveness.Api.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Middleware\GlobalExceptionMiddleware.cs:line 21
-[2026-04-08 10:20:50] [Error] Failed executing DbCommand (1ms) [Parameters=[@p0='?' (Size = 6), @p1='?' (Size = 7), @p2='?' (DbType = Int32), @p3='?', @p4='?' (Size = 2), @p5='?' (DbType = Double), @p6='?' (DbType = Double), @p7='?' (DbType = Boolean), @p8='?' (DbType = Boolean), @p9='?' (DbType = Int32), @p10='?' (Size = 9), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?', @p14='?', @p15='?', @p16='?', @p17='?' (DbType = Boolean), @p18='?' (Size = 27), @p19='?' (Size = 20), @p20='?' (Size = 9), @p21='?', @p22='?' (DbType = Int32), @p23='?' (DbType = Int64), @p24='?' (DbType = Boolean), @p25='?' (Size = 3), @p26='?', @p27='?' (Size = 5), @p28='?'], CommandType='Text', CommandTimeout='10']
-INSERT INTO "Terminals" ("Company", "Country", "CpuUsage", "Description", "DeviceType", "DiskFreeGb", "DiskSizeGb", "EnableFileMonitoring", "EnableUserActivity", "FileThresholdMb", "Host", "LastActivityTime", "LastCheck", "LastError", "LastUserName", "Location", "Mac", "Maintenance", "MonitoredExtensions", "MonitoredPaths", "Name", "Password", "RamUsage", "RttMs", "SkipWmi", "Status", "SwitchPort", "UserActivityGroup", "Username")
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28)
-RETURNING "Id";
-[2026-04-08 10:20:50] [Error] An exception occurred in the database while saving changes for context type 'NetLiveness.Api.Data.AppDbContext'.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-[2026-04-08 10:20:50] [Error] An unhandled exception occurred during the request.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.UserActivityController.GetTargets() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\UserActivityController.cs:line 59
-   at lambda_method933(Closure, Object)
+[2026-04-16 06:54:47] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-16 06:54:47] [Error] An unhandled exception occurred during the request.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at NetLiveness.Api.Controllers.InventoryController.GetInventory() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\InventoryController.cs:line 23
+   at lambda_method904(Closure, Object)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
@@ -498,145 +252,60 @@ Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving 
    at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
    at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
    at NetLiveness.Api.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Middleware\GlobalExceptionMiddleware.cs:line 21
-[2026-04-08 10:20:50] [Error] Failed executing DbCommand (162ms) [Parameters=[@p0='?' (Size = 6), @p1='?' (Size = 7), @p2='?' (DbType = Int32), @p3='?', @p4='?' (Size = 2), @p5='?' (DbType = Double), @p6='?' (DbType = Double), @p7='?' (DbType = Boolean), @p8='?' (DbType = Boolean), @p9='?' (DbType = Int32), @p10='?' (Size = 9), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?', @p14='?', @p15='?', @p16='?', @p17='?' (DbType = Boolean), @p18='?' (Size = 27), @p19='?' (Size = 20), @p20='?' (Size = 9), @p21='?', @p22='?' (DbType = Int32), @p23='?' (DbType = Int64), @p24='?' (DbType = Boolean), @p25='?' (Size = 3), @p26='?', @p27='?' (Size = 5), @p28='?'], CommandType='Text', CommandTimeout='10']
-INSERT INTO "Terminals" ("Company", "Country", "CpuUsage", "Description", "DeviceType", "DiskFreeGb", "DiskSizeGb", "EnableFileMonitoring", "EnableUserActivity", "FileThresholdMb", "Host", "LastActivityTime", "LastCheck", "LastError", "LastUserName", "Location", "Mac", "Maintenance", "MonitoredExtensions", "MonitoredPaths", "Name", "Password", "RamUsage", "RttMs", "SkipWmi", "Status", "SwitchPort", "UserActivityGroup", "Username")
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28)
-RETURNING "Id";
-[2026-04-08 10:20:50] [Error] An exception occurred in the database while saving changes for context type 'NetLiveness.Api.Data.AppDbContext'.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-[2026-04-08 10:20:50] [Error] Legacy target migration failed
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.TerminalsController.GetTerminals() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\TerminalsController.cs:line 68
-[2026-04-08 10:21:03] [Error] Failed executing DbCommand (1ms) [Parameters=[@p0='?' (Size = 6), @p1='?' (Size = 7), @p2='?' (DbType = Int32), @p3='?', @p4='?' (Size = 2), @p5='?' (DbType = Double), @p6='?' (DbType = Double), @p7='?' (DbType = Boolean), @p8='?' (DbType = Boolean), @p9='?' (DbType = Int32), @p10='?' (Size = 9), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?', @p14='?', @p15='?', @p16='?', @p17='?' (DbType = Boolean), @p18='?' (Size = 27), @p19='?' (Size = 20), @p20='?' (Size = 9), @p21='?', @p22='?' (DbType = Int32), @p23='?' (DbType = Int64), @p24='?' (DbType = Boolean), @p25='?' (Size = 3), @p26='?', @p27='?' (Size = 5), @p28='?'], CommandType='Text', CommandTimeout='10']
-INSERT INTO "Terminals" ("Company", "Country", "CpuUsage", "Description", "DeviceType", "DiskFreeGb", "DiskSizeGb", "EnableFileMonitoring", "EnableUserActivity", "FileThresholdMb", "Host", "LastActivityTime", "LastCheck", "LastError", "LastUserName", "Location", "Mac", "Maintenance", "MonitoredExtensions", "MonitoredPaths", "Name", "Password", "RamUsage", "RttMs", "SkipWmi", "Status", "SwitchPort", "UserActivityGroup", "Username")
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27, @p28)
-RETURNING "Id";
-[2026-04-08 10:21:03] [Error] An exception occurred in the database while saving changes for context type 'NetLiveness.Api.Data.AppDbContext'.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-[2026-04-08 10:21:03] [Error] Legacy target migration failed
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.TerminalsController.GetTerminals() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\TerminalsController.cs:line 68
-[2026-04-08 10:21:03] [Error] An unhandled exception occurred during the request.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'NOT NULL constraint failed: Terminals.LastCheck'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.UserActivityController.GetTargets() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\UserActivityController.cs:line 59
-   at lambda_method933(Closure, Object)
+[2026-04-16 06:54:57] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-16 06:54:57] [Error] Error processing individual GLPI item in Computer
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at NetLiveness.Api.Services.GlpiService.ProcessGlpiItemAsync(JsonNode node, String category) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Services\GlpiService.cs:line 379
+   at NetLiveness.Api.Services.GlpiService.SyncInventoryAsync() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Services\GlpiService.cs:line 227
+[2026-04-16 06:54:59] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-16 06:54:59] [Error] Error processing individual GLPI item in Computer
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method1016(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at NetLiveness.Api.Services.GlpiService.ProcessGlpiItemAsync(JsonNode node, String category) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Services\GlpiService.cs:line 379
+   at NetLiveness.Api.Services.GlpiService.SyncInventoryAsync() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Services\GlpiService.cs:line 227
+[2026-04-16 07:01:04] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-16 07:01:04] [Error] An unhandled exception occurred during the request.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at NetLiveness.Api.Controllers.InventoryController.GetInventory() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\InventoryController.cs:line 23
+   at lambda_method904(Closure, Object)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
@@ -649,30 +318,25 @@ Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving 
    at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
    at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
    at NetLiveness.Api.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Middleware\GlobalExceptionMiddleware.cs:line 21
-[2026-04-08 10:21:20] [Error] Failed executing DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
-SELECT Url FROM Surveys LIMIT 1
-[2026-04-08 10:21:33] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
-[2026-04-08 10:38:07] [Warning] [SİSTEM-AĞ] Cihaz SİLİNDİ. İsim: localhost - IP: localhost
-[2026-04-08 10:38:11] [Warning] [SİSTEM-AĞ] Cihaz SİLİNDİ. İsim: BROWSER-TEST-PC - IP: 192.168.1.99
-[2026-04-08 10:39:39] [Warning] [SİSTEM-AĞ] Cihaz SİLİNDİ. İsim: USER-MON-TEST - IP: 192.168.1.88
-[2026-04-08 10:39:57] [Warning] [SİSTEM-AĞ] Cihaz SİLİNDİ. İsim: localhost - IP: localhost
-[2026-04-08 10:39:57] [Warning] [SİSTEM-AĞ] Cihaz SİLİNDİ. İsim: localhost - IP: localhost
-[2026-04-08 10:39:58] [Warning] [SİSTEM-AĞ] Cihaz SİLİNDİ. İsim: localhost - IP: localhost
-[2026-04-08 10:40:00] [Error] An unhandled exception occurred during the request.
-Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException: The database operation was expected to affect 1 row(s), but actually affected 0 row(s); data may have been modified or deleted since entities were loaded. See https://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.
-   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ThrowAggregateUpdateConcurrencyExceptionAsync(RelationalDataReader reader, Int32 commandIndex, Int32 expectedRowsAffected, Int32 rowsAffected, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetWithRowsAffectedOnlyAsync(Int32 commandIndex, RelationalDataReader reader, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.TerminalsController.DeleteTerminal(Int32 id) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\TerminalsController.cs:line 155
-   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+[2026-04-16 07:01:04] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-16 07:01:04] [Error] An unhandled exception occurred during the request.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at NetLiveness.Api.Controllers.InventoryController.GetInventory() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\InventoryController.cs:line 23
+   at lambda_method904(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
@@ -684,21 +348,25 @@ Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException: The database operati
    at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
    at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
    at NetLiveness.Api.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Middleware\GlobalExceptionMiddleware.cs:line 21
-[2026-04-08 10:40:00] [Error] An unhandled exception occurred during the request.
-Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException: The database operation was expected to affect 1 row(s), but actually affected 0 row(s); data may have been modified or deleted since entities were loaded. See https://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.
-   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ThrowAggregateUpdateConcurrencyExceptionAsync(RelationalDataReader reader, Int32 commandIndex, Int32 expectedRowsAffected, Int32 rowsAffected, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetWithRowsAffectedOnlyAsync(Int32 commandIndex, RelationalDataReader reader, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.TerminalsController.DeleteTerminal(Int32 id) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\TerminalsController.cs:line 155
-   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+[2026-04-16 07:12:58] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-16 07:12:59] [Error] An unhandled exception occurred during the request.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at NetLiveness.Api.Controllers.InventoryController.GetInventory() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\InventoryController.cs:line 23
+   at lambda_method904(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
    at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
@@ -710,17 +378,137 @@ Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException: The database operati
    at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
    at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
    at NetLiveness.Api.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Middleware\GlobalExceptionMiddleware.cs:line 21
-[2026-04-08 10:40:01] [Warning] [SİSTEM-AĞ] Cihaz SİLİNDİ. İsim: REP388 - IP: REP388
-[2026-04-08 10:40:05] [Warning] [SİSTEM-AĞ] Cihaz SİLİNDİ. İsim: localhost - IP: localhost
-[2026-04-08 10:44:49] [Error] Failed executing DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
-SELECT Url FROM Surveys LIMIT 1
-[2026-04-08 10:44:55] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
-[2026-04-08 10:47:12] [Warning] [SİSTEM-AĞ] Cihaz SİLİNDİ. İsim: localhost - IP: localhost
-[2026-04-08 10:47:38] [Warning] [SİSTEM-AĞ] Cihaz SİLİNDİ. İsim: localhost - IP: localhost
-[2026-04-08 10:53:45] [Warning] [SİSTEM-AĞ] Cihaz SİLİNDİ. İsim: BROWSER-FILE-MON-TEST - IP: 127.0.0.99
-[2026-04-08 11:14:09] [Error] Failed executing DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
-SELECT Url FROM Surveys LIMIT 1
-[2026-04-08 11:14:09] [Error] Hosting failed to start
+[2026-04-16 07:12:59] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-16 07:12:59] [Error] An unhandled exception occurred during the request.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at NetLiveness.Api.Controllers.InventoryController.GetInventory() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\InventoryController.cs:line 23
+   at lambda_method904(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at NetLiveness.Api.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Middleware\GlobalExceptionMiddleware.cs:line 21
+[2026-04-16 07:15:57] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-16 07:15:57] [Error] An unhandled exception occurred during the request.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at NetLiveness.Api.Controllers.InventoryController.GetInventory() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\InventoryController.cs:line 23
+   at lambda_method904(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at NetLiveness.Api.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Middleware\GlobalExceptionMiddleware.cs:line 21
+[2026-04-16 07:19:07] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-16 07:19:07] [Error] An unhandled exception occurred during the request.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at NetLiveness.Api.Controllers.InventoryController.GetInventory() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\InventoryController.cs:line 23
+   at lambda_method904(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at NetLiveness.Api.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Middleware\GlobalExceptionMiddleware.cs:line 21
+[2026-04-16 07:19:07] [Error] An exception occurred while iterating over the results of a query for context type 'NetLiveness.Api.Data.AppDbContext'.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2026-04-16 07:19:07] [Error] An unhandled exception occurred during the request.
+System.InvalidOperationException: The data is NULL at ordinal 6. This method can't be called on NULL values. Check using IsDBNull before calling.
+   at Microsoft.Data.Sqlite.SqliteValueReader.GetString(Int32 ordinal)
+   at lambda_method927(Closure, QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at NetLiveness.Api.Controllers.InventoryController.GetInventory() in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\InventoryController.cs:line 23
+   at lambda_method904(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at NetLiveness.Api.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Middleware\GlobalExceptionMiddleware.cs:line 21
+[2026-04-16 09:22:30] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-04-16 09:55:21] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-04-16 09:59:15] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-04-16 10:03:28] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-04-16 10:09:31] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-04-16 10:16:19] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-04-16 10:32:41] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-04-16 10:38:04] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-04-16 10:57:43] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-04-16 11:08:36] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-04-16 11:09:15] [Error] Hosting failed to start
 System.IO.IOException: Failed to bind to address http://0.0.0.0:5006: address already in use.
  ---> Microsoft.AspNetCore.Connections.AddressInUseException: Normal olarak her yuva adresi (iletişim kuralı/ağ adresi/bağlantı noktası) için yalnızca bir kullanıma izin veriliyor.
  ---> System.Net.Sockets.SocketException (10048): Normal olarak her yuva adresi (iletişim kuralı/ağ adresi/bağlantı noktası) için yalnızca bir kullanıma izin veriliyor.
@@ -746,82 +534,4 @@ System.IO.IOException: Failed to bind to address http://0.0.0.0:5006: address al
    at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
    at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__15_1(IHostedService service, CancellationToken token)
    at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
-[2026-04-08 11:29:46] [Warning] [SİSTEM-AĞ] Cihaz SİLİNDİ. İsim: rep800 - IP: rep800
-[2026-04-08 12:48:42] [Warning] [SİSTEM-AĞ] Cihaz SİLİNDİ. İsim: rep787 - IP: rep787
-[2026-04-09 07:07:17] [Error] Failed executing DbCommand (10,128ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?' (Size = 13), @p2='?' (Size = 9), @p3='?' (DbType = Boolean), @p4='?' (DbType = Boolean), @p5='?' (Size = 20), @p6='?' (Size = 4), @p7='?' (Size = 13)], CommandType='Text', CommandTimeout='10']
-INSERT INTO "AppUsers" ("CreatedAt", "Email", "FullName", "IsActive", "IsAdmin", "PasswordHash", "Permissions", "Username")
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)
-RETURNING "Id";
-[2026-04-09 07:07:17] [Error] An exception occurred in the database while saving changes for context type 'NetLiveness.Api.Data.AppDbContext'.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 5: 'database is locked'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 5: 'database is locked'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-[2026-04-09 07:07:17] [Error] An unhandled exception occurred during the request.
-Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
- ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 5: 'database is locked'.
-   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
-   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
-   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   --- End of inner exception stack trace ---
-   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
-   at NetLiveness.Api.Controllers.AuthController.Register(RegisterRequest req) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Controllers\AuthController.cs:line 68
-   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
-   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
-   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
-   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
-   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
-   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
---- End of stack trace from previous location ---
-   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
-   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
-   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
-   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
-   at NetLiveness.Api.Middleware.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api\Middleware\GlobalExceptionMiddleware.cs:line 21
-[2026-04-09 08:22:50] [Error] Failed executing DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
-SELECT Url FROM Surveys LIMIT 1
-[2026-04-09 08:22:51] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
-[2026-04-09 08:49:30] [Error] Failed executing DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='10']
-SELECT Url FROM Surveys LIMIT 1
-[2026-04-09 08:49:50] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-04-16 12:45:54] [Warning] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.

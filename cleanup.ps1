@@ -12,8 +12,8 @@ foreach ($p in $processes) {
     } catch { }
 }
 
-# Kill by Port (5006 for API, 5173 for Vite)
-$ports = @(5006, 5173)
+# Kill by Port (5006 for API, 5173 for Vite, 3001 for Phishing)
+$ports = @(5006, 5173, 3001)
 foreach ($port in $ports) {
     try {
         $procId = (Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue).OwningProcess

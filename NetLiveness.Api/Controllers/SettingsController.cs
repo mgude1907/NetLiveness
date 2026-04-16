@@ -13,11 +13,13 @@ namespace NetLiveness.Api.Controllers
     {
         private readonly AppDbContext _context;
         private readonly PersonnelIntegrationService _integrationService;
+        private readonly IGlpiService _glpiService;
 
-        public SettingsController(AppDbContext context, PersonnelIntegrationService integrationService)
+        public SettingsController(AppDbContext context, PersonnelIntegrationService integrationService, IGlpiService glpiService)
         {
             _context = context;
             _integrationService = integrationService;
+            _glpiService = glpiService;
         }
 
         [HttpGet]
@@ -47,6 +49,9 @@ namespace NetLiveness.Api.Controllers
                 settings.Id = current.Id;
                 _context.Entry(current).CurrentValues.SetValues(settings);
             }
+
+            var logoStatus = string.IsNullOrEmpty(settings.AppLogo) ? "Boş" : $"{settings.AppLogo.Length} karakter";
+            System.IO.File.AppendAllText("system_logs.txt", $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [Info] Ayarlar Güncellendi. Logo Boyutu: {logoStatus}\n");
 
             var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
             _context.Logs.Add(new AuditLogEntry { Action = "SETTINGS_UPDATED", Details = "Sistem genel ayarları güncellendi", Operator = operatorInfo });
@@ -135,6 +140,29 @@ namespace NetLiveness.Api.Controllers
             var (success, message) = await _integrationService.TestConnectionAsync(settings);
             if (success) return Ok(new { message });
             return BadRequest(new { message });
+        }
+
+        [HttpPost("test-glpi-connection")]
+        public async Task<ActionResult> TestGlpiConnection([FromBody] AppSettings settings)
+        {
+            var (success, message) = await _glpiService.TestConnectionAsync(settings);
+            if (success) return Ok(new { message });
+            return BadRequest(new { message });
+        }
+
+        [HttpPost("sync-glpi-inventory")]
+        public async Task<ActionResult> SyncGlpiInventory()
+        {
+            var (success, count, matchedCount) = await _glpiService.SyncInventoryAsync();
+            if (success)
+            {
+                var message = matchedCount > 0 
+                    ? $"GLPI senkronizasyonu tamamlandı. Toplam {count} varlık işlendi, {matchedCount} cihaz personellerle otomatik eşleştirildi."
+                    : $"GLPI senkronizasyonu tamamlandı. {count} varlık işlendi (personel eşleşmesi bulunamadı).";
+
+                return Ok(new { message, count, matchedCount });
+            }
+            return BadRequest(new { message = "GLPI senkronizasyonu başarısız oldu. GLPI bağlantı ayarlarını kontrol edin." });
         }
     }
 }

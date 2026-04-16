@@ -100,6 +100,13 @@ export const getInventory     = ()     => api.get('/inventory').then(r => r.data
 export const createInventory  = (data) => api.post('/inventory', data).then(r => r.data);
 export const updateInventory  = (id, data) => api.put(`/inventory/${id}`, data).then(r => r.data);
 export const deleteInventory  = (id)   => api.delete(`/inventory/${id}`);
+export const getInventoryFormUrl = (ids) => `${STATIC_URL}/api/inventory/export-form?ids=${ids}`;
+export const downloadInventoryExcel = async (ids) => {
+  const response = await api.get(`/inventory/export-form?ids=${ids}`, {
+    responseType: 'arraybuffer'
+  });
+  return response.data;
+};
 
 // ── SSL ──
 export const getSslItems      = ()     => api.get('/ssl').then(r => r.data);
@@ -278,6 +285,16 @@ export const testPersonnelConnection = async (settings) => {
   return res.data;
 };
 
+export const testGlpiConnection = async (settings) => {
+  const res = await api.post('/settings/test-glpi-connection', settings);
+  return res.data;
+};
+
+export const syncGlpiInventory = async () => {
+  const res = await api.post('/settings/sync-glpi-inventory');
+  return res.data;
+};
+
 // ── Surveys (Internal) ──
 export const getAdminSurveys = () => api.get('/internalsurveys').then(r => r.data);
 export const getActiveSurveys = () => api.get('/internalsurveys/active').then(r => r.data);
@@ -296,5 +313,23 @@ export const getSurveyResults = (id) => api.get(`/internalsurveys/${id}/results`
 export const getFileAlerts    = ()   => api.get('/file-alerts').then(r => r.data);
 export const deleteFileAlert  = (id) => api.delete(`/file-alerts/${id}`).then(r => r.data);
 export const forceScanFiles   = (id) => api.post(`/terminals/${id}/scan-files`).then(r => r.data);
+
+// ── Cyber Awareness Tips (Farkındalık İpuçları) ──
+export const getAwarenessTips = () => {
+  return Promise.resolve([
+    { id: 1, title: 'Güçlü Şifreler', text: 'Şifreleriniz en az 12 karakter, büyük-küçük harf, rakam ve sembol içermelidir. Her hesap için farklı şifre kullanın.', icon: 'Lock' },
+    { id: 2, title: 'MFA Kullanımı', text: 'İki faktörlü doğrulamayı (MFA) tüm kritik hesaplarınızda (E-posta, Bankacılık, ERP) aktif edin.', icon: 'ShieldCheck' },
+    { id: 3, title: 'Oltalama (Phishing)', text: 'Tanımadığınız kişilerden gelen e-postalardaki ekleri ve bağlantıları kesinlikle açmayın. Gönderen adresini kontrol edin.', icon: 'AlertTriangle' },
+    { id: 4, title: 'Veri Yedekleme', text: 'Önemli verilerinizi düzenli olarak yedekleyin. 3-2-1 kuralını uygulayın: 3 kopya, 2 farklı medya, 1 bulut/uzak konum.', icon: 'Database' },
+    { id: 5, title: 'Halka Açık Wi-Fi', text: 'Havaalanı, kafe gibi yerlerdeki Wi-Fi ağlarında bankacılık işlemleri yapmaktan kaçının veya güvenilir bir VPN kullanın.', icon: 'Wifi' },
+    { id: 6, title: 'Yazılım Güncellemeleri', text: 'Yazılımlarınızı ve işletim sisteminizi her zaman güncel tutun. Güncellemeler güvenlik açıklarını kapatır.', icon: 'Zap' },
+    { id: 7, title: 'Masa Temizliği', text: 'Bilgisayarınızın başından ayrılırken Windows + L tuşu ile ekranınızı kilitlemeyi alışkanlık haline getirin.', icon: 'Monitor' },
+    { id: 8, title: 'USB Güvenliği', text: 'Yolda bulduğunuz veya kaynağını bilmediğiniz USB bellekleri asla bilgisayarınıza takmayın.', icon: 'Zap' },
+    { id: 9, title: 'Sosyal Mühendislik', text: 'Kendisini teknik destek veya yönetici olarak tanıtan kişilere telefonda şifrelerinizi asla vermeyin.', icon: 'ShieldCheck' },
+    { id: 10, title: 'Mobil Güvenlik', text: 'İş maillerinize eriştiğiniz mobil cihazlarınızda mutlaka ekran kilidi ve mümkünse biyometrik doğrulama kullanın.', icon: 'Monitor' },
+    { id: 11, title: 'Gizli Bilgi Paylaşımı', text: 'Şirket içi hassas belgeleri ve müşteri verilerini, şifrelenmemiş kanallar veya kişisel mesajlaşma uygulamaları üzerinden paylaşmayın.', icon: 'Lock' },
+    { id: 12, title: 'Fiziksel Güvenlik', text: 'Tanımadığınız kişilerin ofiste refakatsiz dolaşmasına izin vermeyin ve yetkisiz kişilerin kart okuyucu noktalarından geçişine dikkat edin.', icon: 'AlertTriangle' }
+  ]);
+};
 
 export default api;

@@ -19,7 +19,8 @@ import {
   updateTerminal,
   deleteTerminal,
   forceWmiRefresh,
-  getSettings
+  getSettings,
+  getInventory
 } from '../api';
 import {
   Monitor, Clock, Activity, Globe, LayoutDashboard, RefreshCw, Zap, CircleAlert, Settings2, Plus, Trash2, X, TriangleAlert, Search, Pencil, User, Building2
@@ -48,6 +49,11 @@ export default function UserMonitoring() {
   });
   const [compEditId, setCompEditId]   = useState(null);
   const [firmsList, setFirmsList]     = useState([]);
+
+  // --- INVENTORY LOOKUP --- //
+  const [inventory, setInventory]     = useState([]);
+  const [showStockSelect, setShowStockSelect] = useState(false);
+  const [stockSearch, setStockSearch] = useState('');
 
   // --- ACTIVITY MONITORING STATES --- //
   const [targets, setTargets]         = useState([]);
@@ -82,6 +88,15 @@ export default function UserMonitoring() {
       const firms = (settingsData?.firmsList || '').split(',').map(f => f.trim()).filter(Boolean);
       setFirmsList(firms.length > 0 ? firms : ['Merkez']);
     } catch (e) { console.error('Failed to load computers', e); }
+  }, []);
+
+  const loadInventory = useCallback(async () => {
+    try {
+      const { getInventory, getStock } = await import('../api');
+      const [inv, stock] = await Promise.all([getInventory(), getStock()]);
+      const combined = [...(inv || []), ...(stock || [])];
+      setInventory(combined.filter(i => i.category === 'Bilgisayar'));
+    } catch (e) { console.error('Failed to load inventory', e); }
   }, []);
 
   const handleSaveComp = async () => {
@@ -124,6 +139,19 @@ export default function UserMonitoring() {
       enableUserActivity: true, userActivityGroup: 'Genel'
     }); 
     setCompEditId(null); setCompModal(true); 
+    loadInventory();
+  };
+
+  const handleStockSelect = (item) => {
+    setCompForm(prev => ({
+      ...prev,
+      name: item.pcIsmi || '',
+      host: item.ipAddress || item.pcIsmi || '', // IP varsa al, yoksa PC ismi
+      company: item.firma || 'Merkez',
+      description: `${item.brand || ''} ${item.model || ''} (${item.serialNo || ''})`.trim()
+    }));
+    setShowStockSelect(false);
+    toast.success('Bilgiler stoktan çekildi.');
   };
   const openEditComp = (t) => { setCompForm({ ...t }); setCompEditId(t.id); setCompModal(true); };
 
@@ -492,6 +520,60 @@ export default function UserMonitoring() {
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              
+              {!compEditId && (
+                <div style={{ padding: '12px', background: 'var(--bg-inset)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: showStockSelect ? '12px' : '0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Activity size={14} color="var(--blue)" />
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-1)' }}>Mevcut Envanterden Veri Çek</span>
+                    </div>
+                    <button className="btn btn-ghost" style={{ fontSize: '12px', height: '28px', padding: '0 12px' }} onClick={() => setShowStockSelect(!showStockSelect)}>
+                      {showStockSelect ? 'Kapat' : 'Stoktan Seç'}
+                    </button>
+                  </div>
+                  
+                  {showStockSelect && (
+                    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <div className="search-bar" style={{ height: '36px' }}>
+                        <Search size={14} />
+                        <input 
+                          placeholder="Bilgisayar adı veya seri no ile ara..." 
+                          value={stockSearch} 
+                          onChange={e => setStockSearch(e.target.value)} 
+                          autoFocus
+                        />
+                      </div>
+                      <div style={{ maxHeight: '160px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        {inventory.filter(i => {
+                          const s = stockSearch.toLowerCase();
+                          return !s || i.pcIsmi?.toLowerCase().includes(s) || i.serialNo?.toLowerCase().includes(s) || (i.assignedTo && i.assignedTo.toLowerCase().includes(s));
+                        }).map(item => (
+                          <div 
+                            key={item.id} 
+                            onClick={() => handleStockSelect(item)}
+                            style={{ 
+                              padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', border: '1px solid var(--border)',
+                              display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff'
+                            }}
+                            className="stock-item-hover"
+                          >
+                            <div>
+                              <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-1)' }}>{item.pcIsmi}</div>
+                              <div style={{ fontSize: '11px', color: 'var(--text-3)' }}>{item.brand} {item.model} — {item.assignedTo || 'Depo'}</div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                               <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--blue)' }}>{item.ipAddress || 'IP Yok'}</div>
+                               <div style={{ fontSize: '10px', color: 'var(--text-3)' }}>{item.firma}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="form-group">
                   <label className="form-label">Bilgisayar Adı</label>

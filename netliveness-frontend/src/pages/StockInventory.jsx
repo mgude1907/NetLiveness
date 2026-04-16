@@ -1,14 +1,25 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   getStock, createStock, updateStock, deleteStock,
-  getInventory, createInventory, updateInventory, deleteInventory,
+  getInventory, createInventory, updateInventory, deleteInventory, getInventoryFormUrl, downloadInventoryExcel,
   getPersonnel, createTerminal,
   getLicenses, createLicense, updateLicense, deleteLicense
 } from '../api';
-import { Plus, Search, Pencil, Trash2, X, Package, ArrowRightLeft, ShieldCheck, UserCheck, AlertTriangle, Boxes, Monitor, Phone, Tablet, Printer, Wifi } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, X, Package, ArrowRightLeft, ShieldCheck, UserCheck, AlertTriangle, Boxes, Monitor, Phone, Tablet, Printer, Wifi, FileDown, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const CATEGORIES = ['Bilgisayar', 'Monitör', 'Yazıcı', 'Telefon', 'Tablet', 'Ağ Cihazı', 'Diğer'];
+
+const getAssetIcon = (cat) => {
+  switch(cat) {
+    case 'Bilgisayar': return <Monitor size={14} />;
+    case 'Telefon': return <Phone size={14} />;
+    case 'Tablet': return <Tablet size={14} />;
+    case 'Yazıcı': return <Printer size={14} />;
+    case 'Ağ Cihazı': return <Wifi size={14} />;
+    default: return <Package size={14} />;
+  }
+};
 const STATUSES   = ['Sağlam', 'Arızalı', 'Tamir Bekliyor'];
 const ENVANTER_TYPES = ['Personel Envanteri', 'Şirket Envanteri'];
 
@@ -77,6 +88,9 @@ export default function StockInventory() {
   const [catFilter, setCatFilter]   = useState('');
   const [typeFilter, setTypeFilter] = useState('');
 
+  const [page, setPage]             = useState(1);
+  const [perPage]                   = useState(25);
+
   const [modal, setModal]   = useState(false);
   const [form, setForm]     = useState(emptyStock);
   const [editId, setEditId] = useState(null);
@@ -84,41 +98,81 @@ export default function StockInventory() {
   const [assignModal, setAssignModal] = useState(false);
   const [assignItem, setAssignItem]   = useState(null);
   const [assignTo, setAssignTo]       = useState('');
+  const [assignToFirma, setAssignToFirma] = useState('');
   const [searchPerson, setSearchPerson] = useState('');
 
   const [confModal, setConfModal] = useState(null); // { title, msg, onConfirm, color }
   const [deleting, setDeleting]   = useState(false);
 
+  const [reportModal, setReportModal] = useState(false);
+  const [reportData, setReportData]   = useState(null); // { person, items }
+
   const load = useCallback(async () => {
+    const safeCall = async (fn, fallback = []) => {
+      try { return await fn(); } catch (err) { console.error("Load partial fail:", err); return fallback; }
+    };
     try {
-      const [s, i, p, l] = await Promise.all([getStock(), getInventory(), getPersonnel(), getLicenses()]);
-      setStock(s || []); setInventory(i || []); setPersonnel(p || []); setLicenses(l || []);
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
+      const [s, i, p, l] = await Promise.all([
+        safeCall(getStock),
+        safeCall(getInventory),
+        safeCall(getPersonnel),
+        safeCall(getLicenses)
+      ]);
+      setStock(s); setInventory(i); setPersonnel(p); setLicenses(l);
+    } catch (error) {
+      console.error('Data Load Error:', error);
+      toast.error('Veriler yüklenirken bir hata oluştu');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
-  const items = tab === 'stock' ? stock : (tab === 'inventory' ? inventory : licenses);
-  const filtered = items.filter(item => {
-    const q = search.toLowerCase();
-    
-    if (tab === 'licenses') {
-      return !q || 
-        item.softwareName?.toLowerCase()?.includes(q) || 
-        item.licenseKey?.toLowerCase()?.includes(q) || 
-        item.assignedTo?.toLowerCase()?.includes(q);
+  // Optimized filtering
+  const filtered = React.useMemo(() => {
+    let rawItems = [];
+    if (tab === 'stock') {
+      rawItems = stock;
+    } else if (tab === 'inventory') {
+      // Sort by assignedTo for grouping
+      rawItems = [...inventory].sort((a, b) => (a.assignedTo || '').localeCompare(b.assignedTo || ''));
+    } else {
+      rawItems = licenses;
     }
 
-    const matchSearch = !q || 
-      item.brand?.toLowerCase()?.includes(q) || 
-      item.model?.toLowerCase()?.includes(q) || 
-      item.serialNo?.toLowerCase()?.includes(q) || 
-      item.pcIsmi?.toLowerCase()?.includes(q);
-    const matchCat = !catFilter || item.category === catFilter;
-    const matchType = !typeFilter || item.envanterTuru === typeFilter;
-    return matchSearch && matchCat && matchType;
-  });
+    const q = search.toLowerCase();
+    
+    return rawItems.filter(item => {
+      if (tab === 'licenses') {
+        return !q || 
+          item.softwareName?.toLowerCase()?.includes(q) || 
+          item.licenseKey?.toLowerCase()?.includes(q) || 
+          item.assignedTo?.toLowerCase()?.includes(q);
+      }
+
+      const matchSearch = !q || 
+        item.brand?.toLowerCase()?.includes(q) || 
+        item.model?.toLowerCase()?.includes(q) || 
+        item.serialNo?.toLowerCase()?.includes(q) || 
+        item.pcIsmi?.toLowerCase()?.includes(q);
+      
+      // If we are in inventory tab, don't force catFilter unless user specifically selects it
+      const matchCat = !catFilter || item.category === catFilter;
+      const matchType = !typeFilter || item.envanterTuru === typeFilter;
+      return matchSearch && matchCat && matchType;
+    });
+  }, [tab, stock, inventory, licenses, search, catFilter, typeFilter]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filtered.length / perPage);
+  const paginatedItems = React.useMemo(() => {
+    const start = (page - 1) * perPage;
+    return filtered.slice(start, start + perPage);
+  }, [filtered, page, perPage]);
+
+  // Reset page on filter or tab change
+  useEffect(() => { setPage(1); }, [search, catFilter, typeFilter, tab]);
 
   // summaries
   const totalAssets = stock.length + inventory.length;
@@ -257,7 +311,7 @@ export default function StockInventory() {
       await createInventory({
         category: assignItem.category, brand: assignItem.brand, model: assignItem.model,
         serialNo: assignItem.serialNo, pcIsmi: assignItem.pcIsmi,
-        envanterTuru: assignItem.envanterTuru, assignedTo: assignTo
+        envanterTuru: assignItem.envanterTuru, assignedTo: assignTo, firma: assignToFirma
       });
       await deleteStock(assignItem.id);
       toast.success(`Cihaz ${assignTo} kişisine zimmetlendi.`);
@@ -294,6 +348,55 @@ export default function StockInventory() {
         }
       }
     });
+  };
+
+  const handleDownloadExcel = async (ids, assignedTo) => {
+    try {
+      toast.loading('Dosya hazırlanıyor...', { id: 'xl-dl' });
+      const arrayBuffer = await downloadInventoryExcel(ids);
+      
+      console.log('Download received. Buffer size:', arrayBuffer?.byteLength);
+      
+      const blob = new Blob([arrayBuffer], { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      });
+      
+      console.log('Created Blob. Type:', blob.type, 'Size:', blob.size);
+
+      // Akıllı Hata Kontrolü: Eğer gelen veri çok küçükse (örneğin bir hata mesajı JSON ise)
+      if (blob.size < 500) {
+        const text = await blob.text();
+        console.warn('Small download detected, possible error:', text);
+        let errorMessage = 'Dosya oluşturulurken bir hata oluştu.';
+        try {
+          const json = JSON.parse(text);
+          errorMessage = json.message || json.title || text;
+        } catch(e) {
+          errorMessage = text;
+        }
+        toast.error(`Hata: ${errorMessage}`, { id: 'xl-dl', duration: 5000 });
+        return;
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      const safeName = (assignedTo || 'Envanter_Listesi').replace(/[^a-z0-9]/gi, '_');
+      link.setAttribute('download', `Zimmet_${safeName}.xlsx`);
+      
+      console.log('Triggering download for:', `Zimmet_${safeName}.xlsx`);
+      
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast.success('Dosya başarıyla indirildi.', { id: 'xl-dl' });
+    } catch (err) {
+      console.error('Download fail:', err);
+      toast.error('Bağlantı hatası veya sunucu yanıt vermiyor.', { id: 'xl-dl' });
+    }
   };
 
   if (loading) return (
@@ -358,13 +461,49 @@ export default function StockInventory() {
         </div>
       </div>
 
+      {/* ─── Category Summary Cards (Reflect Availability) ─── */}
+      <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', scrollbarWidth: 'none' }}>
+        {CATEGORIES.map(cat => {
+          const count = stock.filter(i => i.category === cat).length;
+          const isActive = tab === 'stock' && catFilter === cat;
+          return (
+            <div 
+              key={cat} 
+              onClick={() => {
+                setTab('stock');
+                setCatFilter(isActive ? '' : cat);
+              }}
+              className={`card ${isActive ? 'active-border' : ''}`} 
+              style={{ 
+                minWidth: '160px', padding: '12px 16px', cursor: 'pointer', 
+                display: 'flex', alignItems: 'center', gap: '12px',
+                border: isActive ? '2px solid var(--blue)' : '1px solid var(--border)',
+                background: isActive ? 'var(--blue-light)' : 'var(--card-bg)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div className={`icon-box-sm ${isActive ? 'icon-blue' : 'icon-slate'}`}>
+                  {(() => {
+                    const Icon = getAssetIcon(cat);
+                    return Icon;
+                  })()}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-3)', fontWeight: 600, textTransform: 'uppercase' }}>{cat}</div>
+                <div style={{ fontSize: '16px', fontWeight: 800, color: isActive ? 'var(--blue)' : 'var(--text-1)' }}>{count} Stokta</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
       {/* ─── Tabs & Toolbar ─── */}
       <div className="card" style={{ padding: '12px 20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
           <div className="segmented-control">
-            <button className={tab === 'stock' ? 'active' : ''} onClick={() => setTab('stock')}>Stok Listesi</button>
-            <button className={tab === 'inventory' ? 'active' : ''} onClick={() => setTab('inventory')}>Zimmetli Envanter</button>
-            <button className={tab === 'licenses' ? 'active' : ''} onClick={() => setTab('licenses')}>Lisanslar</button>
+            <button className={tab === 'stock' ? 'active' : ''} onClick={() => { setTab('stock'); setCatFilter(''); }}>Stok Listesi</button>
+            <button className={tab === 'inventory' ? 'active' : ''} onClick={() => { setTab('inventory'); setCatFilter(''); }}>Zimmetli Envanter</button>
+            <button className={tab === 'licenses' ? 'active' : ''} onClick={() => { setTab('licenses'); setCatFilter(''); }}>Lisanslar</button>
           </div>
 
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flex: 1, justifyContent: 'flex-end' }}>
@@ -407,105 +546,179 @@ export default function StockInventory() {
             )}
           </thead>
           <tbody>
-            {filtered.map(item => {
+            {(() => {
               if (tab === 'licenses') {
-                const isExpired = item.expirationDate && new Date(item.expirationDate) < new Date();
-                return (
-                  <tr key={item.id} className={isExpired ? 'row-danger' : ''}>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div className={`icon-box-sm ${isExpired ? 'icon-red' : 'icon-blue'}`}><ShieldCheck size={14} /></div>
-                        <div style={{ fontWeight: 800, color: 'var(--text-1)', fontSize: '13px' }}>{item.softwareName}</div>
-                      </div>
-                    </td>
-                    <td><code style={{ fontSize: '11px', color: 'var(--text-2)' }}>{item.licenseKey || '—'}</code></td>
-                    <td><span className="badge badge-neutral" style={{ fontSize: '10px' }}>{item.licenseType.toUpperCase()}</span></td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isExpired ? 'var(--red)' : 'var(--text-2)', fontWeight: 600, fontSize: '12px' }}>
-                        {isExpired && <AlertTriangle size={12} />}
-                        {item.expirationDate ? new Date(item.expirationDate).toLocaleDateString('tr-TR') : 'SÜRESİZ'}
-                      </div>
-                    </td>
-                    <td style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-1)' }}>{item.assignedTo || '—'}</td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                        <button className="btn-icon" onClick={() => openEdit(item)} title="Düzenle"><Pencil size={13} /></button>
-                        <button className="btn-icon" style={{ borderColor: 'var(--red-border)', color: 'var(--red)' }} onClick={() => handleDelete(item.id)} title="Sil"><Trash2 size={13} /></button>
-                      </div>
-                    </td>
-                  </tr>
-                );
+                return paginatedItems.map(item => {
+                  const isExpired = item.expirationDate && new Date(item.expirationDate) < new Date();
+                  return (
+                    <tr key={item.id} className={isExpired ? 'row-danger' : ''}>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <div className={`icon-box-sm ${isExpired ? 'icon-red' : 'icon-blue'}`}><ShieldCheck size={14} /></div>
+                          <div style={{ fontWeight: 800, color: 'var(--text-1)', fontSize: '13px' }}>{item.softwareName}</div>
+                        </div>
+                      </td>
+                      <td><code style={{ fontSize: '11px', color: 'var(--text-2)' }}>{item.licenseKey || '—'}</code></td>
+                      <td><span className="badge badge-neutral" style={{ fontSize: '10px' }}>{item.licenseType.toUpperCase()}</span></td>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isExpired ? 'var(--red)' : 'var(--text-2)', fontWeight: 600, fontSize: '12px' }}>
+                          {isExpired && <AlertTriangle size={12} />}
+                          {item.expirationDate ? new Date(item.expirationDate).toLocaleDateString('tr-TR') : 'SÜRESİZ'}
+                        </div>
+                      </td>
+                      <td style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-1)' }}>{item.assignedTo || '—'}</td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                          <button className="btn-icon" onClick={() => openEdit(item)} title="Düzenle"><Pencil size={13} /></button>
+                          <button className="btn-icon" style={{ borderColor: 'var(--red-border)', color: 'var(--red)' }} onClick={() => handleDelete(item.id)} title="Sil"><Trash2 size={13} /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                });
               }
 
-              // Asset Icons Mapping
-              const getIcon = (cat) => {
-                switch(cat) {
-                  case 'Bilgisayar': return <Monitor size={14} />;
-                  case 'Telefon': return <Phone size={14} />;
-                  case 'Tablet': return <Tablet size={14} />;
-                  case 'Yazıcı': return <Printer size={14} />;
-                  case 'Ağ Cihazı': return <Wifi size={14} />;
-                  default: return <Package size={14} />;
-                }
-              };
+              const sortedItems = [...(paginatedItems || [])];
 
-              const isDefective = item.status === 'Arızalı';
-              
-              return (
-                <tr key={item.id}>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div className="icon-box-sm icon-slate">{getIcon(item.category)}</div>
-                      <div>
-                        <div style={{ fontWeight: 800, color: 'var(--text-1)', fontSize: '13px' }}>{item.brand} {item.model}</div>
-                        <div style={{ fontSize: '11px', color: 'var(--text-3)' }}>{item.category}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <code style={{ fontSize: '11px', color: 'var(--text-1)', fontWeight: 700 }}>{item.serialNo || '—'}</code>
-                    {item.pcIsmi && <div style={{ fontSize: '10px', color: 'var(--blue)', fontWeight: 800 }}>{item.pcIsmi}</div>}
-                  </td>
-                  <td><span className="badge badge-neutral" style={{ fontSize: '10px' }}>{item.envanterTuru === 'Personel Envanteri' ? 'PERSONEL' : 'ŞİRKET'}</span></td>
-                  
-                  {tab === 'stock' && (
-                    <td>
-                      <span className={`badge ${isDefective ? 'badge-red' : 'badge-green'}`} style={{ fontSize: '10px' }}>
-                        {(item.status || 'SAĞLAM').toUpperCase()}
-                      </span>
-                    </td>
-                  )}
-                  
-                  {tab === 'inventory' && (
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div className="avatar-initials" style={{ width: 24, height: 24, fontSize: '10px' }}>
-                          {(item.assignedTo?.[0] || '?').toUpperCase()}
+              return sortedItems.map((item, idx) => {
+                const isDefective = item.status === 'Arızalı';
+                const isInventory = tab === 'inventory';
+                const showPersonHeader = isInventory && (idx === 0 || sortedItems[idx-1].assignedTo !== item.assignedTo);
+                const personItems = isInventory ? inventory.filter(i => i.assignedTo === item.assignedTo) : [];
+
+                return (
+                  <React.Fragment key={item.id}>
+                    {showPersonHeader && (
+                      <tr className="group-header" style={{ background: 'rgba(59, 130, 246, 0.04)' }}>
+                        <td colSpan={10} style={{ padding: '12px 20px', borderBottom: '2px solid rgba(59, 130, 246, 0.1)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                              <div className="icon-box-sm icon-blue"><UserCheck size={14} /></div>
+                              <div>
+                                <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--blue)' }}>{item.assignedTo}</div>
+                                <div style={{ fontSize: '10px', color: 'var(--text-3)', fontWeight: 600 }}>{personItems.length} Envanter Kayıtlı</div>
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button 
+                                className="btn-sm btn-secondary" 
+                                onClick={() => {
+                                  setReportData({ person: item.assignedTo, items: personItems });
+                                  setReportModal(true);
+                                }}
+                                style={{ height: '28px', fontSize: '11px', padding: '0 12px' }}
+                              >
+                                <FileText size={12} style={{ marginRight: '6px' }} />
+                                Zimmet Raporu Al
+                              </button>
+                              <button 
+                                className="btn-sm btn-secondary" 
+                                onClick={() => {
+                                  const ids = personItems.map(p => p.id).join(',');
+                                  handleDownloadExcel(ids, item.assignedTo);
+                                }}
+                                style={{ height: '28px', fontSize: '11px', padding: '0 12px', borderColor: 'var(--green-border)', color: 'var(--green)' }}
+                              >
+                                <FileDown size={12} style={{ marginRight: '6px' }} />
+                                Excel Formu İndir
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    <tr>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <div className="icon-box-sm icon-slate">{getAssetIcon(item.category)}</div>
+                          <div>
+                            <div style={{ fontWeight: 800, color: 'var(--text-1)', fontSize: '13px' }}>{item.brand} {item.model}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-3)' }}>{item.category}</div>
+                          </div>
                         </div>
-                        <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-1)' }}>{item.assignedTo || '—'}</div>
-                      </div>
-                    </td>
-                  )}
-                  
-                  <td>
-                    <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                      {tab === 'stock' && (
-                        <button className="btn-icon" style={{ borderColor: 'var(--amber-border)', color: 'var(--amber)' }} title="Personele Zimmetle" onClick={() => openAssign(item)}>
-                          <ArrowRightLeft size={13} />
-                        </button>
+                      </td>
+                      <td>
+                        <div style={{ 
+                          display: 'inline-flex', padding: '2px 8px', borderRadius: '6px', 
+                          background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.2)',
+                          fontSize: '11px', color: 'var(--blue)', fontWeight: 800, marginBottom: '4px'
+                        }}>
+                          {item.serialNo || 'S/N YOK'}
+                        </div>
+                        {item.pcIsmi && <div style={{ fontSize: '10px', color: 'var(--text-3)', fontWeight: 600, paddingLeft: '4px' }}>{item.pcIsmi}</div>}
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span className={`badge ${
+                            item.envanterTuru === 'GLPI' ? 'badge-amber' : 'badge-neutral'
+                          }`} style={{ fontSize: '10px' }}>
+                            {item.envanterTuru === 'GLPI' ? 'GLPI' : (item.envanterTuru === 'Personel Envanteri' ? 'PERSONEL' : 'ŞİRKET')}
+                          </span>
+                        </div>
+                      </td>
+                      
+                      {tab !== 'inventory' && (
+                        <td>
+                          <span className={`badge ${isDefective ? 'badge-red' : 'badge-green'}`} style={{ fontSize: '10px' }}>
+                            {(item.status || 'SAĞLAM').toUpperCase()}
+                          </span>
+                        </td>
                       )}
-                      {tab === 'inventory' && (
-                        <button className="btn-icon" style={{ borderColor: 'var(--blue-border)', color: 'var(--blue)' }} title="Stoğa İade Et" onClick={() => handleReturn(item)}>
-                          <ArrowRightLeft size={13} />
-                        </button>
+                      
+                      {tab !== 'stock' && !isInventory && (
+                        <td>
+                          {item.assignedTo ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <div className="avatar-initials" style={{ width: 24, height: 24, fontSize: '10px' }}>
+                                {(item.assignedTo?.[0] || '?').toUpperCase()}
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-1)' }}>{item.assignedTo}</div>
+                                {item.firma && <div style={{ fontSize: '10px', color: 'var(--text-3)', fontWeight: 600 }}>{item.firma}</div>}
+                              </div>
+                            </div>
+                          ) : (
+                            <span style={{ fontSize: '11px', color: 'var(--text-3)', fontStyle: 'italic' }}>Atanmamış</span>
+                          )}
+                        </td>
                       )}
-                      <button className="btn-icon" onClick={() => openEdit(item)} title="Düzenle"><Pencil size={13} /></button>
-                      <button className="btn-icon" style={{ borderColor: 'var(--red-border)', color: 'var(--red)' }} onClick={() => handleDelete(item.id)} title="Sil"><Trash2 size={13} /></button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+                      
+                      <td>
+                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                          {!item.assignedTo && (
+                            <button className="btn-icon" style={{ borderColor: 'var(--amber-border)', color: 'var(--amber)' }} title="Personele Zimmetle" onClick={() => openAssign(item)}>
+                              <ArrowRightLeft size={13} />
+                            </button>
+                          )}
+                          {item.assignedTo && (
+                            <>
+                              <button 
+                                className="btn-icon" 
+                                style={{ borderColor: 'var(--blue-border)', color: 'var(--blue)' }} 
+                                title="Stoğa İade Et" 
+                                onClick={() => handleReturn(item)}
+                              >
+                                <ArrowRightLeft size={13} />
+                              </button>
+                              <button 
+                                className="btn-icon" 
+                                style={{ borderColor: 'var(--green-border)', color: 'var(--green)' }} 
+                                title="Zimmet Formu İndir (Excel)" 
+                                onClick={() => handleDownloadExcel(item.id.toString(), item.assignedTo)}
+                              >
+                                <FileDown size={13} />
+                              </button>
+                            </>
+                          )}
+                          <button className="btn-icon" onClick={() => openEdit(item)} title="Düzenle"><Pencil size={13} /></button>
+                          <button className="btn-icon" style={{ borderColor: 'var(--red-border)', color: 'var(--red)' }} onClick={() => handleDelete(item.id)} title="Sil"><Trash2 size={13} /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  </React.Fragment>
+                );
+              });
+            })()}
             
             {filtered.length === 0 && (
               <tr>
@@ -518,6 +731,57 @@ export default function StockInventory() {
             )}
           </tbody>
         </table>
+
+        {/* ─── Pagination Footer ─── */}
+        {totalPages > 1 && (
+          <div style={{ 
+            padding: '12px 20px', borderTop: '1px solid var(--border)', 
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            background: 'var(--card-bg)'
+          }}>
+            <div style={{ fontSize: '12px', color: 'var(--text-3)', fontWeight: 600 }}>
+              Toplam <b>{filtered.length}</b> kayıttan {(page-1)*perPage + 1}-{Math.min(page*perPage, filtered.length)} arası gösteriliyor
+            </div>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button 
+                className="btn btn-secondary btn-sm" 
+                disabled={page === 1}
+                onClick={() => setPage(p => p - 1)}
+                style={{ padding: '4px 12px' }}
+              >
+                Geri
+              </button>
+              
+              {[...Array(totalPages)].map((_, i) => {
+                const p = i + 1;
+                // Show first, last, and current page +/- 1
+                if (p === 1 || p === totalPages || (p >= page - 1 && p <= page + 1)) {
+                  return (
+                    <button 
+                      key={p} 
+                      className={`btn btn-sm ${page === p ? 'btn-primary' : 'btn-secondary'}`}
+                      onClick={() => setPage(p)}
+                      style={{ minWidth: '32px', padding: '4px' }}
+                    >
+                      {p}
+                    </button>
+                  );
+                }
+                if (p === 2 || p === totalPages - 1) return <span key={p} style={{ color: 'var(--text-3)' }}>...</span>;
+                return null;
+              })}
+
+              <button 
+                className="btn btn-secondary btn-sm" 
+                disabled={page === totalPages}
+                onClick={() => setPage(p => p + 1)}
+                style={{ padding: '4px 12px' }}
+              >
+                İleri
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ─── Add/Edit Modal ─── */}
@@ -681,7 +945,7 @@ export default function StockInventory() {
                   const name = p.adSoyad || `${p.ad} ${p.soyad}`;
                   const isSelected = assignTo === name;
                   return (
-                    <div key={p.id} onClick={() => { setAssignTo(name); setSearchPerson(name); }}
+                    <div key={p.id} onClick={() => { setAssignTo(name); setAssignToFirma(p.firma); setSearchPerson(name); }}
                       style={{ padding: '10px 15px', cursor: 'pointer', borderBottom: '1px solid var(--border)', background: isSelected ? 'var(--blue-light)' : 'transparent', transition: 'all 0.2s' }}>
                       <div style={{ fontWeight: 800, fontSize: '13px', color: isSelected ? 'var(--blue)' : 'var(--text-1)' }}>{name}</div>
                       <div style={{ fontSize: '11px', color: 'var(--text-3)' }}>{p.bolum} · {p.firma}</div>
@@ -698,6 +962,109 @@ export default function StockInventory() {
           </div>
         </div>
       )}
+
+      {/* ─── Zimmet Report Modal ─── */}
+      {reportModal && reportData && (() => {
+        const pInfo = personnel.find(p => p.adSoyad === reportData.person);
+        return (
+          <div className="modal-overlay no-print">
+            <div className="modal-content" style={{ maxWidth: 850, padding: '50px', borderRadius: '0', background: '#fff', color: '#000' }}>
+              <div id="printable-report">
+                {/* Header Section */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #000', paddingBottom: '15px', marginBottom: '20px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <div style={{ background: '#000', color: '#fff', padding: '10px 15px', fontWeight: 900, fontSize: '20px' }}>REPKON</div>
+                    <div>
+                      <div style={{ fontSize: '14px', fontWeight: 800 }}>REPKON MAKİNA VE KALIP</div>
+                      <div style={{ fontSize: '10px' }}>Bilgi Teknolojileri Departmanı</div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <h1 style={{ margin: 0, fontSize: '18px', fontWeight: 900 }}>ZİMMET TUTANAĞI</h1>
+                    <div style={{ fontSize: '11px', marginTop: '4px' }}>Tarih: {new Date().toLocaleDateString('tr-TR')}</div>
+                  </div>
+                </div>
+
+                {/* Personnel Info Table */}
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ border: '1px solid #000', padding: '8px', background: '#f5f5f5', width: '150px', fontWeight: 700, fontSize: '12px' }}>ADI SOYADI</td>
+                      <td style={{ border: '1px solid #000', padding: '8px', fontSize: '12px' }}>{reportData.person}</td>
+                      <td style={{ border: '1px solid #000', padding: '8px', background: '#f5f5f5', width: '120px', fontWeight: 700, fontSize: '12px' }}>SİCİL NO</td>
+                      <td style={{ border: '1px solid #000', padding: '8px', fontSize: '12px' }}>{pInfo?.sicilNo || '—'}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: '1px solid #000', padding: '8px', background: '#f5f5f5', fontWeight: 700, fontSize: '12px' }}>DEPARTMAN</td>
+                      <td style={{ border: '1px solid #000', padding: '8px', fontSize: '12px' }}>{pInfo?.bolum || '—'}</td>
+                      <td style={{ border: '1px solid #000', padding: '8px', background: '#f5f5f5', fontWeight: 700, fontSize: '12px' }}>ŞİRKET</td>
+                      <td style={{ border: '1px solid #000', padding: '8px', fontSize: '12px' }}>{reportData.items[0]?.firma || 'REPKON'}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Disclaimer Text */}
+                <div style={{ fontSize: '11px', lineHeight: '1.5', marginBottom: '20px', textAlign: 'justify', padding: '10px', background: '#fcfcfc', border: '1px solid #eee' }}>
+                  Aşağıda dökümü ve teknik özellikleri belirtilen cihaz/donanım, görevim süresince işlerimde kullanmak üzere, sağlam ve çalışır vaziyette tarafıma teslim edilmiştir. 
+                  Söz konusu ekipmanı kullanım kılavuzlarına ve şirket BT politikalarına uygun olarak kullanacağımı, kasıtlı veya ağır ihmal sonucu oluşabilecek 
+                  hasarlardan sorumlu olduğumu, işten ayrılmam durumunda veya talep edildiğinde ekipmanı eksiksiz ve çalışır durumda iade edeceğimi taahhüt ederim.
+                </div>
+
+                {/* Assets Table */}
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '30px' }}>
+                  <thead>
+                    <tr style={{ background: '#f0f0f0' }}>
+                      <th style={{ border: '1px solid #000', padding: '10px', fontSize: '11px', textAlign: 'left' }}>EKİPMAN TÜRÜ</th>
+                      <th style={{ border: '1px solid #000', padding: '10px', fontSize: '11px', textAlign: 'left' }}>MARKA / MODEL</th>
+                      <th style={{ border: '1px solid #000', padding: '10px', fontSize: '11px', textAlign: 'left' }}>SERİ NUMARASI</th>
+                      <th style={{ border: '1px solid #000', padding: '10px', fontSize: '11px', textAlign: 'left' }}>AÇIKLAMA</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {reportData.items.map((item, i) => (
+                      <tr key={i}>
+                        <td style={{ border: '1px solid #000', padding: '8px', fontSize: '11px', fontWeight: 700 }}>{item.category.toUpperCase()}</td>
+                        <td style={{ border: '1px solid #000', padding: '8px', fontSize: '11px' }}>{item.brand} {item.model}</td>
+                        <td style={{ border: '1px solid #000', padding: '8px', fontSize: '11px', fontFamily: 'monospace', fontWeight: 700 }}>{item.serialNo}</td>
+                        <td style={{ border: '1px solid #000', padding: '8px', fontSize: '10px' }}>Zimmet Ataması</td>
+                      </tr>
+                    ))}
+                    {/* Fill empty rows if needed to make it look like a formal table */}
+                    {[...Array(Math.max(0, 5 - reportData.items.length))].map((_, i) => (
+                      <tr key={`empty-${i}`} style={{ height: '30px' }}>
+                        <td style={{ border: '1px solid #000' }}></td><td style={{ border: '1px solid #000' }}></td>
+                        <td style={{ border: '1px solid #000' }}></td><td style={{ border: '1px solid #000' }}></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Signatures Section */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '40px' }}>
+                  <div style={{ textAlign: 'center', width: '250px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 800, marginBottom: '50px' }}>TESLİM EDEN (BT DEPARTMANI)</div>
+                    <div style={{ borderTop: '1px solid #000', paddingTop: '8px', fontSize: '11px', fontWeight: 700 }}>Mustafa GÜDE</div>
+                    <div style={{ fontSize: '10px', color: '#666' }}>İmza / Kaşe</div>
+                  </div>
+                  <div style={{ textAlign: 'center', width: '250px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 800, marginBottom: '50px' }}>TESLİM ALAN (PERSONEL)</div>
+                    <div style={{ borderTop: '1px solid #000', paddingTop: '8px', fontSize: '11px', fontWeight: 700 }}>{reportData.person}</div>
+                    <div style={{ fontSize: '10px', color: '#666' }}>İmza</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="no-print" style={{ marginTop: '40px', display: 'flex', gap: '12px', justifyContent: 'flex-end', borderTop: '1px solid #eee', paddingTop: '20px' }}>
+                <button className="btn btn-secondary" onClick={() => setReportModal(false)}>Kapat</button>
+                <button className="btn btn-primary" onClick={() => window.print()}>
+                  <Printer size={16} style={{ marginRight: '8px' }} />
+                  Yazdır
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ─── Context Confirmation Modal ─── */}
       {confModal && (
@@ -723,6 +1090,13 @@ export default function StockInventory() {
         .person-item:hover { background: rgba(255, 255, 255, 0.05) !important; }
         .modal-content h3 { font-size: 18px; font-weight: 700; margin-top: 0; }
         .action-cell { display: flex; gap: 4px; }
+
+        @media print {
+          body * { visibility: hidden; }
+          #printable-report, #printable-report * { visibility: visible; }
+          #printable-report { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
+          .no-print { display: none !important; }
+        }
       `}</style>
     </div>
   );

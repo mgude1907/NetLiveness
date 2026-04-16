@@ -614,13 +614,13 @@ namespace NetLiveness.Api.Controllers
                     if (groupByApp)
                     {
                         // Uygulama bazlı (Donut Chart gibi)
-                        return pcGroup.GroupBy(a => new { a.AppName, Bucket = a.Timestamp.Ticks / 100000000 })
+                        return pcGroup.GroupBy(a => new { a.AppName, Bucket = a.Timestamp.Ticks / 300000000 })
                                       .Sum(g => g.Max(a => a.DurationSeconds));
                     }
                     else
                     {
-                        // Genel aktivite bazlı (Eğer PC'de o an herhangi bir uygulama aktifse 10sn say)
-                        return pcGroup.GroupBy(a => a.Timestamp.Ticks / 100000000)
+                        // Genel aktivite bazlı (Eğer PC'de o an herhangi bir uygulama aktifse 30sn say)
+                        return pcGroup.GroupBy(a => a.Timestamp.Ticks / 300000000)
                                       .Sum(g => g.Max(a => a.DurationSeconds));
                     }
                 });

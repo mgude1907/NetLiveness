@@ -56,14 +56,18 @@ namespace NetLiveness.Api.Services
                             })
                             .ToListAsync(stoppingToken);
 
-                        // PARALLEL POLLING: Use individual scopes for each target to prevent concurrency issues
-                        var pollTasks = targets.Select(async target =>
+                        // SEQUENTIAL POLLING: To prevent WMI resource exhaustion and overlapping tasks
+                        foreach (var target in targets)
                         {
+                            if (stoppingToken.IsCancellationRequested) break;
+
                             using (var serviceScope = _scopeFactory.CreateScope())
                             {
                                 var taskContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
                                 try
                                 {
+                                    _logger.LogInformation($"Polling activity for {target.PcName}...");
+                                    
                                     // Update Terminal's LastCheck individually as an 'Attempt'
                                     var terminal = await taskContext.Terminals.FindAsync(target.Id);
                                     if (terminal != null)
@@ -73,15 +77,24 @@ namespace NetLiveness.Api.Services
                                     }
 
                                     await PollPcActivityAsync(target, taskContext, settings, stoppingToken);
+                                    _logger.LogInformation($"Successfully polled {target.PcName}.");
                                 }
                                 catch (Exception ex)
                                 {
                                     _logger.LogWarning($"Failed to poll activity for {target.PcName}: {ex.Message}");
+                                    
+                                    // Ensure target error is marked in DB if the poll fails completely
+                                    try {
+                                        var terminal = await taskContext.Terminals.FindAsync(target.Id);
+                                        if (terminal != null) {
+                                            terminal.Status = "Error";
+                                            terminal.LastError = "Poll Error: " + ex.Message;
+                                            await taskContext.SaveChangesAsync(stoppingToken);
+                                        }
+                                    } catch { /* Suppress secondary errors */ }
                                 }
                             }
-                        });
-
-                        await Task.WhenAll(pollTasks);
+                        }
                     }
                 }
                 catch (OperationCanceledException)

@@ -6,7 +6,7 @@ import {
   DollarSign, LogOut, ClipboardList, UserPlus, Database,
   Lock, Key, Globe, TriangleAlert, BookOpen, Layers,
   MessageSquare, FilePenLine, RefreshCw, ShieldAlert,
-  MessageCircle, CircleHelp, Radio, ChevronDown, ChevronRight,
+  MessageCircle, MessageCircleMore, CircleHelp, Radio, ChevronDown, ChevronRight,
   Server, Wifi
 } from 'lucide-react';
 import { getSettings } from '../api';
@@ -26,6 +26,7 @@ const NAV = [
       { to: '/user-monitoring', icon: Monitor,        text: 'İzleme Merkezi',  color: '#134e4a', bg: 'icon-teal', module: 'UserMonitoring' },
       { to: '/terminals',       icon: Network,         text: 'Ağ Aygıtları',   color: '#065f46', bg: 'icon-green', module: 'Terminals' },
       { to: '/ssl',             icon: Shield,          text: 'SSL Takibi',     color: '#5b21b6', bg: 'icon-violet', module: 'Ssl' },
+      { to: '/phishing',        icon: ShieldAlert,     text: 'Phishing',       color: '#991b1b', bg: 'icon-red', module: 'Logs' },
     ],
   },
   {
@@ -56,7 +57,6 @@ const NAV = [
       { to: '/nist',            icon: Lock,            text: 'NIST 800-171',    color: '#5b21b6', bg: 'icon-violet', module: 'Compliance' },
       { to: '/facility',        icon: Shield,          text: 'Tesis Güvenliği', color: '#b45309', bg: 'icon-amber', module: 'Compliance' },
       { to: '/file-alerts',     icon: TriangleAlert,   text: 'Dosya İzleme',    color: '#991b1b', bg: 'icon-red', module: 'Terminals' },
-      { to: '/access-logs',     icon: Key,             text: 'Erişim Kayıtları',color: '#334155', bg: 'icon-slate', module: 'Logs' },
     ],
   },
   {
@@ -83,7 +83,11 @@ export default function Layout({ auth, setAuth }) {
   const location = useLocation();
 
   useEffect(() => {
-    getSettings().then(setSettings).catch(() => {});
+    const fetchSettings = () => getSettings().then(setSettings).catch(() => {});
+    fetchSettings();
+    
+    window.addEventListener('settingsUpdated', fetchSettings);
+    return () => window.removeEventListener('settingsUpdated', fetchSettings);
   }, []);
 
   const handleLogout = () => {
@@ -116,9 +120,15 @@ export default function Layout({ auth, setAuth }) {
 
         {/* Logo */}
         <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">
-            <Activity size={18} color="#fff" strokeWidth={2.5} />
-          </div>
+          {settings?.appLogo ? (
+            <div style={{ width: 36, height: 36, borderRadius: 8, overflow: 'hidden', background: '#fff', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+               <img src={settings.appLogo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 4 }} />
+            </div>
+          ) : (
+            <div className="sidebar-logo-icon">
+              <Activity size={18} color="#fff" strokeWidth={2.5} />
+            </div>
+          )}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span className="sidebar-logo-name">{appName}</span>
             <span className="sidebar-logo-sub">Operasyon Merkezi</span>
@@ -206,19 +216,32 @@ export default function Layout({ auth, setAuth }) {
 
             <NavLink
               to="/chat"
+              className="chat-link-premium"
               style={{
-                display: 'flex', alignItems: 'center', gap: 7,
-                padding: '7px 14px', background: 'var(--bg-surface)',
-                border: '1.5px solid var(--border)', borderRadius: 'var(--r-md)',
-                color: 'var(--text-2)', fontSize: 13, fontWeight: 600,
-                textDecoration: 'none', boxShadow: 'var(--shadow-xs)',
-                transition: 'all 0.15s',
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '8px 18px', background: 'var(--bg-surface)',
+                border: '1px solid var(--border)', borderRadius: 14,
+                color: 'var(--text-1)', fontSize: 13, fontWeight: 800,
+                textDecoration: 'none', boxShadow: 'var(--shadow-sm)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                position: 'relative', overflow: 'hidden'
               }}
             >
-              <MessageSquare size={14} color="#3b82f6" />
-              Chat
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, transparent 0%, rgba(59, 130, 246, 0.05) 100%)', pointerEvents: 'none' }} />
+              <MessageCircleMore size={16} color="var(--blue-text)" strokeWidth={2.5} />
+              <span>Sohbet</span>
+              <div className="status-dot success" style={{ width: 6, height: 6, marginLeft: 2 }} />
             </NavLink>
           </div>
+
+          <style>{`
+            .chat-link-premium:hover { 
+              transform: translateY(-2px); 
+              border-color: var(--blue-text); 
+              box-shadow: 0 4px 20px -5px rgba(59, 130, 246, 0.2); 
+            }
+            .chat-link-premium:active { transform: translateY(0); }
+          `}</style>
         </header>
 
         {/* Page */}

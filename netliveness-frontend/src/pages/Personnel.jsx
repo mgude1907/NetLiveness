@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { getPersonnel, createPersonnel, updatePersonnel, deletePersonnel, getSettings, syncPersonnel } from '../api';
 import { Plus, Search, Pencil, Trash2, X, Users, Upload, RefreshCw, UserMinus, Building2 } from 'lucide-react';
 import Papa from 'papaparse';
@@ -19,10 +19,14 @@ export default function Personnel() {
   const [firmsList, setFirmsList] = useState([]);
   const fileInputRef          = useRef(null);
 
+  // Pagination state
+  const [page, setPage]       = useState(1);
+  const [perPage]             = useState(25);
+
   const load = useCallback(async () => {
     try { 
       const [persData, settingsData] = await Promise.all([getPersonnel(), getSettings()]);
-      setItems(persData);
+      setItems(persData || []);
       
       const firms = (settingsData?.firmsList || '').split(',').map(f => f.trim()).filter(Boolean);
       setFirmsList(firms.length > 0 ? firms : ['Merkez']);
@@ -32,27 +36,44 @@ export default function Personnel() {
 
   useEffect(() => { load(); }, [load]);
 
-  const firms = [...new Set(items.map(p => p.firma).filter(Boolean))].sort();
+  const firms = useMemo(() => {
+    return [...new Set(items.map(p => p.firma).filter(Boolean))].sort();
+  }, [items]);
 
-  const filtered = items.filter(p => {
+  const filtered = useMemo(() => {
     const q = search.toLocaleLowerCase('tr-TR');
-    const matchSearch = !q || 
-      p.ad?.toLocaleLowerCase('tr-TR').includes(q) || 
-      p.soyad?.toLocaleLowerCase('tr-TR').includes(q) || 
-      p.adSoyad?.toLocaleLowerCase('tr-TR').includes(q) || 
-      p.sicilNo?.toLocaleLowerCase('tr-TR').includes(q);
-    const matchFirm = !deptFilter || p.firma === deptFilter;
-    
-    return matchSearch && matchFirm;
-  });
+    return items.filter(p => {
+      const matchSearch = !q || 
+        p.ad?.toLocaleLowerCase('tr-TR').includes(q) || 
+        p.soyad?.toLocaleLowerCase('tr-TR').includes(q) || 
+        p.adSoyad?.toLocaleLowerCase('tr-TR').includes(q) || 
+        p.sicilNo?.toLocaleLowerCase('tr-TR').includes(q);
+      const matchFirm = !deptFilter || p.firma === deptFilter;
+      
+      return matchSearch && matchFirm;
+    });
+  }, [items, search, deptFilter]);
 
-  // group by Firma
-  const grouped = {};
-  filtered.forEach(p => {
-    const firm = p.firma || 'Firma Belirtilmemiş';
-    if (!grouped[firm]) grouped[firm] = [];
-    grouped[firm].push(p);
-  });
+  const totalPages = Math.ceil(filtered.length / perPage);
+  
+  const paginatedItems = useMemo(() => {
+    const start = (page - 1) * perPage;
+    return filtered.slice(start, start + perPage);
+  }, [filtered, page, perPage]);
+
+  // Reset page on search or filter
+  useEffect(() => { setPage(1); }, [search, deptFilter]);
+
+  // group paginated items by Firma for rendering
+  const paginatedGroups = useMemo(() => {
+    const grouped = {};
+    paginatedItems.forEach(p => {
+      const firm = p.firma || 'Firma Belirtilmemiş';
+      if (!grouped[firm]) grouped[firm] = [];
+      grouped[firm].push(p);
+    });
+    return grouped;
+  }, [paginatedItems]);
 
   const openNew = () => { setForm(emptyForm); setEditId(null); setModal(true); };
   const openEdit = (p) => {
@@ -295,86 +316,122 @@ export default function Personnel() {
         </div>
       </div>
 
-      {Object.keys(grouped).sort().map(firm => (
-        <div key={firm} className="card" style={{ padding: 0, marginBottom: 0, overflow: 'hidden' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 20px', background: '#f8fafc', borderBottom: '1px solid var(--border)' }}>
-             <div className="icon-box-sm icon-slate" style={{ width: 24, height: 24 }}><Building2 size={14} /></div>
-             <div style={{ fontWeight: 800, fontSize: '14px', color: 'var(--text-1)' }}>{firm}</div>
-             <span className="badge badge-neutral" style={{ marginLeft: 'auto', fontSize: '10px' }}>{grouped[firm].length} Personel</span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {Object.keys(paginatedGroups).sort().map(firm => (
+          <div key={firm} className="card" style={{ padding: 0, marginBottom: 0, overflow: 'hidden' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 20px', background: '#f8fafc', borderBottom: '1px solid var(--border)' }}>
+               <div className="icon-box-sm icon-slate" style={{ width: 24, height: 24 }}><Building2 size={14} /></div>
+               <div style={{ fontWeight: 800, fontSize: '14px', color: 'var(--text-1)' }}>{firm}</div>
+               <span className="badge badge-neutral" style={{ marginLeft: 'auto', fontSize: '10px' }}>{paginatedGroups[firm].length} Personel</span>
+            </div>
+            <div style={{ padding: '0' }}>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: 40 }}>
+                      <input type="checkbox"
+                        style={{ cursor: 'pointer' }}
+                        checked={paginatedGroups[firm].every(p => selected.includes(p.id))}
+                        onChange={() => toggleAllInDept(paginatedGroups[firm])}
+                      />
+                    </th>
+                    <th>Ad Soyad</th>
+                    <th>Sicil / Kart No</th>
+                    <th>Bölüm / Görev</th>
+                    <th>Giriş Tarihi</th>
+                    <th>Durum</th>
+                    <th style={{ width: 100, textAlign: 'center' }}>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedGroups[firm].map(p => {
+                    const isSelected = selected.includes(p.id);
+                    const isInactive = p.isActive === false;
+                    return (
+                      <tr key={p.id} className={isSelected ? 'selected-row' : ''} style={{ opacity: isInactive ? 0.6 : 1 }}>
+                        <td>
+                          <input type="checkbox"
+                            style={{ cursor: 'pointer' }}
+                            checked={isSelected}
+                            onChange={() => toggleSelect(p.id)}
+                          />
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div className="avatar-initials" style={{ background: isInactive ? 'var(--bg-inset)' : 'linear-gradient(135deg, var(--blue-light), var(--blue-border))', color: isInactive ? 'var(--text-3)' : 'var(--blue)' }}>
+                              {(p.ad?.[0] || '?').toUpperCase()}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 800, fontSize: '13px', color: 'var(--text-1)' }}>{p.ad} {p.soyad}</div>
+                              {isInactive && <div style={{ fontSize: '10px', color: 'var(--red)', fontWeight: 700 }}>AYRILDI: {p.resignedAt ? new Date(p.resignedAt).toLocaleDateString('tr-TR') : '—'}</div>}
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ fontSize: '12px' }}>
+                          <div style={{ fontWeight: 600 }}>{p.sicilNo || '—'}</div>
+                          <div style={{ fontSize: '10px', color: 'var(--text-3)' }}>{p.kartNo || '—'}</div>
+                        </td>
+                        <td>
+                          <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-1)' }}>{p.bolum}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-3)' }}>{p.gorev}</div>
+                        </td>
+                        <td style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-2)' }}>
+                          {p.girisTarih ? new Date(p.girisTarih).toLocaleDateString('tr-TR') : '—'}
+                        </td>
+                        <td>
+                          <span className={`badge ${p.isActive ? 'badge-green' : 'badge-red'}`} style={{ fontSize: '10px' }}>
+                            {p.isActive ? 'AKTİF' : 'AYRILDI'}
+                          </span>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                            <button className="btn-icon" onClick={() => openEdit(p)} title="Düzenle"><Pencil size={13} /></button>
+                            <button className="btn-icon" style={{ borderColor: 'var(--red-border)', color: 'var(--red)' }} onClick={() => handleDelete(p.id)} title="Sil"><Trash2 size={13} /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div style={{ padding: '0' }}>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th style={{ width: 40 }}>
-                    <input type="checkbox"
-                      style={{ cursor: 'pointer' }}
-                      checked={grouped[firm].every(p => selected.includes(p.id))}
-                      onChange={() => toggleAllInDept(grouped[firm])}
-                    />
-                  </th>
-                  <th>Ad Soyad</th>
-                  <th>Sicil / Kart No</th>
-                  <th>Bölüm / Görev</th>
-                  <th>Giriş Tarihi</th>
-                  <th>Durum</th>
-                  <th style={{ width: 100, textAlign: 'center' }}>İşlemler</th>
-                </tr>
-              </thead>
-              <tbody>
-                {grouped[firm].map(p => {
-                  const isSelected = selected.includes(p.id);
-                  const isInactive = p.isActive === false;
+        ))}
+
+        {/* ─── Pagination Footer ─── */}
+        {totalPages > 1 && (
+          <div className="card" style={{ 
+            padding: '12px 20px', 
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+          }}>
+            <div style={{ fontSize: '12px', color: 'var(--text-3)', fontWeight: 600 }}>
+              Toplam <b>{filtered.length}</b> kayıttan {(page-1)*perPage + 1}-{Math.min(page*perPage, filtered.length)} arası gösteriliyor
+            </div>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button className="btn btn-secondary btn-sm" disabled={page === 1} onClick={() => setPage(p => p - 1)} style={{ padding: '4px 12px' }}>Geri</button>
+              {[...Array(totalPages)].map((_, i) => {
+                const p = i + 1;
+                if (p === 1 || p === totalPages || (p >= page - 1 && p <= page + 1)) {
                   return (
-                    <tr key={p.id} className={isSelected ? 'selected-row' : ''} style={{ opacity: isInactive ? 0.6 : 1 }}>
-                      <td>
-                        <input type="checkbox"
-                          style={{ cursor: 'pointer' }}
-                          checked={isSelected}
-                          onChange={() => toggleSelect(p.id)}
-                        />
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div className="avatar-initials" style={{ background: isInactive ? 'var(--bg-inset)' : 'linear-gradient(135deg, var(--blue-light), var(--blue-border))', color: isInactive ? 'var(--text-3)' : 'var(--blue)' }}>
-                            {(p.ad?.[0] || '?').toUpperCase()}
-                          </div>
-                          <div>
-                            <div style={{ fontWeight: 800, fontSize: '13px', color: 'var(--text-1)' }}>{p.ad} {p.soyad}</div>
-                            {isInactive && <div style={{ fontSize: '10px', color: 'var(--red)', fontWeight: 700 }}>AYRILDI: {p.resignedAt ? new Date(p.resignedAt).toLocaleDateString('tr-TR') : '—'}</div>}
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ fontSize: '12px' }}>
-                        <div style={{ fontWeight: 600 }}>{p.sicilNo || '—'}</div>
-                        <div style={{ fontSize: '10px', color: 'var(--text-3)' }}>{p.kartNo || '—'}</div>
-                      </td>
-                      <td>
-                        <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-1)' }}>{p.bolum}</div>
-                        <div style={{ fontSize: '11px', color: 'var(--text-3)' }}>{p.gorev}</div>
-                      </td>
-                      <td style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-2)' }}>
-                        {p.girisTarih ? new Date(p.girisTarih).toLocaleDateString('tr-TR') : '—'}
-                      </td>
-                      <td>
-                        <span className={`badge ${p.isActive ? 'badge-green' : 'badge-red'}`} style={{ fontSize: '10px' }}>
-                          {p.isActive ? 'AKTİF' : 'AYRILDI'}
-                        </span>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                          <button className="btn-icon" onClick={() => openEdit(p)} title="Düzenle"><Pencil size={13} /></button>
-                          <button className="btn-icon" style={{ borderColor: 'var(--red-border)', color: 'var(--red)' }} onClick={() => handleDelete(p.id)} title="Sil"><Trash2 size={13} /></button>
-                        </div>
-                      </td>
-                    </tr>
+                    <button key={p} className={`btn btn-sm ${page === p ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setPage(p)} style={{ minWidth: '32px', padding: '4px' }}>{p}</button>
                   );
-                })}
-              </tbody>
-            </table>
+                }
+                if (p === 2 || p === totalPages - 1) return <span key={p} style={{ color: 'var(--text-3)' }}>...</span>;
+                return null;
+              })}
+              <button className="btn btn-secondary btn-sm" disabled={page === totalPages} onClick={() => setPage(p => p + 1)} style={{ padding: '4px 12px' }}>İleri</button>
+            </div>
           </div>
+        )}
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="empty-state">
+          <Users size={40} color="#cbd5e1" />
+          <h3>Personel bulunamadı</h3>
+          <p>Arama terimini değiştirin veya yeni personel ekleyin.</p>
         </div>
-      ))}
+      )}
       {filtered.length === 0 && (
         <div className="empty-state">
           <Users size={40} color="#cbd5e1" />

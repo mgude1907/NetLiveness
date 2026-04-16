@@ -6,11 +6,11 @@
    ═══════════════════════════════════════════════════ */
 :root {
   /* Page backgrounds */
-  --bg-page:      #f1f4f8;
+  --bg-page:      #f8fafc;
   --bg-surface:   #ffffff;
   --bg-elevated:  #ffffff;
-  --bg-inset:     #f8fafc;
-  --bg-overlay:   rgba(15, 23, 42, 0.45);
+  --bg-inset:     #f1f5f9;
+  --bg-overlay:   rgba(15, 23, 42, 0.4);
 
   /* Borders */
   --border:        #e2e8f0;
