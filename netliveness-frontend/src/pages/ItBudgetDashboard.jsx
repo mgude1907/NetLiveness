@@ -373,7 +373,7 @@ export default function ItBudgetDashboard() {
               {loading ? (
                 <tr><td colSpan={16} style={{ textAlign: 'center', padding: '100px', fontSize: 16, fontWeight: 700, color: 'var(--text-3)' }}>Veriler Hazırlanıyor...</td></tr>
               ) : categories.length === 0 ? (
-                <tr><td colSpan={16} style={{ textAlign: 'center', padding: '100px', color: 'var(--text-3)' }}>Henüz bütçe kaydı oluşturulmadı. Başlamak için "Grup Ekle" butonunu kullanın.</td></tr>
+                <tr><td colSpan={16} style={{ textAlign: 'center', padding: '100px', color: 'var(--text-3)' }}>Henüz bütçe kaydı oluşturulmadı. Başlamak için &quot;Grup Ekle&quot; butonunu kullanın.</td></tr>
               ) : (
                 categories.map((cat, catIdx) => {
                   const catTotal = categoryTotals[cat.id] || 0;

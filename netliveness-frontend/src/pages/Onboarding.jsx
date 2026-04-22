@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getOnboardings, createOnboarding, updateOnboarding, deleteOnboarding, getSettings } from '../api';
 import toast from 'react-hot-toast';
 import { UserPlus, Save, X, Trash2, Mail, Briefcase, Pencil, Phone, Calendar, Building2, User } from 'lucide-react';
@@ -20,30 +20,31 @@ export default function Onboarding() {
     status: 'Bekliyor'
   });
 
-  useEffect(() => {
-    fetchData();
-    fetchSettings();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const onboardings = await getOnboardings();
       setData(onboardings || []);
-    } catch (e) {
+    } catch (_err) {
+      console.error(_err);
       toast.error('Veriler alınamadı.');
     }
-  };
+  }, []);
 
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       const settings = await getSettings();
       if (settings?.firmsList) {
         setCompanies(settings.firmsList.split(',').map(f => f.trim()).filter(f => f));
       }
-    } catch (e) {
-      console.error('Settings fetch error', e);
+    } catch (_err) {
+      console.error('Settings fetch error', _err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+    fetchSettings();
+  }, [fetchData, fetchSettings]);
 
   const openAddModal = () => {
     setEditingItem(null);
@@ -82,7 +83,7 @@ export default function Onboarding() {
       }
       setIsModalOpen(false);
       fetchData();
-    } catch (e) {
+    } catch (_err) {
       toast.error('İşlem başarısız oldu.');
     }
   };
@@ -93,7 +94,7 @@ export default function Onboarding() {
       await deleteOnboarding(id);
       toast.success('Kayıt silindi.');
       fetchData();
-    } catch (e) {
+    } catch (_err) {
       toast.error('Silinemedi.');
     }
   };

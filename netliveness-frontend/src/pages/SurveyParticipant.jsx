@@ -29,7 +29,7 @@ export default function SurveyParticipant() {
                 else initial[q.id] = '';
             });
             setAnswers(initial);
-        } catch (e) {
+        } catch {
             toast.error('Anket yüklenemedi.');
             navigate('/rehber');
         } finally {
@@ -80,7 +80,7 @@ export default function SurveyParticipant() {
 
             setSubmitted(true);
             toast.success('Anket başarıyla gönderildi.');
-        } catch (e) {
+        } catch {
             toast.error('Gönderim sırasında bir hata oluştu.');
         } finally {
             setSubmitting(false);

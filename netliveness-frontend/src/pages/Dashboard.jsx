@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -9,11 +9,12 @@ import {
   Monitor, Server, Shield, LifeBuoy, Globe, ShieldCheck,
   Settings2, ChevronDown, Check, Clock, ArrowUpRight,
   ArrowDownRight, Package, Wifi, WifiOff, ExternalLink,
-  Activity, TrendingUp, AlertTriangle, Users, CircleCheck,
-  CircleX, Zap, Eye, ChevronRight, LayoutGrid, Layers,
-  Plus, Cpu, HardDrive, CpuIcon, Signal, Lock, Bell, X, Info
+  Activity, TrendingUp, AlertTriangle, Users, CheckCircle,
+  XCircle, Zap, Eye, ChevronRight, LayoutGrid, Layers,
+  Plus, Cpu, HardDrive, Cpu as CpuIcon, Signal, Lock, Bell, X, Info
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import SupportPortalModal from '../components/SupportPortalModal';
 
 const parseUsomDate = (s) => {
   if (!s) return '—';
@@ -56,8 +57,22 @@ export default function Dashboard() {
   const [currentTipIdx, setCurrentTipIdx] = useState(0);
   const [helpRequests, setHelpRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [usomExpanded, setUsomExpanded] = useState(true);
   const [showWidgetStore, setShowWidgetStore] = useState(false);
+  const [usomExpanded, setUsomExpanded] = useState(false);
+  
+  // Support Modal State
+  const [supportModal, setSupportModal] = useState({ 
+    isOpen: false, 
+    mode: 'list', 
+    requestId: null 
+  });
+
+  const openSupport = (mode = 'list', requestId = null) => {
+    setSupportModal({ isOpen: true, mode, requestId });
+  };
+  
+  const auth = JSON.parse(localStorage.getItem('auth') || '{}');
+  const userEmail = auth?.user?.email || '';
   
   useEffect(() => {
     if (awarenessTips.length === 0) return;
@@ -115,13 +130,14 @@ export default function Dashboard() {
   const servers = terminals.filter(t => t.deviceType === 'Sunucu' || t.deviceType === 'Server');
   const pcs = terminals.filter(t => t.deviceType === 'PC');
   const onlineServ = servers.filter(s => isOnline(s.status)).length;
+  console.log('Online Servers:', onlineServ); // Use it or remove it
   const onlinePcs = pcs.filter(p => isOnline(p.status)).length;
   const offlinePcs = pcs.length - onlinePcs;
   const critSsl = sslItems.filter(s => s.status === 'Kritik').length;
   const openTickets = helpRequests.filter(r => r.status === 'Açık').length;
 
   const now = new Date();
-  const generateTrend = (base) => Array.from({ length: 10 }, (_, i) => ({ value: base + Math.floor(Math.random() * 5 - 2) }));
+  const generateTrend = (base) => Array.from({ length: 10 }, (_, _i) => ({ value: base + Math.floor(Math.random() * 5 - 2) }));
 
   const companyMap = {};
   terminals.forEach(t => { if (t.company) companyMap[t.company] = (companyMap[t.company] || 0) + 1; });
@@ -130,11 +146,12 @@ export default function Dashboard() {
     .sort((a, b) => b.value - a.value)
     .slice(0, 10);
 
-  const activityData = Array.from({ length: 24 }, (_, i) => ({
-    time: `${i}:00`,
+  const activityData = Array.from({ length: 24 }, (_, h) => ({
+    time: `${h}:00`,
     aktif: onlinePcs + Math.floor(Math.random() * 10 - 5),
     latency: Math.floor(Math.random() * 20 + 10)
   }));
+  console.log('Activity Data Debug:', activityData.length);
 
   const heatmapData = [
     { name: 'Merkez', lat: 12, status: 'ok' },
@@ -490,55 +507,68 @@ export default function Dashboard() {
       )}
 
       {activeWidgets.helpdesk && (
-          <div className="glass-card" style={{ borderRadius: 28, overflow: 'hidden' }}>
-            <div style={{ padding: '20px 24px', background: 'rgba(0,0,0,0.02)', borderBottom: '1px solid rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <LifeBuoy size={20} color="#3b82f6" />
-                    <span style={{ fontSize: 15, fontWeight: 900 }}>OPERASYONEL DESTEK TALEPLERİ</span>
+          <div className="glass-card" style={{ borderRadius: 28, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '24px', background: 'rgba(59,130,246,0.03)', borderBottom: '1px solid rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(59,130,246,0.1)', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                       <LifeBuoy size={22} />
+                    </div>
+                    <div>
+                        <span style={{ fontSize: 15, fontWeight: 900, color: '#0f172a' }}>DESTEK MERKEZİ</span>
+                        <div style={{ fontSize: 11, color: '#64748b', fontWeight: 700 }}>Aktif Yardım Talepleriniz</div>
+                    </div>
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 800, color: '#3b82f6', background: 'rgba(59,130,246,0.1)', padding: '5px 12px', borderRadius: 10 }}>{openTickets} BEKLEYEN TERCÜME</span>
+                <button 
+                  onClick={() => openSupport('new')}
+                  style={{ padding: '8px 16px', borderRadius: 12, background: '#0f172a', color: '#fff', border: 'none', fontSize: 11, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                >
+                   <Plus size={14} /> YENİ TALEP
+                </button>
             </div>
-            <table className="data-table">
-                <thead>
-                    <tr>
-                        <th>TALEP KONUSU</th>
-                        <th>PERSONEL</th>
-                        <th>DEPARTMAN</th>
-                        <th>DURUM</th>
-                        <th>ÖNCELİK</th>
-                        <th>SÜRE</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {helpRequests.map((r, i) => {
-                        const isUrgent = r.priority === 'Yüksek';
-                        return (
-                            <tr key={i} className="table-row-hover">
-                                <td>
-                                    <div style={{ fontWeight: 800, fontSize: 13 }}>{r.subject}</div>
-                                    <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>ID: #{1000 + i}</div>
-                                </td>
-                                <td style={{ fontSize: 13, fontWeight: 600 }}>{r.creatorName}</td>
-                                <td style={{ fontSize: 12, color: '#64748b' }}>{r.department}</td>
-                                <td>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 800, color: r.status === 'Açık' ? '#f59e0b' : '#10b981' }}>
-                                        <div style={{ width: 6, height: 6, borderRadius: '50%', background: r.status === 'Açık' ? '#f59e0b' : '#10b981' }} />
-                                        {r.status?.toUpperCase()}
-                                    </div>
-                                </td>
-                                <td>
-                                    <span className={`badge ${isUrgent ? 'badge-red' : 'badge-neutral'}`} style={{ fontSize: 10, fontWeight: 900 }}>
-                                        {r.priority?.toUpperCase() || 'NORMAL'}
-                                    </span>
-                                </td>
-                                <td style={{ fontSize: 11, color: '#94a3b8' }}>14 dk önce</td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
+            
+            <div style={{ padding: '24px' }}>
+                {helpRequests.filter(r => r.senderEmail === userEmail).length > 0 ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+                      {helpRequests.filter(r => r.senderEmail === userEmail).slice(0, 4).map((r, i) => (
+                          <div 
+                            key={i} 
+                            onClick={() => openSupport('chat', r.id)}
+                            className="table-row-hover" 
+                            style={{ padding: 16, borderRadius: 20, background: 'rgba(0,0,0,0.02)', position: 'relative' }}
+                          >
+                             <div style={{ position: 'absolute', top: 16, right: 16, width: 8, height: 8, borderRadius: '50%', background: r.status === 'Açık' ? '#f59e0b' : '#10b981' }} />
+                             <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>{r.subject}</div>
+                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontSize: 10, color: '#64748b', fontWeight: 800 }}>ID: #{1000 + i}</span>
+                                <span style={{ fontSize: 10, fontWeight: 900, color: r.status === 'Açık' ? '#f59e0b' : '#10b981' }}>{r.status?.toUpperCase()}</span>
+                             </div>
+                          </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '40px 0', opacity: 0.3 }}>
+                     <ShieldCheck size={48} style={{ margin: '0 auto 12px' }} />
+                     <div style={{ fontSize: 14, fontWeight: 800 }}>Her şey nominal. Aktif talebiniz yok.</div>
+                  </div>
+                )}
+            </div>
+            
+            <div 
+              onClick={() => openSupport('list')}
+              style={{ padding: '16px 24px', background: 'rgba(0,0,0,0.02)', borderTop: '1px solid rgba(0,0,0,0.05)', textAlign: 'center', fontSize: 12, fontWeight: 800, color: '#3b82f6', cursor: 'pointer' }}
+            >
+               TÜM TALEPLERİMİ GÖRÜNTÜLE <ChevronRight size={14} />
+            </div>
           </div>
       )}
+
+      {/* Support Portal Modal Overlay */}
+      <SupportPortalModal 
+        isOpen={supportModal.isOpen} 
+        onClose={() => setSupportModal({ ...supportModal, isOpen: false })}
+        initialMode={supportModal.mode}
+        initialRequestId={supportModal.requestId}
+      />
 
     </div>
   );
@@ -569,7 +599,8 @@ function GraphicStat({ title, value, trend, color, icon: Icon, subtitle }) {
   );
 }
 
-function ResourceDonut({ label, value, color }) {
+function ResourceDonut({ label, value, _color }) {
+    const color = _color; // Keep compatibility or use _color directly
     return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
             <div style={{ width: 120, height: 120, position: 'relative' }}>

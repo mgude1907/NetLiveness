@@ -78,6 +78,14 @@ namespace NetLiveness.Api.Models
         public DateTime? ResignedAt { get; set; }
         public string? UserID { get; set; }
         public string? WindowsLogin { get; set; }
+        
+        // Card-Specific Security Fields
+        public string? PhotoUrl { get; set; }
+        public string? KgbNo { get; set; }
+        public string? PrivacyLevel { get; set; } = "MİLLİ GİZLİ";
+        public DateTime? KgbExpiryDate { get; set; }
+        public string? ApprovedBy { get; set; } = "NERGİS ÇELİK";
+        public string? ApproverTitle { get; set; } = "GÜVENLİK KOORDİNATÖRÜ";
     }
 
     public class StockItem
@@ -128,6 +136,7 @@ namespace NetLiveness.Api.Models
         public string Action { get; set; } = "";
         public string Details { get; set; } = "";
         public string Operator { get; set; } = "System";
+        public string Category { get; set; } = "SYSTEM"; // SYSTEM, SECURITY, NETWORK, INVENTORY, SUPPORT, PERSONNEL
     }
 
     public class AppSettings
@@ -168,6 +177,13 @@ namespace NetLiveness.Api.Models
         public string PersonnelSqlAuthType { get; set; } = "SQL"; // SQL, Windows
         public string PersonnelIntegrationSqlQuery { get; set; } = "SELECT PersonelNo, Ad, Soyad, Bolum, Firma, UserID, GirisTarih, CikisTarih FROM [dbo].[Sicil]";
         public DateTime? PersonnelIntegrationLastSync { get; set; }
+        
+        // Phishing Settings
+        public string? PhishingSmtpHost { get; set; } = "smtp.gmail.com";
+        public int PhishingSmtpPort { get; set; } = 587;
+        public string? PhishingSmtpUser { get; set; } = "";
+        public string? PhishingSmtpPass { get; set; } = "";
+        public string? PhishingTrackingUrl { get; set; } = "http://localhost:3001/track";
     }
 
     public class SystemUpdate
@@ -372,10 +388,27 @@ namespace NetLiveness.Api.Models
         public string Category { get; set; } = "Genel"; // Donanım, Yazılım, Ağ, Diğer
         public string Priority { get; set; } = "Düşük"; // Düşük, Orta, Yüksek, Kritik
         public string Status { get; set; } = "Açık"; // Açık, İşlemde, Çözüldü, Kapalı
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime? CreatedAt { get; set; } = DateTime.Now;
+        public DateTime? LastUpdate { get; set; } = DateTime.Now;
+        public string? AssignedTo { get; set; } // BT Personeli İsmi
         public string? Resolution { get; set; } // Çözüm notu
         public DateTime? ResolvedAt { get; set; } // Çözülme tarihi
+        public DateTime? SlaDeadline { get; set; } // Hedef çözüm tarihi
         public string? ScreenshotPath { get; set; } // Ekran görüntüsü dosya yolu
+        
+        // Navigation properties
+        public virtual ICollection<HelpRequestReply> Replies { get; set; } = new List<HelpRequestReply>();
+    }
+
+    public class HelpRequestReply
+    {
+        public int Id { get; set; }
+        public int HelpRequestId { get; set; }
+        public string SenderName { get; set; } = ""; // Admin veya Personel
+        public string Message { get; set; } = "";
+        public bool IsFromAdmin { get; set; } = false;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public string? AttachmentPath { get; set; }
     }
 
     public class SoftwareLicense

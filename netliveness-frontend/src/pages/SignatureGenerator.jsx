@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   User, Briefcase, Phone, Smartphone, Mail, Globe, MapPin, 
   Copy, Code, CircleCheck, Info, Printer, Search, X, Users, Building2,
@@ -124,22 +124,20 @@ export default function SignatureGenerator() {
   const [personnel, setPersonnel] = useState([]);
   const [showPicker, setShowPicker] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [customLogo, setCustomLogo] = useState(null);
   const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState('details'); // details, template
   
   const signatureRef = useRef(null);
 
-  useEffect(() => {
-    loadPersonnel();
-  }, []);
-
-  const loadPersonnel = async () => {
+  const loadPersonnel = useCallback(async () => {
     try {
       const data = await getPersonnel();
       setPersonnel(Array.isArray(data) ? data : []);
     } catch { console.error('Personel yüklenemedi'); }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadPersonnel();
+  }, [loadPersonnel]);
 
   const update = (key, val) => setForm(prev => ({ ...prev, [key]: val }));
 
@@ -514,7 +512,7 @@ function SignatureCanvas({ template, company, form }) {
         <td style={{ width: 160, textAlign: 'center', verticalAlign: 'top', paddingRight: 20, borderRight: `2px solid ${primaryColor}` }}>
            <img src={logoUrl} alt={company.name} width="140" style={{ display: 'block', margin: '0 auto' }} />
            <div style={{ marginTop: 15 }}>
-              <a href={`https://${form.website}`} target="_blank" style={{ color: primaryColor, fontWeight: 800, textDecoration: 'none', fontSize: 11 }}>{form.website}</a>
+              <a href={`https://${form.website}`} target="_blank" rel="noopener noreferrer" style={{ color: primaryColor, fontWeight: 800, textDecoration: 'none', fontSize: 11 }}>{form.website}</a>
            </div>
            
            {company.hasEcoVadis && (
@@ -580,7 +578,7 @@ function DisclaimerRow() {
   );
 }
 
-function SocialIcons({ color }) {
+function SocialIcons({ _color }) {
   // Static URLs for production icons (using common CDN paths)
   return (
     <div style={{ display: 'flex', gap: 10 }}>

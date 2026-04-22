@@ -395,7 +395,7 @@ export default function HelpRequestPublic() {
           ))}
           <div style={{ marginTop: 20, padding: 20, borderRadius: 24, background: '#ffffff', border: '1px solid rgba(15,23,42,0.05)', color: '#0f172a', boxShadow: '0 10px 30px rgba(15,23,42,0.03)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <div className="icon-box-aura" style={{ width: 32, height: 32, borderRadius: 10, background: 'icon-amber', background: 'rgba(245,158,11,0.1)', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="icon-box-aura" style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(245,158,11,0.1)', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <FileText size={16} />
               </div>
               <div style={{ fontSize: 12, fontWeight: 900 }}>Birim Standartları</div>

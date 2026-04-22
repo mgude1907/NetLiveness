@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using NetLiveness.Api.Models;
+using Polly;
+using Polly.Retry;
+using Microsoft.Data.Sqlite;
 
 namespace NetLiveness.Api.Data
 {
@@ -44,6 +47,10 @@ namespace NetLiveness.Api.Data
         public DbSet<ItBudgetCategory> ItBudgetCategories { get; set; }
         public DbSet<ItBudgetItem> ItBudgetItems { get; set; }
         
+        // Help Desk
+        public DbSet<HelpRequest> HelpRequests { get; set; }
+        public DbSet<HelpRequestReply> HelpRequestReplies { get; set; }
+        
         // Chat
         public DbSet<ChatChannel> ChatChannels { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
@@ -55,6 +62,28 @@ namespace NetLiveness.Api.Data
             
             // Seed default settings
             modelBuilder.Entity<AppSettings>().HasData(new AppSettings { Id = 1 });
+        }
+
+        // --- Retry Logic for SQLite Locks --- //
+        private static readonly ResiliencePipeline _retryPipeline = new ResiliencePipelineBuilder()
+            .AddRetry(new RetryStrategyOptions
+            {
+                ShouldHandle = new PredicateBuilder().Handle<DbUpdateException>(ex => 
+                    ex.InnerException is SqliteException sex && sex.SqliteErrorCode == 5), // 5 = SQLITE_BUSY
+                MaxRetryAttempts = 3,
+                Delay = TimeSpan.FromMilliseconds(500),
+                BackoffType = DelayBackoffType.Exponential
+            })
+            .Build();
+
+        public override int SaveChanges()
+        {
+            return _retryPipeline.Execute(() => base.SaveChanges());
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            return _retryPipeline.ExecuteAsync(async ct => await base.SaveChangesAsync(ct), cancellationToken).AsTask();
         }
     }
 }

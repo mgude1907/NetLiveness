@@ -1,10 +1,13 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { getPersonnel } from '../api';
+import React, { useState, useEffect, useCallback } from 'react';
+import { getPersonnel, resolveImageUrl } from '../api';
 import { 
   CreditCard, ArrowRight, UserCheck, UserX, Search, Users, 
   Mail, Copy, Check, Info, Briefcase, Building2, Repeat, 
-  Hash, ShieldCheck, X, ChevronRight, UserCircle, Stars
+  Hash, ShieldCheck, X, ChevronRight, UserCircle, Stars,
+  Printer, Image as ImageIcon, Calendar, Shield, BadgeCheck,
+  RotateCcw, Save, Eraser
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 export default function CardConverter() {
@@ -20,25 +23,39 @@ export default function CardConverter() {
   const [personnelMatch, setPersonnelMatch] = useState(null);
   const [isConverting, setIsConverting] = useState(false);
   const [copiedField, setCopiedField] = useState(null);
+  
+  // Card Printing State
+  const [showPrintModal, setShowPrintModal] = useState(false);
+  const [printData, setPrintData] = useState({ adSoyad: '', gorev: '', sicilNo: '', kartNo: '', photoUrl: '', kgbNo: '', privacyLevel: 'MİLLİ GİZLİ', kgbExpiryDate: '', approvedBy: 'NERGİS ÇELİK', approverTitle: 'GÜVENLİK KOORDİNATÖRÜ' });
+  const [printFront, setPrintFront] = useState(true);
+  const [printBack, setPrintBack] = useState(true);
+  const [activeSide, setActiveSide] = useState('front');
+  const navigate = useNavigate();
 
-  // Fetch personnel to match card numbers
-  useEffect(() => {
-    loadPersonnel();
-  }, []);
-
-  const loadPersonnel = async () => {
+  const loadPersonnel = useCallback(async () => {
     try {
       const data = await getPersonnel();
       setPersonnels(Array.isArray(data) ? data : []);
     } catch { toast.error('Personel rehberi yüklenemedi.'); }
-  };
+  }, []);
 
-  const checkPersonnel = useCallback((meyerDecOrStr) => {
-    if (!meyerDecOrStr) {
+  // Fetch personnel to match card numbers
+  useEffect(() => {
+    loadPersonnel();
+  }, [loadPersonnel]);
+
+  const checkPersonnel = useCallback((inputVal) => {
+    if (!inputVal) {
       setPersonnelMatch(null);
       return;
     }
-    const match = personnels.find(p => p.kartNo === String(meyerDecOrStr));
+    // Deep match: handle potential leading zeros and type differences
+    const cleanInput = String(inputVal).replace(/^0+/, '');
+    const match = personnels.find(p => {
+       if (!p.kartNo) return false;
+       const cleanKart = String(p.kartNo).replace(/^0+/, '');
+       return cleanKart === cleanInput;
+    });
     setPersonnelMatch(match || false);
   }, [personnels]);
 
@@ -126,10 +143,13 @@ export default function CardConverter() {
 
   const selectPerson = (p) => {
     if (p.kartNo) {
+      setMeyer(p.kartNo);
       convertFromMeyer(p.kartNo);
+      setPersonnelMatch(p); // Explicitly set match to avoid lookup failures
       toast.success(`${p.adSoyad} bilgileri yüklendi.`);
     } else {
-      toast.error('Bu personelin kart numarası sistemde tanımlı değil.');
+      setPersonnelMatch(p); // Set match anyway so button shows up
+      toast.error('Dikkat: Personel kart no tanımlı değil.');
     }
     setShowPicker(false);
   };
@@ -138,6 +158,26 @@ export default function CardConverter() {
     p.adSoyad?.toLocaleLowerCase('tr').includes(searchQuery.toLocaleLowerCase('tr')) ||
     p.sicilNo?.includes(searchQuery)
   );
+
+  const openPrintModal = (p) => {
+    setPrintData({
+      adSoyad: p.adSoyad || `${p.ad} ${p.soyad}`,
+      gorev: p.gorev || '',
+      sicilNo: p.sicilNo || '',
+      kartNo: p.kartNo || '',
+      photoUrl: p.photoUrl || '',
+      kgbNo: p.kgbNo || '',
+      privacyLevel: p.privacyLevel || 'MİLLİ GİZLİ',
+      kgbExpiryDate: p.kgbExpiryDate ? new Date(p.kgbExpiryDate).toLocaleDateString('tr-TR') : '',
+      approvedBy: p.approvedBy || 'NERGİS ÇELİK',
+      approverTitle: p.approverTitle || 'GÜVENLİK KOORDİNATÖRÜ'
+    });
+    setShowPrintModal(true);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   return (
     <div className="animate-in" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -230,6 +270,7 @@ export default function CardConverter() {
              <div style={{ marginTop: 24, padding: 16, background: 'var(--bg-inset)', borderRadius: 16, border: '1px dashed var(--border)' }}>
                 <div style={{ display: 'flex', gap: 10 }}>
                    <Info size={16} color="var(--text-3)" style={{ marginTop: 2 }} />
+                   <p style={{ color: 'var(--text-3)', fontWeight: 600, fontSize: '13px', lineHeight: 1.5 }}>Lütfen sorun yaşadığınız cihazı &quot;Cihaz Seçimi&quot; alanından belirtiniz. Destek talebiniz BT ekibimize anında ulaşacaktır.</p>
                    <p style={{ fontSize: 11, color: 'var(--text-3)', lineHeight: 1.5 }}>
                       Herhangi bir alana değer girmeniz yeterlidir. Diğer alanlar <strong>32-bit Matematiksel Dönüşüm</strong> formülleriyle anlık hesaplanır.
                    </p>
@@ -269,7 +310,7 @@ export default function CardConverter() {
                     {personnelMatch === null ? (
                       <div>
                         <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--text-1)' }}>Personel Bekleniyor</div>
-                        <p style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 4 }}>Kart numarasını manuel girin veya rehberden arama yapın.</p>
+                        <p style={{ maxWidth: 400, textAlign: 'center', color: 'var(--text-3)', fontWeight: 600 }}>Meyer numarasını veya kart üzerindeki 10 haneli (veya 8 haneli HEX) kodu girin. &apos;İşle&apos; butonuna bastığınızda dönüşüm otomatik olarak yapılır.</p>
                       </div>
                     ) : personnelMatch === false ? (
                       <div>
@@ -295,16 +336,25 @@ export default function CardConverter() {
                     )}
                  </div>
 
-                 {personnelMatch && (
-                   <button 
-                    onClick={() => { window.location.href = `/cv/${personnelMatch.sicilNo}`; }}
-                    className="btn btn-ghost" 
-                    style={{ borderRadius: 16, padding: '12px 20px' }}
-                   >
-                     Detaylı Gör <ChevronRight size={16} />
-                   </button>
-                 )}
-              </div>
+                  {personnelMatch && (
+                    <div style={{ display: 'flex', gap: 12 }}>
+                      <button 
+                        onClick={() => openPrintModal(personnelMatch)}
+                        className="btn btn-primary" 
+                        style={{ borderRadius: 16, padding: '12px 24px', background: 'linear-gradient(135deg, #1e293b, #0f172a)', border: 'none' }}
+                      >
+                        <Printer size={18} /> KART BAS
+                      </button>
+                      <button 
+                        onClick={() => { navigate(`/cv/${personnelMatch.id}`); }}
+                        className="btn btn-ghost" 
+                        style={{ borderRadius: 16, padding: '12px 20px' }}
+                      >
+                        Detaylı Gör <ChevronRight size={16} />
+                      </button>
+                    </div>
+                  )}
+               </div>
            </div>
 
            {/* Visualization of Endian Swap */}
@@ -328,7 +378,7 @@ export default function CardConverter() {
                  <ByteBox byte={(yazici?.slice(0, 2) || '00')} label="B1" color="#f59e0b" />
               </div>
               <p style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-3)', marginTop: 10 }}>
-                 Byte dizilimi CPU mimarisine göre <strong>Little-Endian</strong>'dan <strong>Big-Endian</strong>'a dönüştürülür.
+                 Byte dizilimi CPU mimarisine göre <strong>Little-Endian</strong>&apos;dan <strong>Big-Endian</strong>&apos;a dönüştürülür.
               </p>
            </div>
         </div>
@@ -377,6 +427,508 @@ export default function CardConverter() {
                  </div>
                ))}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Card Print Preview Modal */}
+      {showPrintModal && printData && (
+        <div className="modal-overlay" onClick={() => setShowPrintModal(false)} style={{ zIndex: 9999 }}>
+          <div className="modal-content print-modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 1000, display: 'flex', gap: 24, padding: 32 }}>
+            
+            {/* Left Side: Editor */}
+            <div className="no-print" style={{ flex: '0 0 350px', borderRight: '1px solid var(--border)', paddingRight: 24 }}>
+              <div style={{ marginBottom: 24 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 900, marginBottom: 4 }}>Kart Editörü</h2>
+                <p style={{ fontSize: 12, color: 'var(--text-3)' }}>Baskı öncesi detayları düzenleyebilirsiniz.</p>
+              </div>
+
+              <div style={{ padding: 16, background: 'var(--bg-inset)', borderRadius: 16, border: '1px solid var(--border)', marginBottom: 20 }}>
+                <h4 style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-1)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Printer size={16} /> Yazdırma Seçenekleri
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 13 }}>
+                    <input type="checkbox" checked={printFront} onChange={(e) => setPrintFront(e.target.checked)} style={{ width: 16, height: 16 }} />
+                    <span>Ön Tarafı Yazdır / Front Side</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 13 }}>
+                    <input type="checkbox" checked={printBack} onChange={(e) => setPrintBack(e.target.checked)} style={{ width: 16, height: 16 }} />
+                    <span>Arka Tarafı Yazdır / Back Side</span>
+                  </label>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div className="form-group">
+                  <label className="form-label">Ad Soyad</label>
+                  <input className="form-input" value={printData.adSoyad} onChange={e => setPrintData({...printData, adSoyad: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Görevi</label>
+                  <input className="form-input" value={printData.gorev} onChange={e => setPrintData({...printData, gorev: e.target.value})} />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div className="form-group">
+                    <label className="form-label">KGB No</label>
+                    <input className="form-input" value={printData.kgbNo} onChange={e => setPrintData({...printData, kgbNo: e.target.value})} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Kart No</label>
+                    <input className="form-input" value={printData.kartNo} onChange={e => setPrintData({...printData, kartNo: e.target.value})} />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Geçerlilik Tarihi</label>
+                  <input className="form-input" value={printData.kgbExpiryDate} onChange={e => setPrintData({...printData, kgbExpiryDate: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Onaylayan</label>
+                  <input className="form-input" value={printData.approvedBy} onChange={e => setPrintData({...printData, approvedBy: e.target.value})} />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, marginTop: 24, marginBottom: 24 }}>
+                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowPrintModal(false)}>İPTAL</button>
+                <button 
+                  className="btn btn-amber" 
+                  style={{ flex: 1 }}
+                  onClick={async () => {
+                    try {
+                      const { updatePersonnel } = await import('../api');
+                      await updatePersonnel(personnelMatch.id, {
+                        ...personnelMatch,
+                        adSoyad: printData.adSoyad,
+                        gorev: printData.gorev,
+                        kgbNo: printData.kgbNo,
+                        kartNo: printData.kartNo,
+                        approvedBy: printData.approvedBy
+                      });
+                      toast.success('Değişiklikler kaydedildi.');
+                    } catch (error) { 
+                      console.error(error);
+                      toast.error('Hata oluştu.'); 
+                    }
+                  }}
+                >
+                  <Save size={14} /> KAYDET
+                </button>
+              </div>
+
+              <button className="btn btn-primary" style={{ width: '100%', height: 48 }} onClick={handlePrint}>
+                <Printer size={18} /> ŞİMDİ YAZDIR (ZC300)
+              </button>
+            </div>
+
+            {/* Right Side: Visual Card Preview */}
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e2e8f0', borderRadius: 16, padding: 40, height: 'fit-content' }}>
+              <div className="card-print-container">
+                {activeSide === 'front' ? (
+                  <div className="repkon-id-card front print-area">
+                    <div className="card-mesh-bg"></div>
+                    <div className="card-logo-container">
+                      <img src="/repkon_energetics.png" alt="Repkon Energetics" style={{ height: 38, objectFit: 'contain' }} />
+                    </div>
+                    <div className="diagonal-decoration top-right"></div>
+                    <div className="card-body">
+                      <div className="photo-section">
+                        <div className="photo-frame">
+                          {printData.photoUrl ? (
+                            <img 
+                              src={resolveImageUrl(printData.photoUrl)} 
+                              alt="Photo" 
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                              onError={(e) => { e.target.style.display = 'none'; }}
+                            />
+                          ) : (
+                            <div className="photo-placeholder"><UserCircle size={60} color="#cbd5e1" /></div>
+                          )}
+                        </div>
+                        <div className="approver-info">
+                          <label>ONAYLAYAN (APPROVED BY)</label>
+                          <div className="approver-name">{printData.approvedBy}</div>
+                          <div className="approver-title">{printData.approverTitle}</div>
+                          <div className="approver-title-en">(SECURITY COORDINATOR)</div>
+                        </div>
+                      </div>
+
+                      <div className="data-section">
+                         <div className="card-no-badge">
+                           KART NO / CARD NO: <strong>{printData.kartNo}</strong>
+                         </div>
+
+                         <div className="data-field">
+                           <label>ADI SOYADI / NAME SURNAME</label>
+                           <div className="value large">{printData.adSoyad.toUpperCase()}</div>
+                         </div>
+
+                         <div className="data-field">
+                           <label>GÖREVİ / POSITION</label>
+                           <div className="value">{printData.gorev.toUpperCase()}</div>
+                         </div>
+
+                         <div className="data-field">
+                           <label>KGB KAYIT NO</label>
+                           <div className="value bold">{printData.kgbNo}</div>
+                         </div>
+
+                         <div className="data-field">
+                           <label>KGB GİZLİLİK DERECESİ</label>
+                           <div className="value bold">{printData.privacyLevel}</div>
+                         </div>
+
+                         <div className="data-field">
+                           <label>KGB GEÇERLİLİK TARİHİ</label>
+                           <div className="value bold">{printData.kgbExpiryDate}</div>
+                         </div>
+                      </div>
+                    </div>
+                    <div className="diagonal-decoration bottom"></div>
+                  </div>
+                ) : (
+                  <div className="repkon-id-card back print-area">
+                    <div style={{ padding: '30px 40px' }}>
+                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+                          <div style={{ flex: 1 }}>
+                             <h2 style={{ fontSize: 20, fontWeight: 800, color: '#000', margin: 0 }}>Kullanım Talimatı</h2>
+                             <div style={{ fontSize: 13, fontWeight: 700, color: '#000' }}>(Instructions for Use)</div>
+                          </div>
+                          <div className="repkon-logo-minimal no-print">
+                             <img src="/repkon_energetics.png" alt="Logo" style={{ height: 30, opacity: 0.8 }} />
+                          </div>
+                       </div>
+
+                       <div className="instructions-list">
+                          <p><strong>1.</strong> İşyerinde bu kart sürekli olarak sağ yakaya veya boyuna asılacaktır.</p>
+                          <p><strong>2.</strong> Kartı kaybeden derhal Güvenlik Koordinatörüne bilgi verecektir.</p>
+                          <p><strong>3.</strong> Kaybolmuş kartın bulunması halinde lütfen <span style={{ color: 'var(--blue-text)' }}>+90 216 251 50 77</span> No&apos;lu telefona bilgi veriniz.</p>
+                          
+                          <div style={{ marginTop: 12, borderTop: '1px solid #e2e8f0', paddingTop: 12 }}>
+                            <p><strong>1.</strong> While in premises this card must be displayed clearly on your right collar or longitudinal suspended on your neck.</p>
+                            <p><strong>2.</strong> Lost cards must be reported to Security Coordinator immediately.</p>
+                            <p><strong>3.</strong> In the event of finding lost card please inform us on following phone number <span style={{ color: 'var(--blue-text)' }}>+90 216 251 50 77</span></p>
+                          </div>
+                       </div>
+                    </div>
+                    <div className="diagonal-decoration bottom"></div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* HIDDEN PRINT CONTAINER - DYNAMIC DUO/SINGLE PAGE JOBS */}
+            <div id="zebra-duplex-print-gate">
+               {printFront && (
+                 <div className="repkon-id-card front print-page-one">
+                    <div className="card-mesh-bg"></div>
+                    <div className="card-logo-container">
+                        <img src="/repkon_energetics.png" alt="Repkon Energetics" style={{ height: 42, objectFit: 'contain' }} />
+                    </div>
+                    <div className="diagonal-decoration top-right"></div>
+                    <div className="card-body">
+                        <div className="photo-section">
+                            <div className="photo-frame">
+                                {printData.photoUrl ? (
+                                    <img src={resolveImageUrl(printData.photoUrl)} alt="Photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    <div className="photo-placeholder"><UserCircle size={60} color="#cbd5e1" /></div>
+                                )}
+                            </div>
+                            <div className="approver-info">
+                                <label>ONAYLAYAN (APPROVED BY)</label>
+                                <div className="approver-name">{printData.approvedBy}</div>
+                                <div className="approver-title">{printData.approverTitle}</div>
+                                <div className="approver-title-en">(SECURITY COORDINATOR)</div>
+                            </div>
+                        </div>
+                        <div className="data-section">
+                            <div className="card-no-badge">KART NO: <strong>{printData.kartNo}</strong></div>
+                            <div className="data-field">
+                                <label>ADI SOYADI / NAME SURNAME</label>
+                                <div className="value large">{printData.adSoyad.toUpperCase()}</div>
+                            </div>
+                            <div className="data-field">
+                                <label>GÖREVİ / POSITION</label>
+                                <div className="value">{printData.gorev.toUpperCase()}</div>
+                            </div>
+                            <div className="data-field">
+                                <label>KGB KAYIT NO</label>
+                                <div className="value bold">{printData.kgbNo}</div>
+                            </div>
+                            <div className="data-field">
+                                <label>KGB GİZLİLİK DERECESİ</label>
+                                <div className="value bold">{printData.privacyLevel}</div>
+                            </div>
+                            <div className="data-field">
+                                <label>KGB GEÇERLİLİK TARİHİ</label>
+                                <div className="value bold">{printData.kgbExpiryDate}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="diagonal-decoration bottom"></div>
+                 </div>
+               )}
+
+               {printBack && (
+                 <div className="repkon-id-card back print-page-two">
+                    <div style={{ padding: '30px 40px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+                            <div style={{ flex: 1 }}>
+                                <h2 style={{ fontSize: 20, fontWeight: 800, color: '#000', margin: 0 }}>Kullanım Talimatı</h2>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: '#000' }}>(Instructions for Use)</div>
+                            </div>
+                            <div className="logo-mono" style={{ padding: '8px 16px', background: '#000', color: '#fff', borderRadius: 8, fontWeight: 900, fontSize: 12 }}>REPKON</div>
+                        </div>
+                        <div className="instructions-list" style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
+                            <p>1. Bu kart şahsa özeldir, başkasına devredilemez. (Personal use only.)</p>
+                            <p>2. Kayıp durumunda derhal güvenlik birimine haber verilmelidir. (Report loss immediately.)</p>
+                            <p>3. Tesisi terk ederken iade edilmesi mecburidir. (Must be returned upon resignation.)</p>
+                            <p>4. Kartın fiziksel yapısını bozmak veya üzerine yazı yazmak yasaktır.</p>
+                        </div>
+                    </div>
+                    <div className="diagonal-decoration bottom"></div>
+                 </div>
+               )}
+            </div>
+
+            <style>{`
+              @media screen {
+                .card-print-container {
+                  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+                  border-radius: 12px;
+                  overflow: hidden;
+                }
+              }
+
+              .repkon-id-card {
+                width: 85.6mm;
+                height: 53.98mm;
+                background: white;
+                position: relative;
+                overflow: hidden;
+                font-family: 'Inter', Arial, sans-serif;
+                color: #000;
+                background-image: 
+                  linear-gradient(#f8fafc 1px, transparent 1px),
+                  linear-gradient(90deg, #f8fafc 1px, transparent 1px);
+                background-size: 20px 20px;
+              }
+
+              .card-mesh-bg {
+                position: absolute;
+                bottom: 0; left: 0; right: 0;
+                height: 40%;
+                background-image: 
+                  linear-gradient(45deg, #f1f5f9 25%, transparent 25%), 
+                  linear-gradient(-45deg, #f1f5f9 25%, transparent 25%), 
+                  linear-gradient(45deg, transparent 75%, #f1f5f9 75%), 
+                  linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
+                background-size: 8px 8px;
+                background-color: transparent;
+                opacity: 0.15;
+                pointer-events: none;
+              }
+
+              .diagonal-decoration {
+                position: absolute;
+                background: #000;
+              }
+
+              .diagonal-decoration.top-right {
+                top: 0; right: 0;
+                width: 60%;
+                height: 12mm;
+                clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
+                background-image: 
+                  linear-gradient(45deg, #111 25%, transparent 25%), 
+                  linear-gradient(-45deg, #111 25%, transparent 25%), 
+                  linear-gradient(45deg, transparent 75%, #111 75%), 
+                  linear-gradient(-45deg, transparent 75%, #111 75%);
+                background-size: 4px 4px;
+                background-color: #000;
+              }
+
+              .diagonal-decoration.bottom {
+                bottom: 0; left: 0; right: 0;
+                height: 8mm;
+                background: #000;
+                clip-path: polygon(0 0, 52% 0, 55% 100%, 0 100%);
+                background-image: radial-gradient(#222 1px, transparent 0);
+                background-size: 4px 4px;
+              }
+
+              .card-logo-container {
+                padding: 15px 20px;
+              }
+
+              .card-body {
+                display: flex;
+                padding: 0 20px;
+                gap: 20px;
+                position: relative;
+                z-index: 5;
+              }
+
+              .photo-section {
+                flex: 0 0 28mm;
+              }
+
+              .photo-frame {
+                width: 28mm;
+                height: 35mm;
+                border: 1px solid #e2e8f0;
+                background: #fff;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+              }
+
+              .photo-frame img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+              }
+
+              .approver-info {
+                margin-top: 6px;
+                text-align: center;
+              }
+
+              .approver-info label {
+                display: block;
+                font-size: 6px;
+                font-weight: 800;
+                opacity: 0.8;
+                margin-bottom: 2px;
+              }
+
+              .approver-name {
+                font-size: 8px;
+                font-weight: 900;
+                color: var(--blue-text);
+              }
+
+              .approver-title {
+                font-size: 6px;
+                font-weight: 700;
+              }
+
+              .approver-title-en {
+                font-size: 5px;
+                font-weight: 600;
+                opacity: 0.7;
+              }
+
+              .data-section {
+                flex: 1;
+              }
+
+              .card-no-badge {
+                text-align: right;
+                font-size: 10px;
+                margin-bottom: 8px;
+              }
+
+              .data-field {
+                margin-bottom: 5px;
+              }
+
+              .data-field label {
+                display: block;
+                font-size: 7px;
+                font-weight: 800;
+                color: #64748b;
+                margin-bottom: 1px;
+              }
+
+              .value {
+                font-size: 11px;
+                font-weight: 800;
+                color: #000;
+              }
+
+              .value.large {
+                font-size: 16px;
+                letter-spacing: -0.5px;
+                line-height: 1;
+              }
+
+              .value.bold {
+                font-size: 13px;
+              }
+
+              .instructions-list p {
+                font-size: 9px;
+                line-height: 1.3;
+                margin-bottom: 4px;
+                color: #000;
+                font-weight: 600;
+              }
+
+              @media print {
+                @page {
+                  size: 3.375in 2.125in landscape;
+                  margin: 0;
+                }
+                
+                html, body {
+                  margin: 0 !important;
+                  padding: 0 !important;
+                  width: 3.375in;
+                  height: 2.125in;
+                  overflow: visible !important;
+                }
+
+                /* Hide EVERYTHING in the body except our specific print ID */
+                body > * {
+                  display: none !important;
+                }
+
+                /* Force the specific print container to be visible and correctly positioned */
+                #zebra-duplex-print-gate {
+                  display: block !important;
+                  visibility: visible !important;
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  width: 3.375in;
+                }
+
+                #zebra-duplex-print-gate * {
+                  visibility: visible !important;
+                }
+
+                .print-page-one, .print-page-two {
+                  display: block !important;
+                  position: relative;
+                  width: 3.375in !important;
+                  height: 2.125in !important;
+                  page-break-after: always !important;
+                  break-after: page !important;
+                  margin: 0 !important;
+                  padding: 0 !important;
+                  border: none !important;
+                  box-shadow: none !important;
+                  overflow: hidden !important;
+                }
+
+                .print-page-two {
+                  page-break-after: avoid !important;
+                  break-after: avoid !important;
+                }
+
+                * {
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+              }
+
+              #zebra-duplex-print-gate {
+                display: none;
+              }
+            `}</style>
           </div>
         </div>
       )}

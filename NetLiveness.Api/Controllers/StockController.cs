@@ -67,7 +67,7 @@ namespace NetLiveness.Api.Controllers
             _context.Stock.Add(stockItem);
 
             var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
-            _context.Logs.Add(new AuditLogEntry { Action = "STOCK_CREATED", Details = $"Yeni stok ürünü eklendi: {stockItem.Brand} {stockItem.Model} ({stockItem.SerialNo})", Operator = operatorInfo });
+            _context.Logs.Add(new AuditLogEntry { Action = "STOCK_CREATED", Details = $"Yeni stok ürünü eklendi: {stockItem.Brand} {stockItem.Model} ({stockItem.SerialNo})", Operator = operatorInfo, Category = "INVENTORY" });
 
             await _context.SaveChangesAsync();
 
@@ -87,7 +87,7 @@ namespace NetLiveness.Api.Controllers
             try
             {
                 var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
-                _context.Logs.Add(new AuditLogEntry { Action = "STOCK_UPDATED", Details = $"Stok ürünü bilgisi güncellendi: {stockItem.Brand} {stockItem.Model}", Operator = operatorInfo });
+                _context.Logs.Add(new AuditLogEntry { Action = "STOCK_UPDATED", Details = $"Stok ürünü bilgisi güncellendi: {stockItem.Brand} {stockItem.Model}", Operator = operatorInfo, Category = "INVENTORY" });
 
                 await _context.SaveChangesAsync();
             }
@@ -116,7 +116,7 @@ namespace NetLiveness.Api.Controllers
             }
 
             var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
-            _context.Logs.Add(new AuditLogEntry { Action = "STOCK_DELETED", Details = $"Stok ürünü silindi: {stockItem.Brand} {stockItem.Model} ({stockItem.SerialNo})", Operator = operatorInfo });
+            _context.Logs.Add(new AuditLogEntry { Action = "STOCK_DELETED", Details = $"Stok ürünü silindi: {stockItem.Brand} {stockItem.Model} ({stockItem.SerialNo})", Operator = operatorInfo, Category = "INVENTORY" });
 
             _context.Stock.Remove(stockItem);
             await _context.SaveChangesAsync();
@@ -150,7 +150,8 @@ namespace NetLiveness.Api.Controllers
             {
                 Action = "STOCK_ASSIGN",
                 Details = $"{stockItem.Model} ({stockItem.SerialNo}) stoğundan alınarak '{personnelName}' personeline zimmetlendi.",
-                Operator = operatorInfo
+                Operator = operatorInfo,
+                Category = "INVENTORY"
             });
 
             await _context.SaveChangesAsync();

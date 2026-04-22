@@ -1,10 +1,18 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { getPersonnel, createPersonnel, updatePersonnel, deletePersonnel, getSettings, syncPersonnel } from '../api';
-import { Plus, Search, Pencil, Trash2, X, Users, Upload, RefreshCw, UserMinus, Building2 } from 'lucide-react';
+import { 
+  getPersonnel, createPersonnel, updatePersonnel, 
+  deletePersonnel, syncPersonnel, uploadImage,
+  resolveImageUrl, getSettings
+} from '../api';
+import { Plus, Search, Pencil, Trash2, X, Users, Upload, RefreshCw, UserMinus, Building2, Shield } from 'lucide-react';
 import Papa from 'papaparse';
 import toast from 'react-hot-toast';
 
-const emptyForm = { ad: '', soyad: '', bolum: '', gorev: '', firma: '', sicilNo: '', kartNo: '' };
+const emptyForm = { 
+  ad: '', soyad: '', bolum: '', gorev: '', firma: '', sicilNo: '', kartNo: '',
+  photoUrl: '', kgbNo: '', privacyLevel: 'MİLLİ GİZLİ', kgbExpiryDate: '', 
+  approvedBy: 'NERGİS ÇELİK', approverTitle: 'GÜVENLİK KOORDİNATÖRÜ'
+};
 
 export default function Personnel() {
   const [items, setItems]     = useState([]);
@@ -77,13 +85,44 @@ export default function Personnel() {
 
   const openNew = () => { setForm(emptyForm); setEditId(null); setModal(true); };
   const openEdit = (p) => {
-    setForm({ ad: p.ad, soyad: p.soyad, bolum: p.bolum, gorev: p.gorev, firma: p.firma, sicilNo: p.sicilNo, kartNo: p.kartNo });
+    setForm({ 
+      ad: p.ad, soyad: p.soyad, bolum: p.bolum, gorev: p.gorev, firma: p.firma, 
+      sicilNo: p.sicilNo, kartNo: p.kartNo,
+      photoUrl: p.photoUrl || '',
+      kgbNo: p.kgbNo || '',
+      privacyLevel: p.privacyLevel || 'MİLLİ GİZLİ',
+      kgbExpiryDate: p.kgbExpiryDate ? p.kgbExpiryDate.split('T')[0] : '',
+      approvedBy: p.approvedBy || 'NERGİS ÇELİK',
+      approverTitle: p.approverTitle || 'GÜVENLİK KOORDİNATÖRÜ',
+      adSoyad: p.adSoyad
+    });
     setEditId(p.id); setModal(true);
   };
 
   const handleSave = async () => {
     try {
-      const data = { ...form, adSoyad: `${form.ad} ${form.soyad}`.trim() };
+      // Split AdSoyad if ad or soyad is missing (common for synced records)
+      let finalAd = form.ad || '';
+      let finalSoyad = form.soyad || '';
+      
+      if (!finalAd && form.adSoyad) {
+        const parts = form.adSoyad.trim().split(' ');
+        if (parts.length > 1) {
+          finalSoyad = parts.pop();
+          finalAd = parts.join(' ');
+        } else {
+          finalAd = form.adSoyad;
+        }
+      }
+
+      const data = {
+        ...form, 
+        ad: finalAd,
+        soyad: finalSoyad,
+        adSoyad: form.adSoyad || `${finalAd} ${finalSoyad}`.trim(),
+        kgbExpiryDate: form.kgbExpiryDate || null
+      };
+
       if (editId) {
         await updatePersonnel(editId, { ...data, id: editId });
         toast.success('Personel başarıyla güncellendi.');
@@ -358,8 +397,21 @@ export default function Personnel() {
                         </td>
                         <td>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <div className="avatar-initials" style={{ background: isInactive ? 'var(--bg-inset)' : 'linear-gradient(135deg, var(--blue-light), var(--blue-border))', color: isInactive ? 'var(--text-3)' : 'var(--blue)' }}>
-                              {(p.ad?.[0] || '?').toUpperCase()}
+                            <div className="avatar-initials" style={{ 
+                              width: '34px', height: '34px',
+                              borderRadius: '10px',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: '13px', fontWeight: '800',
+                              flexShrink: 0,
+                              background: isInactive ? 'var(--bg-inset)' : 'linear-gradient(135deg, var(--blue-light), var(--blue-border))', 
+                              color: isInactive ? 'var(--text-3)' : 'var(--blue)',
+                              overflow: 'hidden'
+                            }}>
+                              {p.photoUrl ? (
+                                <img src={resolveImageUrl(p.photoUrl)} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                (p.ad?.[0] || '?').toUpperCase()
+                              )}
                             </div>
                             <div>
                               <div style={{ fontWeight: 800, fontSize: '13px', color: 'var(--text-1)' }}>{p.ad} {p.soyad}</div>
@@ -492,6 +544,89 @@ export default function Personnel() {
               <div className="form-group">
                 <label className="form-label">Kart Numarası (ID)</label>
                 <input className="form-input" value={form.kartNo} onChange={e => setForm({...form, kartNo: e.target.value})} placeholder="A-4567-89" />
+              </div>
+
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '8px' }}>
+                <h3 style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-2)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Shield size={14} /> Güvenlik & Kart Bilgileri (Zebra Baskı)
+                </h3>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '24px' }}>
+                  <div className="form-group">
+                    <label className="form-label">Fotoğraf</label>
+                    <div 
+                      style={{ 
+                        width: '100px', height: '120px', 
+                        border: '2px dashed var(--border)', borderRadius: '16px',
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                        overflow: 'hidden', cursor: 'pointer', background: 'var(--bg-inset)',
+                        position: 'relative'
+                      }}
+                      onClick={() => document.getElementById('photo-upload').click()}
+                    >
+                      {form.photoUrl ? (
+                        <img src={resolveImageUrl(form.photoUrl)} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <>
+                          <Upload size={20} color="var(--text-3)" />
+                          <span style={{ fontSize: '10px', color: 'var(--text-3)', marginTop: '4px', textAlign: 'center' }}>Yükle</span>
+                        </>
+                      )}
+                      <input 
+                        id="photo-upload" 
+                        type="file" 
+                        accept="image/*" 
+                        style={{ display: 'none' }} 
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+                          try {
+                            const tid = toast.loading('Resim yükleniyor...');
+                            const { uploadImage } = await import('../api');
+                            const res = await uploadImage(file);
+                            setForm({...form, photoUrl: res.url});
+                            toast.success('Resim başarıyla yüklendi.', { id: tid });
+                          } catch {
+                            toast.error('Resim yükleme hatası!');
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div className="form-group">
+                        <label className="form-label">KGB Kayıt No</label>
+                        <input className="form-input" value={form.kgbNo} onChange={e => setForm({...form, kgbNo: e.target.value})} placeholder="MSB/26M-..." />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Gizlilik Derecesi</label>
+                        <select className="form-select" value={form.privacyLevel} onChange={e => setForm({...form, privacyLevel: e.target.value})}>
+                          <option value="MİLLİ GİZLİ">MİLLİ GİZLİ</option>
+                          <option value="HİZMETE ÖZEL">HİZMETE ÖZEL</option>
+                          <option value="TASNİF DIŞI">TASNİF DIŞI</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div className="form-group">
+                      <label className="form-label">Geçerlilik Tarihi</label>
+                      <input type="date" className="form-input" value={form.kgbExpiryDate} onChange={e => setForm({...form, kgbExpiryDate: e.target.value})} />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div className="form-group">
+                        <label className="form-label">Onaylayan</label>
+                        <input className="form-input" value={form.approvedBy} onChange={e => setForm({...form, approvedBy: e.target.value})} />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Onaylayan Unvanı</label>
+                        <input className="form-input" value={form.approverTitle} onChange={e => setForm({...form, approverTitle: e.target.value})} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 

@@ -604,7 +604,7 @@ export default function SettingsPage() {
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ 
-                          width: 40, height: 40, borderRadius: 12, display: 'flex', alignItems: 'center', justifyCenter: 'center',
+                          width: 40, height: 40, borderRadius: 12,
                           background: s.status === 'Çalışıyor' || s.status === 'Bağlı' ? 'var(--green-soft)' : 'var(--red-soft)',
                           color: s.status === 'Çalışıyor' || s.status === 'Bağlı' ? 'var(--green)' : 'var(--red)',
                           display: 'flex', alignItems: 'center', justifyContent: 'center'

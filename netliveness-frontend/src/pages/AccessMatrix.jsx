@@ -25,7 +25,7 @@ export default function AccessMatrix() {
   const [deleteConfirm, setDeleteConfirm] = useState(null); // { id, name }
   const [deleting, setDeleting] = useState(false);
 
-  const navigate = useNavigate();
+// const navigate = useNavigate();
 
   useEffect(() => {
     // Ana içeriği ekran boyutuyla sınırlıyoruz ki yatay scroll bar her zaman altta görünsün
@@ -47,12 +47,14 @@ export default function AccessMatrix() {
     }
   }, []);
 
+  /* 
   const getCategoryColor = (cat) => {
     const normalized = (cat || '').trim().toUpperCase();
     if (normalized === 'PROJECT') return 'rgba(34, 197, 94, 0.15)'; // Darker Green
     if (normalized === 'DEPARTMENTS') return 'rgba(56, 189, 248, 0.15)'; // Darker Blue
     return 'transparent';
   };
+  */
 
   const API_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5006/api`;
 
@@ -538,7 +540,7 @@ export default function AccessMatrix() {
                 </div>
                 <h3 style={{ fontSize: 22, fontWeight: 900, color: 'var(--text-1)', marginBottom: 12 }}>Dizini Sil</h3>
                 <p style={{ color: 'var(--text-3)', fontWeight: 600, lineHeight: 1.5 }}>
-                  <strong>"{deleteConfirm.name}"</strong> dizini ve bağlı tüm kullanıcı yetkileri kalıcı olarak silinecek. Emin misiniz?
+                  <strong>&quot;{deleteConfirm.name}&quot;</strong> dizini ve bağlı tüm kullanıcı yetkileri kalıcı olarak silinecek. Emin misiniz?
                 </p>
              </div>
              <div style={{ display: 'flex', gap: 12 }}>

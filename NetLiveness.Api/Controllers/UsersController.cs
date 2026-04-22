@@ -57,7 +57,7 @@ namespace NetLiveness.Api.Controllers
             _context.AppUsers.Add(user);
             
             var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
-            _context.Logs.Add(new AuditLogEntry { Action = "USER_CREATED", Details = $"Yeni sistem kullanıcısı kayıt edildi: {user.Username}", Operator = operatorInfo });
+            _context.Logs.Add(new AuditLogEntry { Action = "USER_CREATED", Details = $"Yeni sistem kullanıcısı kayıt edildi: {user.Username}", Operator = operatorInfo, Category = "SECURITY" });
             
             await _context.SaveChangesAsync();
 
@@ -90,7 +90,7 @@ namespace NetLiveness.Api.Controllers
             try
             {
                 var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
-                _context.Logs.Add(new AuditLogEntry { Action = "USER_UPDATED", Details = $"Sistem kullacısı bilgileri/yetkileri güncellendi: {existingUser.Username}", Operator = operatorInfo });
+                _context.Logs.Add(new AuditLogEntry { Action = "USER_UPDATED", Details = $"Sistem kullacısı bilgileri/yetkileri güncellendi: {existingUser.Username}", Operator = operatorInfo, Category = "SECURITY" });
 
                 await _context.SaveChangesAsync();
             }
@@ -118,7 +118,7 @@ namespace NetLiveness.Api.Controllers
             }
 
             var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
-            _context.Logs.Add(new AuditLogEntry { Action = "USER_DELETED", Details = $"Sistem kullanıcısı kalıcı olarak silindi: {user.Username}", Operator = operatorInfo });
+            _context.Logs.Add(new AuditLogEntry { Action = "USER_DELETED", Details = $"Sistem kullanıcısı kalıcı olarak silindi: {user.Username}", Operator = operatorInfo, Category = "SECURITY" });
 
             _context.AppUsers.Remove(user);
             await _context.SaveChangesAsync();

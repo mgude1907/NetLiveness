@@ -1,0 +1,10 @@
+{
+  "Version": "v1.1.0",
+  "Date": "16.04.2026",
+  "DownloadUrl": "http://191.168.6.101/updates/NetLiveness_v1.1.0.zip",
+  "Changelog": [
+    "Dahili Güncelleme (OTA) Modülü eklendi.",
+    "Arayüz performans iyileştirmeleri yapıldı.",
+    "Bakiye takip ekranındaki grafik hataları giderildi."
+  ]
+}

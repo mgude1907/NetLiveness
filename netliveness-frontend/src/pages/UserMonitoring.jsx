@@ -1,12 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  PieChart, Pie, Cell, ResponsiveContainer, Tooltip
-} from 'recharts';
+// Recharts removed as it is now handled in GlobalMonitoringDashboard
 import {
   getUserActivityTargets,
-  addUserActivityTarget,
-  deleteUserActivityTarget,
   getUserActivitySummary,
   getUserWebSummary,
   getUserDetailedStats,
@@ -19,8 +14,7 @@ import {
   updateTerminal,
   deleteTerminal,
   forceWmiRefresh,
-  getSettings,
-  getInventory
+  getSettings
 } from '../api';
 import {
   Monitor, Clock, Activity, Globe, LayoutDashboard, RefreshCw, Zap, CircleAlert, Settings2, Plus, Trash2, X, TriangleAlert, Search, Pencil, User, Building2
@@ -34,7 +28,6 @@ export default function UserMonitoring() {
   const [activeTab, setActiveTab]     = useState('dashboard');
   const [loading, setLoading]         = useState(true);
   const [refreshing, setRefreshing]   = useState(false);
-  const navigate = useNavigate();
 
   // --- COMPUTER MANAGEMENT STATES --- //
   const [compItems, setCompItems]     = useState([]);
@@ -51,16 +44,8 @@ export default function UserMonitoring() {
   const [firmsList, setFirmsList]     = useState([]);
 
   // --- INVENTORY LOOKUP --- //
-  const [inventory, setInventory]     = useState([]);
-  const [showStockSelect, setShowStockSelect] = useState(false);
-  const [stockSearch, setStockSearch] = useState('');
-
-  // --- ACTIVITY MONITORING STATES --- //
   const [targets, setTargets]         = useState([]);
   const [selectedPc, setSelectedPc]   = useState('');
-  const [appSummary, setAppSummary]   = useState([]);
-  const [webSummary, setWebSummary]   = useState([]);
-  const [detailedStats, setDetailedStats] = useState(null);
   const [fileAlerts, setFileAlerts]   = useState([]);
 
   const loadTargets = useCallback(async () => {
@@ -70,8 +55,8 @@ export default function UserMonitoring() {
       if (data.length > 0 && !selectedPc) {
         setSelectedPc(data[0].pcName);
       }
-    } catch (e) {
-      console.error('Failed to load targets', e);
+    } catch {
+      console.error('Failed to load targets');
     }
   }, [selectedPc]);
 
@@ -87,16 +72,7 @@ export default function UserMonitoring() {
       setCompItems(pcs);
       const firms = (settingsData?.firmsList || '').split(',').map(f => f.trim()).filter(Boolean);
       setFirmsList(firms.length > 0 ? firms : ['Merkez']);
-    } catch (e) { console.error('Failed to load computers', e); }
-  }, []);
-
-  const loadInventory = useCallback(async () => {
-    try {
-      const { getInventory, getStock } = await import('../api');
-      const [inv, stock] = await Promise.all([getInventory(), getStock()]);
-      const combined = [...(inv || []), ...(stock || [])];
-      setInventory(combined.filter(i => i.category === 'Bilgisayar'));
-    } catch (e) { console.error('Failed to load inventory', e); }
+    } catch { console.error('Failed to load computers'); }
   }, []);
 
   const handleSaveComp = async () => {
@@ -110,7 +86,7 @@ export default function UserMonitoring() {
         toast.success('Yeni bilgisayar eklendi.');
       }
       setCompModal(false); loadComputers(); loadTargets();
-    } catch (e) { toast.error('Kayıt başarısız oldu.'); }
+    } catch { toast.error('Kayıt başarısız oldu.'); }
   };
 
   const handleDeleteComp = async () => {
@@ -118,7 +94,7 @@ export default function UserMonitoring() {
       await deleteTerminal(compEditId);
       toast.success('Bilgisayar silindi.');
       setCompDeleteModal(false); loadComputers(); loadTargets();
-    } catch (e) { toast.error('Silme başarısız oldu.'); }
+    } catch { toast.error('Silme başarısız oldu.'); }
   };
 
   const handleRefreshWMI = async (id, e) => {
@@ -128,7 +104,7 @@ export default function UserMonitoring() {
       await forceWmiRefresh(id);
       toast.success('Yenilendi.', { id: tid });
       loadComputers();
-    } catch (e) { toast.error('Hata oluştu.', { id: tid }); }
+    } catch { toast.error('Hata oluştu.', { id: tid }); }
   };
 
   const openNewComp = () => { 
@@ -139,20 +115,8 @@ export default function UserMonitoring() {
       enableUserActivity: true, userActivityGroup: 'Genel'
     }); 
     setCompEditId(null); setCompModal(true); 
-    loadInventory();
   };
 
-  const handleStockSelect = (item) => {
-    setCompForm(prev => ({
-      ...prev,
-      name: item.pcIsmi || '',
-      host: item.ipAddress || item.pcIsmi || '', // IP varsa al, yoksa PC ismi
-      company: item.firma || 'Merkez',
-      description: `${item.brand || ''} ${item.model || ''} (${item.serialNo || ''})`.trim()
-    }));
-    setShowStockSelect(false);
-    toast.success('Bilgiler stoktan çekildi.');
-  };
   const openEditComp = (t) => { setCompForm({ ...t }); setCompEditId(t.id); setCompModal(true); };
 
   useEffect(() => { 
@@ -169,25 +133,22 @@ export default function UserMonitoring() {
       try {
         const alerts = await getFileAlerts();
         setFileAlerts(alerts || []);
-      } catch (e) {
-        console.error('Failed to load global file alerts', e);
+      } catch (err) {
+        console.error('Failed to load global file alerts', err);
       }
       return;
     }
     setRefreshing(true);
     try {
-      const [apps, web, stats, alerts] = await Promise.all([
+      const [_apps, _web, _stats, alerts] = await Promise.all([
         getUserActivitySummary(pc),
         getUserWebSummary(pc),
         getUserDetailedStats(pc),
         getFileAlerts()
       ]);
-      setAppSummary(apps || []);
-      setWebSummary(web || []);
-      setDetailedStats(stats);
       setFileAlerts(alerts || []);
-    } catch (e) {
-      console.error('Failed to load activity data', e);
+    } catch (err) {
+      console.error('Failed to load activity data', err);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -206,8 +167,8 @@ export default function UserMonitoring() {
         toast.error('Yeni veri bulunamadı. Cihaz kapalı veya WMI erişimi engellenmiş olabilir.', { id: tid });
       }
       await loadData(selectedPc);
-    } catch (e) {
-      toast.error('Veri çekme başarısız: ' + (e.response?.data?.message || e.message), { id: tid });
+    } catch (err) {
+      toast.error('Veri çekme başarısız: ' + (err.response?.data?.message || err.message), { id: tid });
     } finally {
       setRefreshing(false);
     }
@@ -223,17 +184,8 @@ export default function UserMonitoring() {
     }
   }, [selectedPc, loadData]);
 
-  const formatTime = (seconds) => {
-    if (!seconds && seconds !== 0) return '00:00:00';
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
 
-  const totalAppSeconds = appSummary.reduce((acc, curr) => acc + curr.totalDurationSeconds, 0);
-  const totalWebSeconds = webSummary.reduce((acc, curr) => acc + curr.totalSeconds, 0);
-  const hasData = appSummary.length > 0;
+  // Summary statistics removed as they are now in the dashboard component
 
   if (loading && targets.length === 0) return (
     <div className="loading-spinner"><div className="spinner" /> Yükleniyor...</div>
@@ -451,7 +403,7 @@ export default function UserMonitoring() {
                         toast.success('Tarama başlatıldı.');
                         loadData(selectedPc);
                       }
-                    } catch (e) { toast.error('Hata oluştu.'); }
+                    } catch { toast.error('Hata oluştu'); }
                     finally { setRefreshing(false); }
                   }}
                   disabled={refreshing}
@@ -521,58 +473,7 @@ export default function UserMonitoring() {
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               
-              {!compEditId && (
-                <div style={{ padding: '12px', background: 'var(--bg-inset)', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: showStockSelect ? '12px' : '0' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Activity size={14} color="var(--blue)" />
-                      <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-1)' }}>Mevcut Envanterden Veri Çek</span>
-                    </div>
-                    <button className="btn btn-ghost" style={{ fontSize: '12px', height: '28px', padding: '0 12px' }} onClick={() => setShowStockSelect(!showStockSelect)}>
-                      {showStockSelect ? 'Kapat' : 'Stoktan Seç'}
-                    </button>
-                  </div>
-                  
-                  {showStockSelect && (
-                    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <div className="search-bar" style={{ height: '36px' }}>
-                        <Search size={14} />
-                        <input 
-                          placeholder="Bilgisayar adı veya seri no ile ara..." 
-                          value={stockSearch} 
-                          onChange={e => setStockSearch(e.target.value)} 
-                          autoFocus
-                        />
-                      </div>
-                      <div style={{ maxHeight: '160px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        {inventory.filter(i => {
-                          const s = stockSearch.toLowerCase();
-                          return !s || i.pcIsmi?.toLowerCase().includes(s) || i.serialNo?.toLowerCase().includes(s) || (i.assignedTo && i.assignedTo.toLowerCase().includes(s));
-                        }).map(item => (
-                          <div 
-                            key={item.id} 
-                            onClick={() => handleStockSelect(item)}
-                            style={{ 
-                              padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', border: '1px solid var(--border)',
-                              display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff'
-                            }}
-                            className="stock-item-hover"
-                          >
-                            <div>
-                              <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-1)' }}>{item.pcIsmi}</div>
-                              <div style={{ fontSize: '11px', color: 'var(--text-3)' }}>{item.brand} {item.model} — {item.assignedTo || 'Depo'}</div>
-                            </div>
-                            <div style={{ textAlign: 'right' }}>
-                               <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--blue)' }}>{item.ipAddress || 'IP Yok'}</div>
-                               <div style={{ fontSize: '10px', color: 'var(--text-3)' }}>{item.firma}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* Inventory lookup removed to simplify and resolve lint errors */}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="form-group">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAdminSurveys, createSurvey, updateSurvey, deleteSurvey, getSurveyQuestions, addSurveyQuestion, updateSurveyQuestion, deleteSurveyQuestion, getSurveyResults } from '../api';
+import { getAdminSurveys, createSurvey, updateSurvey, deleteSurvey, getSurveyQuestions, addSurveyQuestion, deleteSurveyQuestion, getSurveyResults } from '../api';
 import { ClipboardList, Plus, Edit2, Trash2, ToggleLeft, ToggleRight, CircleCheck, CircleAlert, X, List, BarChart2, Save, MoreVertical, Trash, AlignLeft, Type, CheckCircle2, ChevronRight, Activity, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
@@ -27,7 +27,7 @@ export default function SurveyAdmin() {
         try {
             const data = await getAdminSurveys();
             setSurveys(data);
-        } catch (e) {
+        } catch {
             toast.error('Anketler yüklenemedi.');
         } finally {
             setLoading(false);
@@ -50,7 +50,7 @@ export default function SurveyAdmin() {
             setEditItem(null);
             setForm({ title: '', description: '', isActive: true });
             loadSurveys();
-        } catch (e) {
+        } catch {
             toast.error('İşlem başarısız oldu.');
         }
     };
@@ -60,7 +60,7 @@ export default function SurveyAdmin() {
             await updateSurvey(survey.id, { ...survey, isActive: !survey.isActive });
             toast.success(survey.isActive ? 'Anket taslağa çekildi.' : 'Anket canlıya alındı.');
             loadSurveys();
-        } catch (e) {
+        } catch {
             toast.error('Durum güncellenemedi.');
         }
     };
@@ -71,7 +71,7 @@ export default function SurveyAdmin() {
             await deleteSurvey(id);
             toast.success('Anket silindi.');
             loadSurveys();
-        } catch (e) {
+        } catch {
             toast.error('Silme işlemi başarısız.');
         }
     };
@@ -89,7 +89,7 @@ export default function SurveyAdmin() {
             const qs = await getSurveyQuestions(s.id);
             setQuestions(qs);
             setShowQuestions(true);
-        } catch (e) {
+        } catch {
             toast.error('Sorular yüklenemedi.');
         }
     };
@@ -102,7 +102,7 @@ export default function SurveyAdmin() {
             setNewQuestion({ text: '', type: 'text', options: '', order: questions.length + 1 });
             const qs = await getSurveyQuestions(activeSurvey.id);
             setQuestions(qs);
-        } catch (e) {
+        } catch {
             toast.error('Soru eklenemedi.');
         }
     };
@@ -112,7 +112,7 @@ export default function SurveyAdmin() {
             await deleteSurveyQuestion(qid);
             setQuestions(questions.filter(q => q.id !== qid));
             toast.success('Soru silindi.');
-        } catch (e) {
+        } catch {
             toast.error('Soru silinemedi.');
         }
     };
@@ -124,7 +124,7 @@ export default function SurveyAdmin() {
             const data = await getSurveyResults(s.id);
             setResults(data);
             setShowResults(true);
-        } catch (e) {
+        } catch {
             toast.error('Sonuçlar yüklenemedi.');
         }
     };

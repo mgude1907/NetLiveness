@@ -9,7 +9,7 @@ import {
   MessageCircle, MessageCircleMore, CircleHelp, Radio, ChevronDown, ChevronRight,
   Server, Wifi
 } from 'lucide-react';
-import { getSettings } from '../api';
+import { getSettings, checkForUpdates } from '../api';
 import ChatWidget from './ChatWidget';
 
 const SafeIcon = ({ icon: Icon, size = 15, color }) => {
@@ -60,9 +60,9 @@ const NAV = [
     ],
   },
   {
-    label: 'Sistem',
+    label: 'Yönetim',
     items: [
-      { to: '/help-admin',      icon: LifeBuoy,        text: 'Yardım Masası',   color: '#065f46', bg: 'icon-green', module: 'Settings' },
+      { to: '/help-admin',      icon: Layers,          text: 'Yardım Yönetimi', color: '#065f46', bg: 'icon-green', module: 'Settings' },
       { to: '/users',           icon: Users,           text: 'Kullanıcılar',    color: '#1e40af', bg: 'icon-blue', module: 'Users' },
       { to: '/matrix',          icon: Key,             text: 'Erişim Yetkisi',  color: '#5b21b6', bg: 'icon-violet', module: 'Matrix' },
       { to: '/chat-admin',      icon: ShieldAlert,     text: 'Chat Yönetimi',   color: '#991b1b', bg: 'icon-red', module: 'Users' },
@@ -76,8 +76,9 @@ const NAV = [
 
 export default function Layout({ auth, setAuth }) {
   const [settings, setSettings] = useState(null);
+  const [hasUpdate, setHasUpdate] = useState(false);
   const [openSections, setOpenSections] = useState({
-    'Monitör': true, 'İnsan Kaynakları': true, 'Operasyon': true, 'Sistem': true
+    'Monitör': true, 'İnsan Kaynakları': true, 'Operasyon': true, 'Yönetim': true
   });
   const navigate = useNavigate();
   const location = useLocation();
@@ -85,6 +86,13 @@ export default function Layout({ auth, setAuth }) {
   useEffect(() => {
     const fetchSettings = () => getSettings().then(setSettings).catch(() => {});
     fetchSettings();
+
+    const checkUpdates = () => {
+      checkForUpdates().then(res => {
+        if (res.hasUpdate) setHasUpdate(true);
+      }).catch(() => {});
+    };
+    checkUpdates();
     
     window.addEventListener('settingsUpdated', fetchSettings);
     return () => window.removeEventListener('settingsUpdated', fetchSettings);
@@ -174,6 +182,15 @@ export default function Layout({ auth, setAuth }) {
                       <SafeIcon icon={item.icon} size={14} color={item.color} />
                     </div>
                     {item.text}
+                    {item.to === '/updates' && hasUpdate && (
+                      <span style={{ 
+                        marginLeft: 'auto', 
+                        width: 8, height: 8, 
+                        background: 'var(--accent-red)', 
+                        borderRadius: '50%',
+                        boxShadow: '0 0 8px var(--accent-red)'
+                      }} />
+                    )}
                   </NavLink>
                 ))}
               </div>

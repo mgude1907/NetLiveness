@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import VideoCallModal from '../components/VideoCallModal';
 import toast from 'react-hot-toast';
 
-export default function ChatApp({ user, setAuth }) {
+export default function ChatApp({ user, setAuth: _setAuth }) {
   const navigate = useNavigate();
   const [channels, setChannels] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
@@ -90,7 +90,7 @@ export default function ChatApp({ user, setAuth }) {
   useEffect(() => { activeChannelRef.current = activeChannelId; }, [activeChannelId]);
   useEffect(() => { activePrivateUserRef.current = activePrivateUserId; }, [activePrivateUserId]);
 
-  // SIGNALR SETUP
+  // SIGNALR SETUP & LISTENERS
   useEffect(() => {
     if (!user) return;
     const hubUrl = `${STATIC_URL}/chathub`;
@@ -100,28 +100,16 @@ export default function ChatApp({ user, setAuth }) {
       .withAutomaticReconnect()
       .build();
 
-    setConnection(newConnection);
-    return () => { 
-        if (newConnection.state !== signalR.HubConnectionState.Disconnected) {
-            newConnection.stop(); 
-        }
-    };
-  }, [user]);
-
-  // LISTENERS & STARTUP
-  useEffect(() => {
-    if (!connection) return;
-
-    connection.onreconnecting(() => setConnStatus("Tekrar Bağlanıyor..."));
-    connection.onreconnected(() => {
+    newConnection.onreconnecting(() => setConnStatus("Tekrar Bağlanıyor..."));
+    newConnection.onreconnected(() => {
         setConnStatus("Bağlandı");
-        connection.invoke("RegisterPresence", user.id, user.fullName || user.username);
+        newConnection.invoke("RegisterPresence", user.id, user.fullName || user.username);
     });
-    connection.onclose(() => setConnStatus("Bağlantı Koptu"));
+    newConnection.onclose(() => setConnStatus("Bağlantı Koptu"));
 
-    connection.on("UpdateOnlineUsers", (users) => { setOnlineUsers(users); });
+    newConnection.on("UpdateOnlineUsers", (users) => { setOnlineUsers(users); });
     
-    connection.on("ReceiveMessage", (msg) => {
+    newConnection.on("ReceiveMessage", (msg) => {
         const curChannel = activeChannelRef.current;
         const curPrivateId = activePrivateUserRef.current;
         const isCurrentChannel = !curPrivateId && curChannel && msg.channelId === curChannel;
@@ -137,14 +125,13 @@ export default function ChatApp({ user, setAuth }) {
             toast(`Yeni mesaj: ${msg.senderName}`);
         }
         
-        // Update last message in channels/users lists locally
         if (msg.channelId) {
             setChannels(prev => prev.map(c => c.id === msg.channelId ? { ...c, lastMessage: msg.content, lastMessageTime: msg.timestamp } : c));
         }
     });
 
-    connection.on("UserTyping", (userId, userName, channelId, recipientId) => {
-        const key = channelId ? `c_${channelId}` : `p_${userId}`;
+    newConnection.on("UserTyping", (_userId, userName, channelId, _recipientId) => {
+        const key = channelId ? `c_${channelId}` : `p_${_userId}`;
         setTypingUsers(prev => ({ ...prev, [key]: userName }));
         setTimeout(() => {
             setTypingUsers(prev => {
@@ -155,14 +142,14 @@ export default function ChatApp({ user, setAuth }) {
         }, 3000);
     });
 
-    connection.on("ReceiveNudge", (fromName) => {
+    newConnection.on("ReceiveNudge", (fromName) => {
         toast(`🔔 ${fromName} size titreşim gönderdi!`);
         setIsShaking(true);
-        try { new Audio('https://www.myinstants.com/media/sounds/nudge.mp3').play(); } catch(e){}
+        try { new Audio('https://www.myinstants.com/media/sounds/nudge.mp3').play(); } catch(_e){}
         setTimeout(() => setIsShaking(false), 1000);
     });
 
-    connection.on("IncomingCall", (fromConnectionId, signalDataStr, fromFullName) => {
+    newConnection.on("IncomingCall", (fromConnectionId, signalDataStr, fromFullName) => {
        const data = JSON.parse(signalDataStr);
        if (data.type === 'offer') {
            setCallState({
@@ -172,7 +159,7 @@ export default function ChatApp({ user, setAuth }) {
        }
     });
 
-    connection.on("CallAccepted", (signalDataStr) => {
+    newConnection.on("CallAccepted", (signalDataStr) => {
        const data = JSON.parse(signalDataStr);
        if (data.type === 'answer' && peerRef.current) {
            peerRef.current.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: data.sdp }));
@@ -180,22 +167,22 @@ export default function ChatApp({ user, setAuth }) {
        }
     });
 
-    connection.on("ReceiveSignal", async (fromConnectionId, signalDataStr) => {
+    newConnection.on("ReceiveSignal", async (_fromConnectionId, signalDataStr) => {
        const data = JSON.parse(signalDataStr);
        if (data.type === 'ice' && peerRef.current) {
-           try { await peerRef.current.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch(e){}
+           try { await peerRef.current.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch(_err){}
        }
     });
 
     const startConn = async () => {
         try {
-            if (connection.state === signalR.HubConnectionState.Disconnected) {
+            if (newConnection.state === signalR.HubConnectionState.Disconnected) {
                 setConnStatus("Bağlanıyor...");
-                await connection.start();
+                await newConnection.start();
                 setConnStatus("Bağlandı");
-                await connection.invoke("RegisterPresence", user.id, user.fullName || user.username);
+                await newConnection.invoke("RegisterPresence", user.id, user.fullName || user.username);
                 if (activeChannelRef.current) {
-                    await connection.invoke("JoinChannel", activeChannelRef.current.toString());
+                    await newConnection.invoke("JoinChannel", activeChannelRef.current.toString());
                 }
             }
         } catch (err) {
@@ -206,20 +193,19 @@ export default function ChatApp({ user, setAuth }) {
     };
     startConn();
 
+    setConnection(newConnection);
+
     return () => {
-        connection.off("UpdateOnlineUsers");
-        connection.off("ReceiveMessage");
-        connection.off("ReceiveNudge");
-        connection.off("IncomingCall");
-        connection.off("CallAccepted");
-        connection.off("ReceiveSignal");
+        if (newConnection) {
+            newConnection.stop();
+        }
     };
-  }, [connection]);
+  }, [user]);
 
   // CHANNEL SWITCHING SYNC
   useEffect(() => {
      if (connection && connection.state === signalR.HubConnectionState.Connected && activeChannelId) {
-         connection.invoke("JoinChannel", activeChannelId.toString()).catch(e => console.error(e));
+         connection.invoke("JoinChannel", activeChannelId.toString()).catch(_err => console.error(_err));
      }
   }, [activeChannelId, connection]);
 
@@ -238,7 +224,7 @@ export default function ChatApp({ user, setAuth }) {
             const res = await uploadMedia(fileToUpload);
             attachmentUrl = res.url;
             attachmentType = fileToUpload.type.startsWith('image/') ? 'image' : 'file';
-        } catch (e) { toast.error("Dosya yüklenemedi."); return; }
+        } catch (_err) { toast.error("Dosya yüklenemedi."); return; }
     }
 
     if (connection.state !== signalR.HubConnectionState.Connected) {
@@ -310,7 +296,7 @@ export default function ChatApp({ user, setAuth }) {
               await connection.invoke("SendMessage", activeChannelId, user.id, user.fullName, "", gifUrl, "image", null);
           }
           setShowEmojiPicker(false);
-      } catch (e) { toast.error("GIF gönderilemedi."); }
+      } catch (_e) { toast.error("GIF gönderilemedi."); }
   };
 
   const selectChannel = (id) => {
@@ -342,7 +328,7 @@ export default function ChatApp({ user, setAuth }) {
              connection.invoke("CallUser", targetConnId, JSON.stringify({ type: 'offer', sdp: offer.sdp }), user.fullName);
              setCallState({ isCalling: true, isReceivingCall: false, callAccepted: false, callerId: null, targetId: targetConnId, callerName: targetName });
           });
-      }).catch(e => toast.error("Cihaz izni reddedildi."));
+      }).catch(() => toast.error("Cihaz izni reddedildi."));
   };
 
   const answerCall = async () => {
@@ -354,7 +340,7 @@ export default function ChatApp({ user, setAuth }) {
           const answer = await peer.createAnswer(); await peer.setLocalDescription(answer);
           connection.invoke("AnswerCall", callState.callerId, JSON.stringify({ type: 'answer', sdp: answer.sdp }));
           setCallState(s => ({...s, callAccepted: true}));
-      } catch (e) { toast.error("Kamera reddedildi veya ulaşılamadı."); }
+      } catch (_e) { toast.error("Kamera reddedildi veya ulaşılamadı."); }
   };
 
   const endCall = () => {
@@ -369,7 +355,7 @@ export default function ChatApp({ user, setAuth }) {
         const usersRes = await getChatUsers();
         setAllUsers(usersRes);
         toast.success("Kullanıcı listesi güncellendi.");
-    } catch(e) { toast.error("Liste yenilenemedi."); }
+    } catch(_e) { toast.error("Liste yenilenemedi."); }
   };
 
   const activeChannel = channels.find(c => c.id === activeChannelId);
@@ -391,7 +377,7 @@ export default function ChatApp({ user, setAuth }) {
           setIsGroupModalOpen(false);
           setNewGroup({ name: '', desc: '' });
           toast.success("Grup oluşturuldu!");
-      } catch (err) { toast.error("Grup oluşturulamadı."); }
+      } catch (_err) { toast.error("Grup oluşturulamadı."); }
   };
 
   const activeUserMap = {};
@@ -637,6 +623,7 @@ export default function ChatApp({ user, setAuth }) {
             <div style={{ display: 'flex', gap: '8px', marginBottom: 6 }}>
                 <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="btn-icon" style={{ background: showEmojiPicker ? 'var(--amber-soft)' : 'var(--bg-inset)', color: showEmojiPicker ? 'var(--amber)' : 'var(--text-3)' }}><Smile size={20} /></button>
                 <button type="button" onClick={() => fileInputRef.current.click()} className="btn-icon" style={{ background: 'var(--bg-inset)', color: 'var(--text-3)' }}><Paperclip size={20} /></button>
+                <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{ display: 'none' }} />
             </div>
             
             <div style={{ flex: 1, position: 'relative' }}>

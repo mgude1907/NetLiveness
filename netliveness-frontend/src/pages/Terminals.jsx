@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getTerminals, createTerminal, updateTerminal, deleteTerminal, forceWmiRefresh, getSettings, getInventory, getStock } from '../api';
+import { getTerminals, createTerminal, updateTerminal, deleteTerminal, getSettings, getInventory, getStock } from '../api';
 import { Plus, Search, Pencil, Trash2, Monitor, X, ChevronDown, ChevronRight, Building2, Layers, RefreshCw, Zap, Activity } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -74,7 +74,7 @@ export default function Terminals() {
         }
       }
     }
-  }, [form.deviceType, modal, editId]);
+  }, [form.deviceType, form.enableUserActivity, modal, editId]);
 
   const load = useCallback(async () => {
     try { 
@@ -168,23 +168,12 @@ export default function Terminals() {
     setExpanded(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleRefreshWMI = async (id, e) => {
-    if (e) e.stopPropagation();
-    const tId = toast.loading('WMI Taraması yapılıyor, lütfen bekleyin...');
-    try {
-      await forceWmiRefresh(id);
-      toast.success('Tarama başarılı.', { id: tId });
-      load();
-    } catch (e) {
-      toast.error('Tarama başarısız oldu.', { id: tId });
-    }
-  };
 
-  const statusBadge = (s) => {
-    const map = { UP: 'badge-up', DOWN: 'badge-down', UNK: 'badge-unk' };
-    const labels = { UP: 'Aktif', DOWN: 'Çevrimdışı', UNK: 'Bilinmiyor' };
-    return <span className={`badge ${map[s] || 'badge-default'}`}><span className="badge-dot" />{labels[s] || s}</span>;
-  };
+  // const statusBadge = (s) => {
+  //   const map = { UP: 'badge-up', DOWN: 'badge-down', UNK: 'badge-unk' };
+  //   const labels = { UP: 'Aktif', DOWN: 'Çevrimdışı', UNK: 'Bilinmiyor' };
+  //   return <span className={`badge ${map[s] || 'badge-default'}`}><span className="badge-dot" />{labels[s] || s}</span>;
+  // };
 
   // Grouping logic
   const groupedData = filtered.reduce((acc, t) => {

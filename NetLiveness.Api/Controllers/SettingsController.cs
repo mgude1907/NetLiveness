@@ -54,7 +54,7 @@ namespace NetLiveness.Api.Controllers
             System.IO.File.AppendAllText("system_logs.txt", $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [Info] Ayarlar Güncellendi. Logo Boyutu: {logoStatus}\n");
 
             var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
-            _context.Logs.Add(new AuditLogEntry { Action = "SETTINGS_UPDATED", Details = "Sistem genel ayarları güncellendi", Operator = operatorInfo });
+            _context.Logs.Add(new AuditLogEntry { Action = "SETTINGS_UPDATED", Details = "Sistem genel ayarları güncellendi", Operator = operatorInfo, Category = "SYSTEM" });
 
             await _context.SaveChangesAsync();
             return NoContent();
@@ -118,7 +118,7 @@ namespace NetLiveness.Api.Controllers
         public async Task<ActionResult> Restart([FromServices] Microsoft.Extensions.Hosting.IHostApplicationLifetime lifetime)
         {
             var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
-            _context.Logs.Add(new AuditLogEntry { Action = "SYSTEM_RESTART", Details = "Yönetici tarafından sistem yeniden başlatma/kapatma komutu gönderildi", Operator = operatorInfo });
+            _context.Logs.Add(new AuditLogEntry { Action = "SYSTEM_RESTART", Details = "Yönetici tarafından sistem yeniden başlatma/kapatma komutu gönderildi", Operator = operatorInfo, Category = "SYSTEM" });
             await _context.SaveChangesAsync();
 
             try 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   getStock, createStock, updateStock, deleteStock,
-  getInventory, createInventory, updateInventory, deleteInventory, getInventoryFormUrl, downloadInventoryExcel,
+  getInventory, createInventory, updateInventory, deleteInventory, downloadInventoryExcel,
   getPersonnel, createTerminal,
   getLicenses, createLicense, updateLicense, deleteLicense
 } from '../api';
@@ -86,7 +86,7 @@ export default function StockInventory() {
   const [loading, setLoading]       = useState(true);
   const [search, setSearch]         = useState('');
   const [catFilter, setCatFilter]   = useState('');
-  const [typeFilter, setTypeFilter] = useState('');
+  const [typeFilter] = useState('');
 
   const [page, setPage]             = useState(1);
   const [perPage]                   = useState(25);
@@ -371,7 +371,7 @@ export default function StockInventory() {
         try {
           const json = JSON.parse(text);
           errorMessage = json.message || json.title || text;
-        } catch(e) {
+        } catch {
           errorMessage = text;
         }
         toast.error(`Hata: ${errorMessage}`, { id: 'xl-dl', duration: 5000 });

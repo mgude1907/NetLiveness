@@ -47,7 +47,7 @@ namespace NetLiveness.Api.Controllers
             _context.Personnels.Add(personnel);
             
             var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
-            _context.Logs.Add(new AuditLogEntry { Action = "PERSONNEL_CREATED", Details = $"Yeni personel eklendi: {personnel.AdSoyad} ({personnel.Bolum} - {personnel.SicilNo})", Operator = operatorInfo });
+            _context.Logs.Add(new AuditLogEntry { Action = "PERSONNEL_CREATED", Details = $"Yeni personel eklendi: {personnel.AdSoyad} ({personnel.Bolum} - {personnel.SicilNo})", Operator = operatorInfo, Category = "PERSONNEL" });
 
             await _context.SaveChangesAsync();
 
@@ -68,7 +68,7 @@ namespace NetLiveness.Api.Controllers
             try
             {
                 var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
-                _context.Logs.Add(new AuditLogEntry { Action = "PERSONNEL_UPDATED", Details = $"Personel bilgileri güncellendi: {personnel.AdSoyad}", Operator = operatorInfo });
+                _context.Logs.Add(new AuditLogEntry { Action = "PERSONNEL_UPDATED", Details = $"Personel bilgileri güncellendi: {personnel.AdSoyad}", Operator = operatorInfo, Category = "PERSONNEL" });
 
                 await _context.SaveChangesAsync();
             }
@@ -97,7 +97,7 @@ namespace NetLiveness.Api.Controllers
             }
 
             var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
-            _context.Logs.Add(new AuditLogEntry { Action = "PERSONNEL_DELETED", Details = $"Personel kaydı silindi: {personnel.AdSoyad} ({personnel.SicilNo})", Operator = operatorInfo });
+            _context.Logs.Add(new AuditLogEntry { Action = "PERSONNEL_DELETED", Details = $"Personel kaydı silindi: {personnel.AdSoyad} ({personnel.SicilNo})", Operator = operatorInfo, Category = "PERSONNEL" });
 
             _context.Personnels.Remove(personnel);
             await _context.SaveChangesAsync();
@@ -116,7 +116,8 @@ namespace NetLiveness.Api.Controllers
                 _context.Logs.Add(new AuditLogEntry { 
                     Action = "PERSONNEL_SYNC", 
                     Details = $"Dış sistem senkronizasyonu tamamlandı. Güncellenen: {updated}, Eklenen: {added}, İşten Çıkan: {resigned}", 
-                    Operator = operatorInfo 
+                    Operator = operatorInfo,
+                    Category = "PERSONNEL"
                 });
 
                 return Ok(new { updated, added, resigned, message = "Senkronizasyon başarıyla tamamlandı." });

@@ -32,26 +32,31 @@ namespace NetLiveness.Api.Controllers
             var settings = await _context.Set<AppSettings>().FirstOrDefaultAsync();
             var currentVersion = settings?.AppVersion ?? "v1.0.0";
 
-            // Normalde burada httpClient ile Github veya Sunucunuzdaki version.json okunur.
-            // Simülasyon için: Eğer versiyon v1.0.0 ise, v1.1.0 güncellemesi var diyelim.
-            if (currentVersion == "v1.0.0")
+            try
             {
-                return Ok(new
+                using var client = new HttpClient();
+                client.Timeout = TimeSpan.FromSeconds(5);
+                // Kullanıcının belirttiği güncelleme merkezi
+                var updateUrl = "http://191.168.6.101/updates/version.json";
+                var response = await client.GetFromJsonAsync<RemoteUpdateInfo>(updateUrl);
+
+                if (response != null && response.Version != currentVersion)
                 {
-                    HasUpdate = true,
-                    CurrentVersion = currentVersion,
-                    LatestVersion = "v1.1.0",
-                    ReleaseDate = DateTime.Now.ToString("dd.MM.yyyy"),
-                    Changelog = new[] 
+                    return Ok(new
                     {
-                        "Şirket Rehberi (Directory) Modülü eklendi.",
-                        "Rehber için Excel/CSV İçe ve Dışa aktarma özellikleri getirildi.",
-                        "Personel listesiyle Şirket Rehberi otomatik senkronize edildi.",
-                        "Audit Log (Sistem İşlem Logları) altyapısı genişletildi.",
-                        "WMI Sağlık tarama sistemindeki donma sorunları çözüldü."
-                    },
-                    DownloadUrl = "https://example.com/api/v1.1.0.zip" // Temsili
-                });
+                        HasUpdate = true,
+                        CurrentVersion = currentVersion,
+                        LatestVersion = response.Version,
+                        ReleaseDate = response.Date,
+                        Changelog = response.Changelog,
+                        DownloadUrl = response.DownloadUrl
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                // Uzak sunucuya erişilemiyorsa veya dosya yoksa sessizce hata dön
+                return Ok(new { HasUpdate = false, CurrentVersion = currentVersion, Error = "Güncelleme sunucusuna erişilemedi." });
             }
 
             return Ok(new { HasUpdate = false, CurrentVersion = currentVersion });
@@ -64,47 +69,55 @@ namespace NetLiveness.Api.Controllers
             {
                 var scriptPath = Path.Combine(Directory.GetCurrentDirectory(), "update.ps1");
 
-                // Update.ps1 Scripting (Gerçek senaryoda web'den zip indirip üzerine yazar)
-                // Sistem şu an geliştirme (Dev) ortamında olduğu için dosyaları silmesini engelleyerek sadece simüle ediyoruz.
+                // Profesyonel Update Scripti - Servisleri bilen yapıda
                 var psScript = $@"
-                    Write-Host 'Guncelleme baslatiliyor...'
+                    Write-Host 'NetLiveness Güncellemesi Başlatılıyor...' -ForegroundColor Cyan
                     Start-Sleep -Seconds 2
                     
-                    Write-Host 'NetLiveness API durduruluyor...'
-                    # Stop-Process -Name 'NetLiveness.Api' -Force -ErrorAction SilentlyContinue
-                    # Gerçek sunucuda burada API durdurulur. Geliştirme ortamında pas geçiyoruz.
+                    # 1. Servisleri Durdur
+                    Write-Host 'Servisler durduruluyor...'
+                    sc.exe stop NetLiveness_API
+                    sc.exe stop NetLiveness_Worker
+                    Start-Sleep -Seconds 5
                     
-                    Start-Sleep -Seconds 3
+                    # 2. İndirme ve Çıkarma
+                    Write-Host 'Yeni sürüm indiriliyor: {request.DownloadUrl}'
+                    $zipFile = 'temp_update.zip'
+                    try {{
+                        Invoke-WebRequest -Uri '{request.DownloadUrl}' -OutFile $zipFile
+                        Write-Host 'Dosyalar çıkarılıyor...'
+                        Expand-Archive -Path $zipFile -DestinationPath '.\' -Force
+                        Remove-Item $zipFile
+                    }} catch {{
+                        Write-Host 'Hata: Güncelleme dosyası indirilemedi!' -ForegroundColor Red
+                        sc.exe start NetLiveness_API
+                        exit
+                    }}
                     
-                    Write-Host 'Dosyalar indiriliyor ({request.DownloadUrl})...'
-                    # Invoke-WebRequest -Uri '{request.DownloadUrl}' -OutFile 'update.zip'
-                    # Expand-Archive -Path 'update.zip' -DestinationPath '.\' -Force
+                    # 3. Servisleri Başlat
+                    Write-Host 'Güncelleme tamamlandı, servisler başlatılıyor...'
+                    sc.exe start NetLiveness_API
+                    sc.exe start NetLiveness_Worker
                     
-                    Start-Sleep -Seconds 4
-                    Write-Host 'Guncelleme islemi tamamlandi, servis baslatiliyor...'
-                    # Start-Process 'dotnet' -ArgumentList 'run' -WindowStyle Hidden
+                    Write-Host 'Sistem başarıyla güncellendi.' -ForegroundColor Green
                 ";
 
                 await System.IO.File.WriteAllTextAsync(scriptPath, psScript);
 
-                // Asenkron olarak ayrılmış bir process'te çalıştır
-                var processInfo = new ProcessStartInfo
+                // Bağımsız süreçte çalıştır
+                Process.Start(new ProcessStartInfo
                 {
                     FileName = "powershell.exe",
                     Arguments = $"-ExecutionPolicy Bypass -File \"{scriptPath}\"",
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
+                    UseShellExecute = true,
+                    CreateNoWindow = false // Kullanıcı görsün ne olduğunu
+                });
 
-                Process.Start(processInfo);
-
-                // Güncellemeyi Sisteme (Veritabanına) Kaydet
+                // Versiyonu güncelle
                 var settings = await _context.Set<AppSettings>().FirstOrDefaultAsync();
-                if (settings != null)
-                {
-                    settings.AppVersion = request.LatestVersion;
-                }
+                if (settings != null) settings.AppVersion = request.LatestVersion;
 
+                // Geçmişe ekle
                 _context.SystemUpdates.Add(new SystemUpdate
                 {
                     Version = request.LatestVersion,
@@ -112,23 +125,23 @@ namespace NetLiveness.Api.Controllers
                     DateInstalled = DateTime.Now
                 });
 
-                _context.Logs.Add(new AuditLogEntry
-                {
-                    Action = "Sistem Güncellemesi",
-                    Details = $"Sistem otomatik olarak {request.LatestVersion} sürümüne güncellendi.",
-                    Operator = "Sistem/Updater",
-                    Date = DateTime.Now
-                });
-
                 await _context.SaveChangesAsync();
 
-                return Ok(new { message = "Güncelleme komut dosyası tetiklendi. Sistem birkaç saniye içinde yeniden başlayacak." });
+                return Ok(new { message = "Güncelleme komutu başarıyla gönderildi. Servisler birkaç saniye içinde yeniden başlayacak." });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Güncelleme başlatılamadı: {ex.Message}");
             }
         }
+    }
+
+    public class RemoteUpdateInfo
+    {
+        public string Version { get; set; } = "";
+        public string Date { get; set; } = "";
+        public string DownloadUrl { get; set; } = "";
+        public string[] Changelog { get; set; } = Array.Empty<string>();
     }
 
     public class InstallRequest

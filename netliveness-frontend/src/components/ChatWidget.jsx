@@ -36,7 +36,7 @@ export default function ChatWidget({ user }) {
     const fetchHistory = async () => {
       try {
         const res = await api.get(`/Chat/history/${channelId}`);
-        setMessages(res.data);
+        setMessages(res.data || []);
         setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
       } catch (err) { console.error("Geçmiş mesajlar çekilemedi", err); }
     };
@@ -48,33 +48,35 @@ export default function ChatWidget({ user }) {
       .withAutomaticReconnect()
       .build();
 
-    setConnection(newConnection);
-    return () => { newConnection.stop(); };
-  }, [user, channelId]);
-
-  useEffect(() => {
-    if (!connection) return;
-
-    // EVENTLERI ÖNCE KAYDET
-    connection.on("ReceiveMessage", (message) => {
+    // Setup event handlers BEFORE starting
+    newConnection.on("ReceiveMessage", (message) => {
       setMessages(prev => [...prev, message]);
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     });
 
-    connection.on("IncomingCall", () => {
-       toast('📞 Görüntülü arama geliyor! Sohbet Odasına yönlendiriliyorsunuz...');
-       navigate('/chat');
+    newConnection.on("IncomingCall", () => {
+      toast('📞 Görüntülü arama geliyor! Sohbet Odasına yönlendiriliyorsunuz...');
+      navigate('/chat');
     });
 
-    // BAĞLAN VE PRESENCE KAYDINI YAP
-    connection.start()
+    // Start connection
+    newConnection.start()
       .then(() => {
-        connection.invoke("RegisterPresence", user.id, user.fullName || user.username);
-        connection.invoke("JoinChannel", channelId.toString());
+        if (user?.id) {
+          newConnection.invoke("RegisterPresence", user.id, user.fullName || user.username);
+          newConnection.invoke("JoinChannel", channelId.toString());
+        }
       })
-      .catch(e => console.log('Connection failed: ', e));
+      .catch(e => console.error('SignalR Init Failed: ', e));
 
-  }, [connection, channelId]);
+    setConnection(newConnection);
+
+    return () => { 
+      if (newConnection) {
+        newConnection.stop(); 
+      }
+    };
+  }, [user, channelId, navigate]);
 
   const sendMessage = async (e) => {
     e.preventDefault();

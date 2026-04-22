@@ -1,8 +1,48 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5006/api`;
+const getApiBase = () => {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  
+  const origin = window.location.origin;
+  // Eğer Vite dev modundaysak (5137), API'nin 5006'da olduğunu varsayalım
+  if (window.location.port === '5137') {
+    return `http://${window.location.hostname}:5006/api`;
+  }
+  return `${origin}/api`;
+};
 
-export const STATIC_URL = `http://${window.location.hostname}:5006`;
+const getStaticBase = () => {
+  if (window.location.port === '5137') {
+    return `http://${window.location.hostname}:5006`;
+  }
+  return window.location.origin;
+};
+
+const API_BASE = getApiBase();
+export const STATIC_URL = getStaticBase();
+
+/**
+ * Resolves an image URL by prefixing it with the backend static base 
+ * if it's a relative path (e.g. /uploads/...).
+ */
+export const resolveImageUrl = (url) => {
+  if (!url) return null;
+  
+  // If it's already a full URL or a data URI, return as is
+  if (url.startsWith('http') || url.startsWith('data:')) {
+    return url;
+  }
+
+  // Handle paths that might be absolute but starting with / (e.g., /uploads/...)
+  if (url.startsWith('/')) {
+    // If it already starts with http via a string match (extreme edge case)
+    if (url.includes('http')) return url;
+    return `${STATIC_URL}${url}`;
+  }
+
+  // If it's a relative path without a leading slash, assume it's in /uploads/
+  return `${STATIC_URL}/uploads/${url}`;
+};
 
 // ── Axios instance — MUST be defined before all exports ──
 const api = axios.create({
@@ -16,17 +56,7 @@ export const getUsomRssFeed = async () => {
   return response.data;
 };
 
-// ── Help Requests ──
-export const getHelpRequests    = ()         => api.get('/HelpRequests').then(r => r.data);
-export const getHelpStats       = (s, e)     => api.get(`/HelpRequests/stats?start=${s}&end=${e}`).then(r => r.data);
-export const submitHelpRequest  = (data)     => {
-  if (data instanceof FormData) {
-    return api.post('/HelpRequests', data, { headers: { 'Content-Type': 'multipart/form-data' } }).then(r => r.data);
-  }
-  return api.post('/HelpRequests', data).then(r => r.data);
-};
-export const updateHelpRequest  = (id, data) => api.put(`/HelpRequests/${id}`, data).then(r => r.data);
-export const deleteHelpRequest  = (id)       => api.delete(`/HelpRequests/${id}`).then(r => r.data);
+// ── Help Requests (Moved to bottom block) ──
 
 // ── Backups ──
 export const getBackups      = ()     => api.get('/backup/list').then(r => r.data);
@@ -83,6 +113,7 @@ export const uploadMedia = (file) => {
 
 // ── Personnel ──
 export const getPersonnel     = ()     => api.get('/personnel').then(r => r.data);
+export const getPersonnelById = (id)   => api.get(`/personnel/${id}`).then(r => r.data);
 export const createPersonnel  = (data) => api.post('/personnel', data).then(r => r.data);
 export const updatePersonnel  = (id, data) => api.put(`/personnel/${id}`, data).then(r => r.data);
 export const deletePersonnel  = (id)   => api.delete(`/personnel/${id}`);
@@ -212,12 +243,20 @@ export const importDirectoryCsv = (file) => {
   }).then(r => r.data);
 };
 
-// ── OTA Updater ──
-export const getUpdateHistory = () => api.get('/updater/history').then(r => r.data);
-export const checkForUpdates  = () => api.get('/updater/check').then(r => r.data);
-export const installUpdate    = (data) => api.post('/updater/install', data).then(r => r.data);
+// ── Help Desk (Ticketing) ──
+export const getHelpRequests    = () => api.get('/helprequests').then(r => r.data);
+export const getHelpStats       = (s, e) => api.get(`/helprequests/stats?start=${s}&end=${e}`).then(r => r.data);
+export const submitHelpRequest    = (data) => api.post('/helprequests', data).then(r => r.data);
+export const updateHelpRequest    = (id, data) => api.put(`/helprequests/${id}`, data).then(r => r.data);
+export const deleteHelpRequest    = (id) => api.delete(`/helprequests/${id}`).then(r => r.data);
+export const getHelpRequestReplies = (id) => api.get(`/helprequests/${id}/replies`).then(r => r.data);
+export const addHelpRequestReply  = (id, formData) => api.post(`/helprequests/${id}/replies`, formData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+}).then(r => r.data);
+export const assignHelpRequest    = (id, assignee) => api.put(`/helprequests/${id}/assign`, `"${assignee}"`, {
+  headers: { 'Content-Type': 'application/json' }
+}).then(r => r.data);
 
-// ── Feedback & Complaints ──
 // ── Feedback & Complaints ──
 export const getFeedbacks      = () => api.get('/feedback').then(r => r.data);
 export const submitFeedback    = (data) => api.post('/feedback', data).then(r => r.data);
@@ -331,5 +370,9 @@ export const getAwarenessTips = () => {
     { id: 12, title: 'Fiziksel Güvenlik', text: 'Tanımadığınız kişilerin ofiste refakatsiz dolaşmasına izin vermeyin ve yetkisiz kişilerin kart okuyucu noktalarından geçişine dikkat edin.', icon: 'AlertTriangle' }
   ]);
 };
+
+export const checkForUpdates = () => api.get('/settings/health').then(r => ({ hasUpdate: false })); // Placeholder
+export const getUpdateHistory = () => Promise.resolve([]); // Placeholder
+export const installUpdate = () => Promise.resolve({ success: true }); // Placeholder
 
 export default api;

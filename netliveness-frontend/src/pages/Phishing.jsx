@@ -17,6 +17,7 @@ import {
   Cell, PieChart, Pie
 } from 'recharts';
 import toast from 'react-hot-toast';
+import { getSettings, updateSettings } from '../api';
 
 const DEFAULT_TEMPLATES = [
   { 
@@ -212,8 +213,23 @@ export default function Phishing() {
     const savedGroups = localStorage.getItem('phishing_manual_groups');
     if (savedGroups) setManualGroups(JSON.parse(savedGroups));
 
-    const savedSmtp = localStorage.getItem('phishing_smtp_settings');
-    if (savedSmtp) setSmtp(JSON.parse(savedSmtp));
+    // Load SMTP and Tracking settings from Central API instead of LocalStorage
+    getSettings().then(data => {
+      if (data) {
+        setSmtp({
+          host: data.phishingSmtpHost || 'smtp.gmail.com',
+          port: data.phishingSmtpPort?.toString() || '587',
+          user: data.phishingSmtpUser || '',
+          password: data.phishingSmtpPass || '',
+          secure: data.phishingSmtpPort === 465,
+          trackingUrl: data.phishingTrackingUrl || 'http://localhost:3001/track'
+        });
+      }
+    }).catch(() => {
+      // Fallback to localStorage for legacy users if API fails or hasn't migrated yet
+      const savedSmtp = localStorage.getItem('phishing_smtp_settings');
+      if (savedSmtp) setSmtp(JSON.parse(savedSmtp));
+    });
 
     const savedTemplates = localStorage.getItem('phishing_custom_templates');
     if (savedTemplates) {
@@ -262,7 +278,7 @@ export default function Phishing() {
             return newList;
           });
         }
-      } catch (err) {
+      } catch {
         console.warn('Click polling failed, backend might be offline.');
       }
     }, 3000); // 3 saniyede bir kontrol et
@@ -301,16 +317,41 @@ export default function Phishing() {
       } else {
         toast.error('Bağlantı Hatası: ' + data.error);
       }
-    } catch (err) {
+    } catch {
       toast.dismiss(loadingToast);
       toast.error('Sunucuya erişilemiyor.');
     }
   };
 
-  const saveSmtp = (settings) => {
-    setSmtp(settings);
-    localStorage.setItem('phishing_smtp_settings', JSON.stringify(settings));
-    toast.success('Ayarlar kaydedildi.');
+  const saveSmtp = async (settings) => {
+    const loadingToast = toast.loading('Ayarlar sunucuya kaydediliyor...');
+    try {
+      // Get current settings first to merge other app settings
+      const currentSettings = await getSettings();
+      const updatedSettings = {
+        ...currentSettings,
+        phishingSmtpHost: settings.host,
+        phishingSmtpPort: parseInt(settings.port),
+        phishingSmtpUser: settings.user,
+        phishingSmtpPass: settings.password,
+        phishingTrackingUrl: settings.trackingUrl
+      };
+      
+      await updateSettings(updatedSettings);
+      setSmtp(settings);
+      
+      // Keep a local copy for secondary redundancy
+      localStorage.setItem('phishing_smtp_settings', JSON.stringify(settings));
+      
+      toast.dismiss(loadingToast);
+      toast.success('Ayarlar başarıyla veri tabanına kaydedildi.');
+    } catch {
+      toast.dismiss(loadingToast);
+      // Fallback to local only if API is down
+      setSmtp(settings);
+      localStorage.setItem('phishing_smtp_settings', JSON.stringify(settings));
+      toast.error('Bağlantı hatası! Ayarlar sadece bu tarayıcıya kaydedildi.');
+    }
   };
 
   const resetTemplates = () => {
@@ -934,11 +975,11 @@ export default function Phishing() {
                       />
                    </div>
                    <div>
-                      <label style={{ display: 'block', fontSize: 12, fontWeight: 900, color: 'var(--text-3)', textTransform: 'uppercase', marginBottom: 8 }}>Åifre / Uygulama Åifresi</label>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 900, color: 'var(--text-3)', textTransform: 'uppercase', marginBottom: 8 }}>Şifre / Uygulama Şifresi</label>
                       <div style={{ position: 'relative' }}>
                         <input 
                           type="password" className="glass-input" value={smtp.password} onChange={e => setSmtp({...smtp, password: e.target.value})}
-                          placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" style={{ width: '100%', height: 48, borderRadius: 14, padding: '0 40px 0 16px', fontWeight: 700 }}
+                          placeholder="••••••••••••" style={{ width: '100%', height: 48, borderRadius: 14, padding: '0 40px 0 16px', fontWeight: 700 }}
                         />
                         <Key size={18} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-4)' }} />
                       </div>
@@ -958,7 +999,7 @@ export default function Phishing() {
                    <div className="icon-box-lg icon-blue"><Link2 size={28} color="var(--blue-text)" /></div>
                    <div>
                       <h3 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>Tıklama Takibi (Tracking) Ayarları</h3>
-                      <p style={{ margin: 0, fontSize: 13, color: 'var(--text-3)', fontWeight: 600 }}>Kimlerin linke tıkladığını tespit etmek için takip URL'sini yapılandırın.</p>
+                      <p style={{ margin: 0, fontSize: 13, color: 'var(--text-3)', fontWeight: 600 }}>Kimlerin linke tıkladığını tespit etmek için takip URL&apos;sini yapılandırın.</p>
                    </div>
                 </div>
 

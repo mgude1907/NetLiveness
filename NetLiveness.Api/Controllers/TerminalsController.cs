@@ -46,7 +46,7 @@ namespace NetLiveness.Api.Controllers
             _context.Terminals.Add(terminal);
             
             var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
-            _context.Logs.Add(new AuditLogEntry { Action = "TERMINAL_CREATED", Details = $"Yeni cihaz eklendi: {terminal.Name} ({terminal.Host})", Operator = operatorInfo });
+            _context.Logs.Add(new AuditLogEntry { Action = "TERMINAL_CREATED", Details = $"Yeni cihaz eklendi: {terminal.Name} ({terminal.Host})", Operator = operatorInfo, Category = "NETWORK" });
             
             await _context.SaveChangesAsync();
 
@@ -68,7 +68,7 @@ namespace NetLiveness.Api.Controllers
             try
             {
                 var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
-                _context.Logs.Add(new AuditLogEntry { Action = "TERMINAL_UPDATED", Details = $"Cihaz ayarları güncellendi: {terminal.Name} ({terminal.Host})", Operator = operatorInfo });
+                _context.Logs.Add(new AuditLogEntry { Action = "TERMINAL_UPDATED", Details = $"Cihaz ayarları güncellendi: {terminal.Name} ({terminal.Host})", Operator = operatorInfo, Category = "NETWORK" });
 
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"[SİSTEM-AĞ] Cihaz bilgileri GÜNCELLENDİ. İsim: {terminal.Name} - IP: {terminal.Host}");
@@ -100,7 +100,7 @@ namespace NetLiveness.Api.Controllers
             _logger.LogWarning($"[SİSTEM-AĞ] Cihaz SİLİNDİ. İsim: {terminal.Name} - IP: {terminal.Host}");
             
             var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
-            _context.Logs.Add(new AuditLogEntry { Action = "TERMINAL_DELETED", Details = $"Cihaz sistemden silindi: {terminal.Name} ({terminal.Host})", Operator = operatorInfo });
+            _context.Logs.Add(new AuditLogEntry { Action = "TERMINAL_DELETED", Details = $"Cihaz sistemden silindi: {terminal.Name} ({terminal.Host})", Operator = operatorInfo, Category = "NETWORK" });
             
             _context.Terminals.Remove(terminal);
             await _context.SaveChangesAsync();
@@ -138,7 +138,7 @@ namespace NetLiveness.Api.Controllers
             }
 
             var operatorInfo = $"{User.Identity?.Name ?? "Admin"} ({HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Bilinmiyor"})";
-            _context.Logs.Add(new AuditLogEntry { Action = "TERMINAL_WMI_SCAN", Details = $"Manuel sağlık/WMI taraması tetiklendi: {t.Name}", Operator = operatorInfo });
+            _context.Logs.Add(new AuditLogEntry { Action = "TERMINAL_WMI_SCAN", Details = $"Manuel sağlık/WMI taraması tetiklendi: {t.Name}", Operator = operatorInfo, Category = "NETWORK" });
 
             await _context.SaveChangesAsync();
             return Ok(t);

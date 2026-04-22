@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Terminals from './pages/Terminals';
 // Computers import removed
 import Personnel from './pages/Personnel';
+import PersonnelCV from './pages/PersonnelCV';
 import StockInventory from './pages/StockInventory';
 import SslTracking from './pages/SslTracking';
 import Logs from './pages/Logs';
@@ -39,6 +40,7 @@ import HelpRequestAdmin from './pages/HelpRequestAdmin';
 import Phishing from './pages/Phishing';
 import FileAlerts from './pages/FileAlerts';
 import SignatureGenerator from './pages/SignatureGenerator';
+import HelpRequestPortal from './pages/HelpRequestPortal';
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -142,6 +144,8 @@ export default function App() {
             <Route path="/onboarding" element={<ProtectedRoute auth={auth} requiredModule="Onboarding"><Onboarding /></ProtectedRoute>} />
             <Route path="/directory-admin" element={<ProtectedRoute auth={auth} requiredModule="Directory"><DirectoryAdmin /></ProtectedRoute>} />
             <Route path="/personnel" element={<ProtectedRoute auth={auth} requiredModule="Personnel"><Personnel /></ProtectedRoute>} />
+            <Route path="/personnel/:id" element={<ProtectedRoute auth={auth} requiredModule="Personnel"><PersonnelCV /></ProtectedRoute>} />
+            <Route path="/cv/:id" element={<ProtectedRoute auth={auth} requiredModule="Personnel"><PersonnelCV /></ProtectedRoute>} />
             <Route path="/personnel-feedbacks" element={<ProtectedRoute auth={auth} requiredModule="Personnel"><Feedbacks /></ProtectedRoute>} />
             <Route path="/stock" element={<ProtectedRoute auth={auth} requiredModule="Stock"><StockInventory /></ProtectedRoute>} />
             <Route path="/ssl" element={<ProtectedRoute auth={auth} requiredModule="Ssl"><SslTracking /></ProtectedRoute>} />
@@ -167,7 +171,6 @@ export default function App() {
             {/* Also include public pages in layout for sidebar access */}
             <Route path="/layout/rehber" element={<DirectoryPublic />} />
             <Route path="/layout/anketler" element={<SurveysPublic />} />
-            <Route path="/layout/yardim" element={<HelpRequestPublic />} />
           </Route>
         </Routes>
       </ErrorBoundary>
