@@ -38,14 +38,45 @@ worker_logs*.txt
 NetLiveness.Api/test_*
 NetLiveness.Api/ef_out*.txt
 NetLiveness.Api/ef_v3*.txt
+NetLiveness.Api/system_logs.txt
 NetLiveness.Api/*.xlsx
 NetLiveness.Api/*.zip
 NetLiveness.Api/*.sql
-NetLiveness.Api/*.sql
 *.txt
-!NetLiveness.Api/system_logs.txt
 !README.md
 !SETUP_GUIDE.md
+
+# Published / copied build outputs (use create_package.ps1)
+dist/
+deploy.config.json
+deploy.env
+NetLiveness_Setup/TrayApp/*
+!NetLiveness_Setup/TrayApp/config.example.json
+NetLiveness_Setup/Phishing/
+NetLiveness.Api/wwwroot/assets/
+NetLiveness.Api/wwwroot/uploads/
+NetLiveness.Api/wwwroot/index.html
+
+# Debug & scratch at repo root
+/debug_*
+/check_name.cs
+/diag.cs
+/fix_encoding_disaster.cjs
+/surgical_repair_phishing.cjs
+/*_base64.txt
+/out.json
+/raw_api_data.json
+/settings_response.json
+/system_logs.txt
+/MigrateTargets.cs_bak
+
+# One-off frontend repair scripts
+netliveness-frontend/fix_*.cjs
+netliveness-frontend/fix_*.js
+netliveness-frontend/surgical_fix.cjs
+netliveness-frontend/cleanup_v3.cjs
+netliveness-frontend/build_log.txt
+netliveness-frontend/error.txt
 
 # OS Files
 .DS_Store
@@ -66,3 +97,6 @@ walkthrough.md
 *.jpg
 !netliveness-frontend/public/*.jpg
 !netliveness-frontend/public/*.png
+
+# Unrelated demo (not part of NetLiveness)
+LightningCandy/

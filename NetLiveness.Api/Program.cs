@@ -17,7 +17,10 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
-builder.Host.UseWindowsService();
+if (OperatingSystem.IsWindows())
+{
+    builder.Host.UseWindowsService();
+}
 
 // Add services to the container.
 builder.Services.AddControllers();

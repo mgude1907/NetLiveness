@@ -1,60 +1,73 @@
-# NetLiveness Kurulum Klavuzu (Yeni Bilgisayar)
+# NetLiveness Kurulum Klavuzu
 
-Bu proje, modern bir kurumsal izleme ve rehber sistemidir. Projeyi farklı bir bilgisayarda (ev/ofis) çalıştırmak için aşağıdaki adımları takip edin.
+Kurumsal izleme ve rehber sistemi. **Üretim sunucusuna yayın için GitHub gerekmez** — bkz. [DEPLOY_DIRECT.md](./DEPLOY_DIRECT.md).
 
 ### 📋 Ön Gereksinimler
-Sistemde şunların kurulu olduğundan emin olun:
-1.  **Node.js (v18+):** [nodejs.org](https://nodejs.org/)
-2.  **.NET 8 SDK:** [dotnet.microsoft.com](https://dotnet.microsoft.com/download/dotnet/8.0)
-3.  **Git:** [git-scm.com](https://git-scm.com/)
+1.  **Node.js (v18+)**
+2.  **.NET 8 SDK**
+3.  **Git** — yalnızca kaynak kodu başka bir PC’ye taşımak isterseniz (isteğe bağlı)
 
 ---
 
-### 🚀 Adım Adım Kurulum
+### 🚀 Geliştirme ortamı (yerel)
 
-#### 1. Projeyi GitHub'dan İndirin
-Terminali açın ve projeyi kopyalamak istediğiniz klasöre gidin:
-```bash
-git clone https://github.com/mgude1907/NetLiveness.git
-cd NetLiveness
-```
+Projeyi bir klasöre kopyalayın (USB, zip, şirket paylaşımı veya isteğe bağlı `git clone`).
 
-#### 2. Frontend (Arayüz) Kurulumu
+#### Frontend
 ```bash
 cd netliveness-frontend
 npm install
-# Çalıştırmak için:
 npm run dev
 ```
 
-#### 3. Backend (API) ve Veritabanı Kurulumu
-Yeni bir terminal açın ve şu komutları izleyin:
+#### Backend (API)
 ```bash
 cd NetLiveness.Api
 dotnet restore
-
-# Veritabanı Şemasını Oluşturma (İlk sefere mahsus):
 dotnet ef database update
-
-# API'yi Çalıştırmak için:
 dotnet run
 ```
 
-#### 4. Monitor Worker (İzleme Servisi) Kurulumu
-Yeni bir terminal açın:
+#### Monitor Worker
 ```bash
 cd NetLiveness.MonitorWorker
 dotnet restore
 dotnet run
 ```
 
+Hızlı başlatma (Windows): `.\run_all.ps1`
+
+---
+
+### 🖥️ Sunucuya doğrudan deploy (önerilen)
+
+Geliştirme bilgisayarından:
+
+**Linux sunucu (önerilen):** [DEPLOY_DIRECT.md](./DEPLOY_DIRECT.md) — `deploy/linux/deploy.sh`
+
+**Windows sunucu:**
+
+```powershell
+Copy-Item deploy.config.example.json deploy.config.json
+.\deploy_to_server.ps1
+```
+
+---
+
+### 📦 Windows kurulum paketi (Tray + Phishing)
+
+```powershell
+.\create_package.ps1
+```
+
+Çıktı: `dist\NetLiveness_Setup`. Tray örnek yapılandırma: `NetLiveness_Setup/TrayApp/config.example.json`.
+
 ---
 
 ### 💡 Önemli Notlar
 
-*   **Veri Taşıma:** GitHub yedeği sadece kodları içerir. İş bilgisayarınızdaki gerçek personel veya anket verilerini de taşımak isterseniz; iş bilgisayarınızdaki `NetLiveness.Api/netliveness_v2.db` dosyasını yeni bilgisayarınızdaki aynı klasöre kopyalamanız yeterlidir.
-*   **Hata Giderme (EF Core):** Eğer `dotnet ef` komutu bulunamadı hatası alırsanız, şu komutla aracı kurun:
-    `dotnet tool install --global dotnet-ef`
+*   **Veri:** `netliveness_v2.db` ve `wwwroot/uploads` sunucuda kalır; deploy betiği bunları üzerine yazmaz.
+*   **EF Core:** `dotnet tool install --global dotnet-ef`
 
 ---
 © 2026 REPKON DIGITAL ECOSYSTEM

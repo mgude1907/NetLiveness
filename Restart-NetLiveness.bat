@@ -1,18 +1,19 @@
 @echo off
-echo NetLiveness Tum Servisler (API ve İzleme) Kapatiliyor...
-taskkill /IM "dotnet.exe" /F
-taskkill /IM "NetLiveness.Api.exe" /F
-taskkill /IM "NetLiveness.MonitorWorker.exe" /F
-timeout /t 2
+set "ROOT=%~dp0"
+echo NetLiveness servisleri kapatiliyor...
+taskkill /IM "dotnet.exe" /F 2>nul
+taskkill /IM "NetLiveness.Api.exe" /F 2>nul
+taskkill /IM "NetLiveness.MonitorWorker.exe" /F 2>nul
+timeout /t 2 /nobreak >nul
 
-echo NetLiveness Web API Başlatılıyor...
-cd C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.Api
+echo API baslatiliyor...
+cd /d "%ROOT%NetLiveness.Api"
 start "NetLiveness Web API" cmd /k "dotnet run"
 
-echo NetLiveness İzleme Servisi Başlatılıyor...
-cd C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness.MonitorWorker
-start "NetLiveness İzleme Servisi" cmd /k "dotnet run"
+echo Monitor Worker baslatiliyor...
+cd /d "%ROOT%NetLiveness.MonitorWorker"
+start "NetLiveness Monitor Worker" cmd /k "dotnet run"
 
 echo.
-echo Sistem Yeniden Başlatıldı. Lütfen bu siyah ekranları KAPATMAYIN...
+echo Sistem yeniden baslatildi. Bu pencereleri kapatmayin.
 pause

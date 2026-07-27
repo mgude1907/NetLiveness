@@ -2,6 +2,8 @@
 
 An enterprise-grade platform modernization focused on real-time system monitoring, compliance tracking, and corporate communication, featuring the **REPKON Light Enterprise** design system.
 
+**Production deploy:** direct from your PC to the server — see [DEPLOY_DIRECT.md](./DEPLOY_DIRECT.md) (GitHub is optional).
+
 ## 🚀 Key Modernizations (April 2026)
 
 ### 1. Kurumsal Rehber (Corporate Directory)

@@ -1,0 +1,19 @@
+[Unit]
+Description=NetLiveness API (ASP.NET Core)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=netliveness
+Group=netliveness
+WorkingDirectory=/opt/netliveness/api
+ExecStart=/opt/netliveness/api/NetLiveness.Api
+Restart=on-failure
+RestartSec=5
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
