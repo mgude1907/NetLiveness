@@ -1,0 +1,19 @@
+[Unit]
+Description=NetLiveness Monitor Worker
+After=netliveness-api.service
+Wants=netliveness-api.service
+
+[Service]
+Type=exec
+User=netliveness
+Group=netliveness
+WorkingDirectory=/opt/netliveness/worker
+ExecStart=/opt/netliveness/worker/NetLiveness.MonitorWorker
+Restart=on-failure
+RestartSec=5
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+Environment=NETLIVENESS_DB_PATH=/opt/netliveness/api/netliveness_v2.db
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

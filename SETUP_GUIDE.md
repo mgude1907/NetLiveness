@@ -43,13 +43,14 @@ Hızlı başlatma (Windows): `.\run_all.ps1`
 
 Geliştirme bilgisayarından:
 
+**Linux sunucu (önerilen):** [DEPLOY_DIRECT.md](./DEPLOY_DIRECT.md) — `deploy/linux/deploy.sh`
+
+**Windows sunucu:**
+
 ```powershell
 Copy-Item deploy.config.example.json deploy.config.json
-# deploy.config.json içinde sunucu IP ve kurulum yolunu düzenleyin
 .\deploy_to_server.ps1
 ```
-
-Ayrıntılar: **[DEPLOY_DIRECT.md](./DEPLOY_DIRECT.md)**
 
 ---
 
