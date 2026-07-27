@@ -50,6 +50,20 @@ dotnet run
 
 ---
 
+### 📦 Windows Kurulum Paketi (Tray + Phishing)
+
+Depoda yalnızca kurulum betikleri tutulur; derlenmiş Tray uygulaması ve phishing sunucusu kopyası **Git’e dahil edilmez**. Paketi oluşturmak için Windows’ta depo kökünde:
+
+```powershell
+.\create_package.ps1
+```
+
+Bu betik `NetLiveness_Setup/TrayApp` ve `NetLiveness_Setup/Phishing` klasörlerini doldurur. Örnek tray yapılandırması: `NetLiveness_Setup/TrayApp/config.example.json`.
+
+API’nin tek porttan arayüz sunması için önce frontend derleyip `wwwroot`’a kopyalayın (`create_package.ps1` bunu da yapar) veya geliştirmede `npm run dev` kullanın.
+
+---
+
 ### 💡 Önemli Notlar
 
 *   **Veri Taşıma:** GitHub yedeği sadece kodları içerir. İş bilgisayarınızdaki gerçek personel veya anket verilerini de taşımak isterseniz; iş bilgisayarınızdaki `NetLiveness.Api/netliveness_v2.db` dosyasını yeni bilgisayarınızdaki aynı klasöre kopyalamanız yeterlidir.
