@@ -47,7 +47,9 @@ NetLiveness.Api/*.sql
 !SETUP_GUIDE.md
 
 # Published / copied build outputs (use create_package.ps1)
-NetLiveness_Setup/TrayApp/**
+dist/
+deploy.config.json
+NetLiveness_Setup/TrayApp/*
 !NetLiveness_Setup/TrayApp/config.example.json
 NetLiveness_Setup/Phishing/
 NetLiveness.Api/wwwroot/assets/

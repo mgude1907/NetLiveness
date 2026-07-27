@@ -1,0 +1,16 @@
+{
+  "ServerHost": "191.168.6.101",
+  "RemoteInstallPath": "C:\\Program Files\\NetLiveness",
+  "UseAdminShare": true,
+  "StopServices": true,
+  "StartServicesAfterDeploy": true,
+  "ServiceNames": {
+    "Api": "NetLiveness_API",
+    "Worker": "NetLiveness_Worker"
+  },
+  "RobocopyExtraArgs": ["/FFT", "/R:3", "/W:5"],
+  "PreserveOnServer": {
+    "ExcludeFiles": ["netliveness_v2.db"],
+    "ExcludeDirectories": ["uploads"]
+  }
+}

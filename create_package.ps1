@@ -1,60 +1,83 @@
 # NetLiveness Production Package Creator
-# Bu betik tüm sistemi derler ve 'NetLiveness_Setup' klasöründe toplar.
+# Derlenmiş kurulum paketini depo içinde dist\NetLiveness_Setup altına yazar.
 
-$targetDir = "C:\Users\mgude\.gemini\antigravity\scratch\NetLiveness_Setup"
-$baseDir = "C:\Users\mgude\.gemini\antigravity\scratch"
+$ErrorActionPreference = 'Stop'
+$RepoRoot = $PSScriptRoot
+$targetDir = Join-Path $RepoRoot 'dist\NetLiveness_Setup'
 
 if (Test-Path $targetDir) { Remove-Item -Recurse -Force $targetDir }
-New-Item -ItemType Directory -Path $targetDir | Out-Null
+New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
 
-echo "--- Paketleme BaYlatlyor ---"
+Write-Host '--- Paketleme başlatılıyor ---' -ForegroundColor Cyan
 
-# 0. Frontend Yeniden Derleniyor
-echo "0/4 Frontend Yeniden Derleniyor..."
-Set-Location "$baseDir\netliveness-frontend"
+# 0. Frontend
+Write-Host '0/5 Frontend derleniyor...'
+$frontDir = Join-Path $RepoRoot 'netliveness-frontend'
+Set-Location $frontDir
+if (-not (Test-Path (Join-Path $frontDir 'node_modules'))) {
+    npm install
+}
 npm run build
-Get-ChildItem -Path "$baseDir\NetLiveness.Api\wwwroot" -Exclude "uploads" | Remove-Item -Recurse -Force
-Copy-Item -Path "$baseDir\netliveness-frontend\dist\*" -Destination "$baseDir\NetLiveness.Api\wwwroot" -Recurse -Force
 
-# 1. API ve Frontend Paketleme
-echo "1/4 Backend ve Frontend Derleniyor..."
-Set-Location "$baseDir\NetLiveness.Api"
-dotnet publish -c Release -o "$targetDir\Backend" --self-contained -r win-x64
-# Frontend zaten wwwroot'a taYnmYYt (mevcut publish ile pakete dahil olur)
+$wwwroot = Join-Path $RepoRoot 'NetLiveness.Api\wwwroot'
+$uploadsDir = Join-Path $wwwroot 'uploads'
+if (Test-Path $wwwroot) {
+    Get-ChildItem -Path $wwwroot -Exclude 'uploads' | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+} else {
+    New-Item -ItemType Directory -Path $wwwroot -Force | Out-Null
+}
+if (-not (Test-Path $uploadsDir)) {
+    New-Item -ItemType Directory -Path $uploadsDir -Force | Out-Null
+}
+Copy-Item -Path (Join-Path $frontDir 'dist\*') -Destination $wwwroot -Recurse -Force
 
-# 2. Monitor Worker Paketleme
-echo "2/4 Monitor Worker Derleniyor..."
-Set-Location "$baseDir\NetLiveness.MonitorWorker"
-dotnet publish -c Release -o "$targetDir\Worker" --self-contained -r win-x64
+# 1. API
+Write-Host '1/5 Backend derleniyor...'
+Set-Location (Join-Path $RepoRoot 'NetLiveness.Api')
+dotnet publish -c Release -o (Join-Path $targetDir 'Backend') --self-contained -r win-x64
 
-# 3. Tray Application Paketleme
-echo "3/4 Tray App Derleniyor..."
-Set-Location "$baseDir\NetLiveness.Tray"
-dotnet publish -c Release -o "$targetDir\TrayApp" --self-contained -r win-x64
+# 2. Worker
+Write-Host '2/5 Monitor Worker derleniyor...'
+Set-Location (Join-Path $RepoRoot 'NetLiveness.MonitorWorker')
+dotnet publish -c Release -o (Join-Path $targetDir 'Worker') --self-contained -r win-x64
 
-# 4. Phishing Server Kopyalama
-echo "4/4 Phishing Server Dosyalar Kopyalanyor..."
-$phishingTarget = New-Item -ItemType Directory -Path "$targetDir\Phishing"
-Copy-Item -Path "$baseDir\netliveness-phishing-server\*" -Destination $phishingTarget -Recurse -Force
+# 3. Tray
+Write-Host '3/5 Tray uygulaması derleniyor...'
+$trayOut = Join-Path $targetDir 'TrayApp'
+Set-Location (Join-Path $RepoRoot 'NetLiveness.Tray')
+dotnet publish -c Release -o $trayOut --self-contained -r win-x64
 
-# 5. Yardmc Scriptler ve Kurulum Sihirbaz
-echo "5/5 Kurulum Sihirbaz ve Scriptler Hazrlanyor..."
-Copy-Item -Path "$baseDir\NetLiveness_Setup.ps1" -Destination $targetDir -Force
-Copy-Item -Path "$baseDir\Uninstall.ps1" -Destination $targetDir -Force
+$logoSrc = Join-Path $RepoRoot 'netliveness-frontend\public\repkon-logo.png'
+if (Test-Path $logoSrc) {
+    Copy-Item -Path $logoSrc -Destination (Join-Path $trayOut 'repkon-logo.png') -Force
+}
 
-$launcherContent = @"
+# 4. Phishing sunucusu (kaynak kod)
+Write-Host '4/5 Phishing sunucusu kopyalanıyor...'
+$phishingTarget = Join-Path $targetDir 'Phishing'
+New-Item -ItemType Directory -Path $phishingTarget -Force | Out-Null
+Copy-Item -Path (Join-Path $RepoRoot 'netliveness-phishing-server\*') -Destination $phishingTarget -Recurse -Force
+
+# 5. Kurulum betikleri
+Write-Host '5/5 Kurulum betikleri hazırlanıyor...'
+Copy-Item -Path (Join-Path $RepoRoot 'NetLiveness_Setup.ps1') -Destination $targetDir -Force
+Copy-Item -Path (Join-Path $RepoRoot 'Uninstall.ps1') -Destination $targetDir -Force
+Copy-Item -Path (Join-Path $RepoRoot 'register_services.ps1') -Destination $targetDir -Force
+
+@"
 @echo off
-:: Ynetici olarak alYtr (PowerShell ile)
-powershell -ExecutionPolicy Bypass -File NetLiveness_Setup.ps1
+powershell -ExecutionPolicy Bypass -File "%~dp0NetLiveness_Setup.ps1"
 exit
-"@
-$launcherContent | Out-File -FilePath "$targetDir\Kurulum_Baslat.bat" -Encoding ascii
+"@ | Out-File -FilePath (Join-Path $targetDir 'Kurulum_Baslat.bat') -Encoding ascii
 
-# 6. Varsaylan Ayarlar
-echo "Default Tray Config oluYturuluyor..."
-$defaultConfig = '{"ServerUrl": "http://localhost:5006", "WatchdogEnabled": true}'
-$defaultConfig | Out-File -FilePath "$targetDir\TrayApp\config.json" -Encoding utf8
+$exampleConfig = Join-Path $RepoRoot 'NetLiveness_Setup\TrayApp\config.example.json'
+$trayConfig = Join-Path $trayOut 'config.json'
+if (Test-Path $exampleConfig) {
+    Copy-Item -Path $exampleConfig -Destination $trayConfig -Force
+} else {
+    '{"ServerUrl": "http://localhost:5006", "WatchdogEnabled": true}' | Out-File -FilePath $trayConfig -Encoding utf8
+}
 
-echo "--- Paketleme Tamamland! ---"
-echo "Dosyalar burada: $targetDir"
-echo "Kullanm: 'Kurulum_Baslat.bat' dosyasn YNETC olarak YalYYtrn."
+Set-Location $RepoRoot
+Write-Host '--- Paketleme tamamlandı ---' -ForegroundColor Green
+Write-Host "Çıktı: $targetDir"
