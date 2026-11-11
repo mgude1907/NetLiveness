@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import React from 'react';
 import { vi } from 'vitest';
 
 // Fix for window.matchMedia not existing in JSDOM
@@ -21,7 +22,7 @@ vi.mock('recharts', async (importOriginal) => {
   const original = await importOriginal();
   return {
     ...original,
-    ResponsiveContainer: ({ children }) => <div className="recharts-responsive-container-mock">{children}</div>,
+    ResponsiveContainer: ({ children }) => React.createElement('div', { className: 'recharts-responsive-container-mock' }, children),
   };
 });
 
