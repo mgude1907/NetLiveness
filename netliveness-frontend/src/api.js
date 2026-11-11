@@ -231,6 +231,15 @@ export const uploadImage           = (file) => {
   }).then(r => r.data);
 };
 
+export const uploadVideo = (file, onUploadProgress) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return api.post('/upload/video', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress
+  }).then(r => r.data);
+};
+
 export const exportDirectoryCsv = () => {
   window.open(`${STATIC_URL}/api/directory/export`, '_blank');
 };

@@ -56,6 +56,7 @@ const NAV = [
       { to: '/iso9001',         icon: BookOpen,        text: 'ISO 9001',        color: '#1e40af', bg: 'icon-blue', module: 'Compliance' },
       { to: '/nist',            icon: Lock,            text: 'NIST 800-171',    color: '#5b21b6', bg: 'icon-violet', module: 'Compliance' },
       { to: '/facility',        icon: Shield,          text: 'Tesis Güvenliği', color: '#b45309', bg: 'icon-amber', module: 'Compliance' },
+      { to: '/training-admin',  icon: ShieldAlert,     text: 'Siber Oryantasyon', color: '#991b1b', bg: 'icon-red', module: 'CyberOrientation' },
       { to: '/file-alerts',     icon: TriangleAlert,   text: 'Dosya İzleme',    color: '#991b1b', bg: 'icon-red', module: 'Terminals' },
     ],
   },

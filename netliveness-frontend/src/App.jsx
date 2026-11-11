@@ -41,6 +41,7 @@ import Phishing from './pages/Phishing';
 import FileAlerts from './pages/FileAlerts';
 import SignatureGenerator from './pages/SignatureGenerator';
 import HelpRequestPortal from './pages/HelpRequestPortal';
+import CyberOrientationAdmin from './pages/CyberOrientationAdmin';
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -157,6 +158,7 @@ export default function App() {
             <Route path="/users" element={<ProtectedRoute auth={auth} requiredModule="Users"><Users /></ProtectedRoute>} />
             <Route path="/chat-admin" element={<ProtectedRoute auth={auth} requiredModule="Users"><ChatAdmin /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute auth={auth} requiredModule="Settings"><Settings /></ProtectedRoute>} />
+            <Route path="/training-admin" element={<ProtectedRoute auth={auth} requiredModule="CyberOrientation"><CyberOrientationAdmin /></ProtectedRoute>} />
             <Route path="/help-admin" element={<ProtectedRoute auth={auth} requiredModule="Settings"><HelpRequestAdmin /></ProtectedRoute>} />
             <Route path="/cards" element={<ProtectedRoute auth={auth} requiredModule="Cards"><CardConverter /></ProtectedRoute>} />
             <Route path="/surveys" element={<ProtectedRoute auth={auth} requiredModule="Directory"><SurveyAdmin /></ProtectedRoute>} />
